@@ -45,30 +45,6 @@ dofs = body.add_all_rigid_body_dofs()
 body.inertia_matrix = body.compute_rigid_body_inertia()
 body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
 body.keep_only_dofs(dofs='Pitch')
-# # Check:
-# awl = wi * th  # m**2
-# kb = 0.5 * draft  # m
-# kg = draft+cog # m
-# bmt = wi ** 2 / 12 / draft  # m
-# bml = th ** 2 / 12 / draft  # m
-# gmt = kb + bmt - kg  # m
-# gml = kb + bml - kg  # m
-
-# g = 9.81 # m/s**2
-# rho = 1000 # kg/m**3
-# disp = wi * th * draft # m**3
-# m = disp * rho # kg
-# c33 = rho * g * awl # N/m
-# c44 = m * g * gmt # Nm/rad
-# c55 = m * g * gml # Nm/rad
-
-# stiffnes_matrix = body.hydrostatic_stiffness.values
-
-# print('C33: {:.2f} vs {:.2f}, ratio {:.2f}'.format(stiffnes_matrix[2,2],c33,stiffnes_matrix[2,2]/c33))
-# print('C44: {:.2f} vs {:.2f}, ratio {:.2f}'.format(stiffnes_matrix[3,3],c44,stiffnes_matrix[3,3]/c44))
-# print('C55: {:.2f} vs {:.2f}, ratio {:.2f}'.format(stiffnes_matrix[4,4],c55,stiffnes_matrix[4,4]/c55))
-# #print(body.dofs.keys())
-# body.show_matplotlib()
 
 # solving hydrodynamics
 solver = cpt.BEMSolver()
@@ -84,8 +60,6 @@ rad_result = solver.solve_all(rad_prob,keep_details=(True))
 dataset = cpt.assemble_dataset(rad_result + [diff_result])
 RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
 pitch_RAO = np.array(np.abs(RAO.values))            # this is essentially the true pitch amplitude
-# print('rao magnitude',pitch_RAO)
-# print(body.dofs["Pitch"])
 
 # # hydrodynamic and hydrostatic coefficients
 # damp = dataset['radiation_damping'].sel(radiating_dof=['Pitch'],
@@ -96,17 +70,6 @@ pitch_RAO = np.array(np.abs(RAO.values))            # this is essentially the tr
 #                                     influenced_dof=['Pitch'])
 # mass = dataset['inertia_matrix'].sel(radiating_dof=['Pitch'],
 #                                      influenced_dof=['Pitch'])
-
-# print('damping',damp)
-# print('added mass', add)
-# print('stiffness', stiff)
-# print('mass',mass)
-
-# Amplitude of motion of panel with largest motion
-# print(np.max(np.linalg.norm(body.dofs["Surge"], axis=-1)))
-# 1.0
-# print(np.max(np.linalg.norm(body.dofs["Pitch"], axis=-1)))
-# 11.24 --> cog, interesting
 
 # defining the computational grid and preparing post-process data
 x1 = int(-2*lambda_wave)
@@ -134,8 +97,6 @@ plt.xlabel("x")
 plt.ylabel("y")
 colorbar = plt.colorbar()
 colorbar.set_label('Elevation')
-#colorbar.set_ticks([-1, 0, 1])  # Set custom ticks
 plt.tight_layout()
-plt.savefig(f'elev_disturb/050elev.pdf')
+plt.savefig(f'050elev.pdf')
 plt.show()
-#np.savetxt('elevation_data_rm3.csv', Z, delimiter=",")
