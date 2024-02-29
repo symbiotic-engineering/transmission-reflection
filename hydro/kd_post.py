@@ -10,7 +10,7 @@ def disturbance(kd,lam,res):
     #########################################################################################################
 
     # Extract relevant columns
-    kd_up = kd[int((res/2)*lam-1),:int((res/2)*lam)]
+    kd_up = kd[int((res/2)*lam)-1,:int((res/2)*lam)]
 
     def find_peaks(data, lambda_wave, xR):
         peaks = []
@@ -19,7 +19,7 @@ def disturbance(kd,lam,res):
                 continue
             if i == 0 or i == len(data) - 1:
                 continue
-            if xR[i] < -2*int(lambda_wave) and data[i] > data[i - 1] and data[i] > data[i + 1]:
+            if xR[i] < -1*int(lambda_wave) and data[i] > data[i - 1] and data[i] > data[i + 1]:
                 peaks.append(data[i])
         return peaks
     def avg_peak_height(data, lambda_wave, xR):
@@ -32,7 +32,7 @@ def disturbance(kd,lam,res):
     ref_K = abs(avg_kd_up) - 1
 
     ######################################## FOR DOWNSTREAM ###########################################
-    kd_down = kd[int((res/2)*lam-1),int((res/2)*lam):]
+    kd_down = kd[int((res/2)*lam)-1,int((res/2)*lam):]
 
     def peaks_down(series, lambda_wave):
         peaks = []
