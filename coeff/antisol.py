@@ -1,3 +1,4 @@
+import numpy as np
 def parameters(B, w, M, A, K, e, phi_down, phi_up):
     Z_m = B + 1j*(-w*(M + A) + (K/w))       # step 2: solve eq (11) for complex mechanical impedance
     v = e/Z_m                               # step 3: solve for complex velocity amplitude [eq (10)]
@@ -36,3 +37,29 @@ def coefficients(phi_rad, B, w, M, A, K, e, lam):
         R.append(abs(Ri))
         T.append(abs(Ti))
     return t, r, R, T
+
+def find_peaks(data, window_size):
+    peaks = []
+    for i in range(1, len(data) - 1):
+        if data[i] == max(data[max(0, i - window_size):min(len(data), i + window_size + 1)]):
+            peaks.append(i)
+    return peaks
+
+def avg_peak_height(data,window_size):
+    peaks = find_peaks(data,window_size)
+    peak_values = data[peaks]
+    average_peak_height = np.mean(peak_values)
+    return average_peak_height
+
+def avg_coeff(t, r, R, T, lam):
+    t = np.array(t)
+    r = np.array(r)
+    R = np.array(R)
+    T = np.array(T)
+    
+    window_size = int(lam//2.5)
+    avg_R = avg_peak_height(R,window_size)
+    avg_T = avg_peak_height(T,window_size)
+    avg_r = avg_peak_height(r,window_size)
+    avg_t = avg_peak_height(t,window_size)
+    return avg_R, avg_T, avg_r, avg_t

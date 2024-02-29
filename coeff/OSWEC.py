@@ -14,9 +14,9 @@ def bodysolver(w):
     draft = 16 # m
     z = 0.5*h-draft # box center [m]
     cog = -11.4     # center of gravity [m]
-    nw = 20         # number of panels along width (x)
-    nt = 5          # number of panels along thickness (y)
-    nh = 20         # number of panels along height (z)
+    nw = 15         # number of panels along width (x)
+    nt = 3          # number of panels along thickness (y)
+    nh = 15         # number of panels along height (z)
     B = 0           # wave direction [rad]
     depth = 40      # average water depth at southfork
 
@@ -78,7 +78,7 @@ def hydro(dataset, body):
     mass = body.inertia_matrix.values
     return damp, add, stiff, mass
 
-def phi_rad(w, rad_result, pitch_RAO):
+def phi_rad(w, rad_result, diff_result, pitch_RAO):
     import capytaine as cpt
     import numpy as np
     g = 9.81            # gravitational constant (m/s^2)
@@ -87,4 +87,6 @@ def phi_rad(w, rad_result, pitch_RAO):
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     solver = cpt.BEMSolver()
     radiation = (solver.compute_free_surface_elevation(grid, rad_result))*pitch_RAO  # wave el due to pitch radiation
-    return radiation, lam, grid
+    diffraction = solver.compute_free_surface_elevation(grid,diff_result)
+    tot = radiation + diffraction       # not including incident
+    return tot, lam, grid

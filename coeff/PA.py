@@ -70,7 +70,7 @@ def hydro(dataset, body):
     mass = body.inertia_matrix.values
     return damp, add, stiff, mass
 
-def phi_rad(w, rad_result):
+def phi_rad(w, rad_result, diff_result):
     import capytaine as cpt
     import numpy as np
     g = 9.81            # gravitational constant (m/s^2)
@@ -79,5 +79,6 @@ def phi_rad(w, rad_result):
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     solver = cpt.BEMSolver()
     radiation = solver.compute_free_surface_elevation(grid, rad_result)
-
-    return radiation, lam, grid
+    diffraction = solver.compute_free_surface_elevation(grid,diff_result)
+    tot = radiation #+ diffraction       # not including incident
+    return tot, lam, grid

@@ -17,9 +17,9 @@ def lpf(w,res):
     draft = 16 # m
     z = 0.5*h-draft # box center [m]
     cog = -11.4     # center of gravity [m]
-    nw = 20         # number of panels along width (x)
-    nt = 5          # number of panels along thickness (y)
-    nh = 20         # number of panels along height (z)
+    nw = 15         # number of panels along width (x)
+    nt = 3          # number of panels along thickness (y)
+    nh = 15         # number of panels along height (z)
     B = 0    #3*np.pi/4      # wave direction [rad]
     depth = 40      # average water depth at southfork
     g = 9.81            # gravitational constant (m/s^2)
