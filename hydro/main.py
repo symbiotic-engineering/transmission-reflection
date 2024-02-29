@@ -1,5 +1,7 @@
 # run all Kt and Kr calcs for any body here
 import breakwater
+import PA
+import OSWEC
 import wave_height
 import kd_post
 import numpy as np
@@ -13,7 +15,7 @@ Kr_K = []
 Kt_K = []
 w_vals = []
 for w in w:
-    kd, total, incoming_fse, lam = breakwater.lpf(w,res)
+    kd, total, incoming_fse, lam = OSWEC.lpf(w,res)
     ref_H, trans_H, EB1, EB2 = wave_height.wave_height(total, incoming_fse,lam, res)
     ref_K, trans_K, EB1, EB2 = kd_post.disturbance(kd, lam, res)
     Kr_H.append(ref_H)
