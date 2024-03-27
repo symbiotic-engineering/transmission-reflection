@@ -42,13 +42,14 @@ def lpf(w,res):
     ]
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
+    RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
+    heave_RAO = np.array(np.abs(RAO.values))            # this is essentially the true heave amplitude
 
     # generating wave height and disturbance datasets
     x1, x2, nx, y1, y2, ny = -res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
-    chosen_rad_result = rad_result[0]
-    radiation = solver.compute_free_surface_elevation(grid, chosen_rad_result)
+    radiation = solver.compute_free_surface_elevation(grid, rad_result[0])*heave_RAO
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
     total = diffraction + radiation + incoming_fse
     kd = total/incoming_fse

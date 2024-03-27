@@ -1,14 +1,14 @@
 # run all Kt and Kr calcs for any body here
-import PA_array
-import OSWEC_array
-import attenuator_array
-import breakwater_array
+import sys
+sys.path.append('../arrays')
+import wave_height
+import PA_OSWEC
 import wave_height
 import kd_post
 import numpy as np
 import matplotlib.pyplot as plt
 
-w = np.array([0.5,0.65,0.75,0.85,0.95,1.047])   # wave frequency
+w = np.array([1.047]) #0.5,0.65,0.75,0.85,0.95,1.047])   # wave frequency
 xtrans = np.array([0,0])
 ytrans = np.array([50,-50])
 
@@ -22,7 +22,7 @@ for w in w:
         res = 2
     else: 
         res = 2                                   # resolution factor of grid wrt lambda
-    kd, total, incoming_fse, lam = PA_array.lpf(w,res,xtrans,ytrans)
+    kd, total, incoming_fse, lam = PA_OSWEC.lpf(w,res,xtrans,ytrans)
     ref_H, trans_H, EB1, EB2 = wave_height.wave_height(total, incoming_fse,lam, res)
     ref_K, trans_K, EB1, EB2 = kd_post.disturbance(kd, lam, res)
     Kr_H.append(ref_H)

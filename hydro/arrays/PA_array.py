@@ -49,12 +49,18 @@ def lpf(w,res,xtrans,ytrans):
     ]
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
+    RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
+    heave_RAO = np.array(np.abs(RAO.values))            # this is essentially the true pitch amplitude
 
     # generating wave height and disturbance datasets
     x1, x2, nx, y1, y2, ny = -res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
-    radiation = sum(solver.compute_free_surface_elevation(grid, rad) for rad in rad_result[:3])
+    multiplications = []
+    for i in range(3):
+        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * heave_RAO[0,i]
+        multiplications.append(mult_result)
+    radiation = sum(multiplications)
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
     total = diffraction + radiation + incoming_fse
     kd = total/incoming_fse
