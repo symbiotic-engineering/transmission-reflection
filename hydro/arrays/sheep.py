@@ -3,6 +3,7 @@ import PA_array
 import OSWEC_array
 import attenuator_array
 import breakwater_array
+import PA_OSWEC
 import wave_height
 import kd_post
 import numpy as np
