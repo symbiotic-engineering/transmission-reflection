@@ -1,17 +1,17 @@
-def generate_swan_input(KR, KT, d, x, ya, yb):
+def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
     import subprocess
     # Calculate xe values
     xe = [xi + d for xi in x]
     # Define the commands
     commands = [
         "PROJ 'southfork' 'A11'",
-        "CGRID 0. 0. 0. 3000. 3000. 300 300 CIRCLE 100 0.05 0.25 40",
-        "INPGRID BOTTOM 0. 0. 0. 10 10 300. 300.", 
+        f"CGRID 0. 0. 0. {xgrid} {ygrid} {mxc} {myc} CIRCLE 100 0.05 0.25 40",
+        f"INPGRID BOTTOM 0. 0. 0. 10 10 {mxc} {myc}", 
         "READINP BOTTOM -1. 'bathymetry.bot' 1 0 FREE",
         "BOU SHAP JONSWAP 0.77 PEAK DSPR DEGREES",
-        "BOU SIDE N CONSTANT PAR 1.3832 6 270 15",
-        "BOU SIDE W CONSTANT PAR 1.3832 6 270 15",
-        "BOU SIDE E CONSTANT PAR 1.3832 6 270 15",
+        f"BOU SIDE N CONSTANT PAR {H} {T} 270 15",
+        f"BOU SIDE W CONSTANT PAR {H} {T} 270 15",
+        f"BOU SIDE E CONSTANT PAR {H} {T} 270 15",
         "GEN3",
         "OFF WCAP",
         "OFF QUAD",
@@ -26,8 +26,8 @@ def generate_swan_input(KR, KT, d, x, ya, yb):
     # Add the remaining commands
     commands.extend([
         "DIFFRAC",
-        "FRAME 'SFG' 0 0 0 3000 3000 100 100",
-        "OUTPUT OPTIONS '#' BLOCK 4 101",
+        f"FRAME 'SFG' 0 0 0 {xgrid} {ygrid} {mxc} {myc}",       # instead of mxc and myc it was 100
+        f"OUTPUT OPTIONS '#' BLOCK 4 {mxc + 1}",
         "BLOCK 'SFG' NOHEAD 'sfgrid.dat' LAY 4 HSIGN",
         "BLOCK 'SFG' HEAD 'sfgrid.tbl' HSIGN",
         "TEST 1,0",

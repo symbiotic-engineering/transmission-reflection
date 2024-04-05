@@ -19,7 +19,7 @@ def singlebody(w):
             res = 2
         else: 
             res = 4                                    # resolution factor of grid wrt lambda
-        kd, total, incoming_fse, lam = OSWEC.lpf(w,res)
+        kd, total, incoming_fse, lam = breakwater.lpf(w,res)
         ref_H, trans_H, EB1, EB2 = wave_height.wave_height(total, incoming_fse,lam, res)
         ref_K, trans_K, EB1, EB2 = kd_post.disturbance(kd, lam, res)
         Kr_H.append(ref_H)

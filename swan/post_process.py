@@ -1,13 +1,13 @@
-def postpro(sfgrid_dat):
+def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
     import matplotlib.pyplot as plt
     from matplotlib import ticker
     import pandas as pd
     import numpy as np
 
     h_s = pd.read_table(sfgrid_dat, sep="\s+", header=None)
-    nx, ny = (101, 101)
-    x = np.linspace(0, 3000, nx)
-    y = np.linspace(0, 3000, ny)
+    nx, ny = (mxc + 1, myc + 1)
+    x = np.linspace(0, xgrid, nx)
+    y = np.linspace(0, ygrid, ny)
     X, Y = np.meshgrid(x,y)
     fig,ax = plt.subplots(1,1)
     cp = ax.contourf(X,Y,h_s,100)

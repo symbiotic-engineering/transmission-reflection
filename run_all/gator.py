@@ -13,10 +13,20 @@ import chicken
 import alpaca
 import numpy as np
 
-w = np.array([1.047])   # wave frequency
+xgrid = 3000                                # size of grid in x-direction
+ygrid = 5000                                # size of grid in y-direction
+mxc = 300                                   # number of grid points in x
+myc = 300                                   # number of grid points in y
+
+x = [1490, 1590, 1690, 1420, 1520, 1620]    # x-position of bodies
+ya = 4500                                   # y-position of row 1
+yb = 4400                                   # y-position of row 2
+H = 1.3832                                  # avg significant wave height [m]
+T = 6                                       # avg wave period [s]
+w = np.array([2*np.pi/T])   # wave frequency
 
 Kr_H, Kt_H, Kr_K, Kt_K = chicken.singlebody(w)
 KR = [Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0]]
 KT = [Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0]]
 
-alpaca.swanrun(KR,KT)
+alpaca.swanrun(KR, KT, x, ya, yb, H, T, xgrid, ygrid, mxc, myc)

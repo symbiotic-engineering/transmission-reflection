@@ -1,6 +1,6 @@
 1
 
-                    Execution started at 20240401.135601         
+                    Execution started at 20240404.160354         
 
 
 
@@ -14,10 +14,10 @@
     
  PROJ 'southfork' 'A11'
     
- CGRID 0. 0. 0. 3000. 3000. 300 300 CIRCLE 100 0.05 0.25 40
+ CGRID 0. 0. 0. 3000 5000 300 300 CIRCLE 100 0.05 0.25 40
  Resolution in sigma-space: df/f =  0.0411
     
- INPGRID BOTTOM 0. 0. 0. 10 10 300. 300.
+ INPGRID BOTTOM 0. 0. 0. 10 10 300 300
     
  READINP BOTTOM -1. 'bathymetry.bot' 1 0 FREE
     
@@ -37,23 +37,23 @@
     
  OFF BREA
     
- OBSTACLE TRANS 0.3324241387856762 REFL 0.5493806305817124 RDIFF 1 LINE 1490 2000 1520 2000
+ OBSTACLE TRANS 0.8688017826204405 REFL 0.1074132832400796 RDIFF 1 LINE 1490 4500 1520 4500
     
- OBSTACLE TRANS 0.3324241387856762 REFL 0.5493806305817124 RDIFF 1 LINE 1590 2000 1620 2000
+ OBSTACLE TRANS 0.8688017826204405 REFL 0.1074132832400796 RDIFF 1 LINE 1590 4500 1620 4500
     
- OBSTACLE TRANS 0.3324241387856762 REFL 0.5493806305817124 RDIFF 1 LINE 1690 2000 1720 2000
+ OBSTACLE TRANS 0.8688017826204405 REFL 0.1074132832400796 RDIFF 1 LINE 1690 4500 1720 4500
     
- OBSTACLE TRANS 0.3324241387856762 REFL 0.5493806305817124 RDIFF 1 LINE 1420 900 1450 900
+ OBSTACLE TRANS 0.8688017826204405 REFL 0.1074132832400796 RDIFF 1 LINE 1420 4400 1450 4400
     
- OBSTACLE TRANS 0.3324241387856762 REFL 0.5493806305817124 RDIFF 1 LINE 1520 900 1550 900
+ OBSTACLE TRANS 0.8688017826204405 REFL 0.1074132832400796 RDIFF 1 LINE 1520 4400 1550 4400
     
- OBSTACLE TRANS 0.3324241387856762 REFL 0.5493806305817124 RDIFF 1 LINE 1620 900 1650 900
+ OBSTACLE TRANS 0.8688017826204405 REFL 0.1074132832400796 RDIFF 1 LINE 1620 4400 1650 4400
     
  DIFFRAC
     
- FRAME 'SFG' 0 0 0 3000 3000 100 100
+ FRAME 'SFG' 0 0 0 3000 5000 300 300
     
- OUTPUT OPTIONS '#' BLOCK 4 101
+ OUTPUT OPTIONS '#' BLOCK 4 301
     
  BLOCK 'SFG' NOHEAD 'sfgrid.dat' LAY 4 HSIGN
     
@@ -62,18 +62,34 @@
  TEST 1,0
     
  COMPUTE
+ ** Warning          : Corner of comp grid outside bottom grid
+ Coordinates :      0.00   5000.00
+ ** Warning          : Corner of comp grid outside bottom grid
+ Coordinates :   3000.00   5000.00
+ ** Warning          : (corner)point outside bottom grid
+       Set of output locations: BOUND_02  coordinates:     3000.00     5000.00
+ ** Warning          : (corner)point outside bottom grid
+       Set of output locations: BOUND_03  coordinates:     3000.00     5000.00
+ ** Warning          : (corner)point outside bottom grid
+       Set of output locations: BOUND_03  coordinates:        0.00     5000.00
+ ** Warning          : (corner)point outside bottom grid
+       Set of output locations: BOUND_04  coordinates:        0.00     5000.00
+ ** Warning          : (corner)point outside bottom grid
+       Set of output locations: SFG       coordinates:        0.00     5000.00
+ ** Warning          : (corner)point outside bottom grid
+       Set of output locations: SFG       coordinates:     3000.00     5000.00
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1490.00,    2000.00), and (    1520.00,    2000.00),moved to: (    1490.00,    1999.90), and (    1520.00,    1999.90), because OBSTACLE line piece was on computational grid point (    1490.00,    2000.00).
+OBSTACLE POINTS (    1490.00,    4500.00), and (    1520.00,    4500.00),moved to: (    1490.00,    4499.90), and (    1520.00,    4499.90), because OBSTACLE line piece was on computational grid point (    1490.00,    4500.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1590.00,    2000.00), and (    1620.00,    2000.00),moved to: (    1590.00,    1999.90), and (    1620.00,    1999.90), because OBSTACLE line piece was on computational grid point (    1590.00,    2000.00).
+OBSTACLE POINTS (    1590.00,    4500.00), and (    1620.00,    4500.00),moved to: (    1590.00,    4499.90), and (    1620.00,    4499.90), because OBSTACLE line piece was on computational grid point (    1590.00,    4500.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1690.00,    2000.00), and (    1720.00,    2000.00),moved to: (    1690.00,    1999.90), and (    1720.00,    1999.90), because OBSTACLE line piece was on computational grid point (    1690.00,    2000.00).
+OBSTACLE POINTS (    1690.00,    4500.00), and (    1720.00,    4500.00),moved to: (    1690.00,    4499.90), and (    1720.00,    4499.90), because OBSTACLE line piece was on computational grid point (    1690.00,    4500.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1420.00,     900.00), and (    1450.00,     900.00),moved to: (    1420.00,     899.90), and (    1450.00,     899.90), because OBSTACLE line piece was on computational grid point (    1420.00,     900.00).
+OBSTACLE POINTS (    1420.00,    4400.00), and (    1450.00,    4400.00),moved to: (    1420.00,    4399.90), and (    1450.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1420.00,    4400.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1520.00,     900.00), and (    1550.00,     900.00),moved to: (    1520.00,     899.90), and (    1550.00,     899.90), because OBSTACLE line piece was on computational grid point (    1520.00,     900.00).
+OBSTACLE POINTS (    1520.00,    4400.00), and (    1550.00,    4400.00),moved to: (    1520.00,    4399.90), and (    1550.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1520.00,    4400.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1620.00,     900.00), and (    1650.00,     900.00),moved to: (    1620.00,     899.90), and (    1650.00,     899.90), because OBSTACLE line piece was on computational grid point (    1620.00,     900.00).
+OBSTACLE POINTS (    1620.00,    4400.00), and (    1650.00,    4400.00),moved to: (    1620.00,    4399.90), and (    1650.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1620.00,    4400.00).
  ** Warning          : Limiter is de-activated in case of no quadruplets
 
 ----------------------------------------------------------------
@@ -92,7 +108,7 @@ OBSTACLE POINTS (    1620.00,     900.00), and (    1650.00,     900.00),moved t
                       : IBRAG             0 IQCM             0
                       : IVEG              0 ITURBV           0
                       : IMUD              0 IICE             0
- Spatial step         : DX       0.1000E+02 DY      0.1000E+02
+ Spatial step         : DX       0.1000E+02 DY      0.1667E+02
  Spectral bin         : df/f     0.4106E-01 DDIR    0.3600E+01
  Physical constants   : GRAV     0.9810E+01 RHO     0.1025E+04
  Wind input           : WSPEED   0.0000E+00 DIR     0.0000E+00
@@ -143,7 +159,7 @@ OBSTACLE POINTS (    1620.00,     900.00), and (    1650.00,     900.00),moved t
  iteration    2; sweep 2
  iteration    2; sweep 3
  iteration    2; sweep 4
- accuracy OK in  77.43 % of wet grid points ( 99.50 % required)
+ accuracy OK in  95.34 % of wet grid points ( 99.50 % required)
 
  iteration    3; sweep 1
  iteration    3; sweep 2
