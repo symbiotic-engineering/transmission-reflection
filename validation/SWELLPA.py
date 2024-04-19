@@ -11,7 +11,7 @@ def lpf(w,res,xtrans,ytrans):
     import matplotlib.pyplot as plt
 
     # initializing parameters
-    r = 0.256     # radius [m]
+    r = 0.256/2     # radius [m]
     l = 0.2
     draft = 0.110
     x = 6.79
@@ -25,6 +25,10 @@ def lpf(w,res,xtrans,ytrans):
     k = w**2/g      # wave number infinite depth (rad^2/m)
     lam = int(2*np.pi/k)
 
+    gauge_x = np.array([6.79, 6.79, 6.79, 6.985, 6.595, 6.205, 5.815, 5.425, 6.79, 6.4, 
+                        6.01, 5.62, 6.4, 10.335])
+    gauge_y = np.array([2.845, 3.095, 3.295, 4.2, 4.2, 4.2, 4.2, 4.2, 4.608, 4.608, 4.608, 
+                        4.608, 5.87, 4.2])
     # defining mesh
     body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
                                                             resolution=(nr,ntheta,nz),name='cyl'))
@@ -55,7 +59,7 @@ def lpf(w,res,xtrans,ytrans):
     heave_RAO = np.array(np.abs(RAO.values))            # this is essentially the true pitch amplitude
 
     # generating wave height and disturbance datasets
-    x1, x2, nx, y1, y2, ny = 0, 13, 300, 0, 8, 300 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
+    x1, x2, nx, y1, y2, ny = 5, 11, 300, 2.5, 6, 300 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
     multiplications = []
@@ -64,7 +68,7 @@ def lpf(w,res,xtrans,ytrans):
         multiplications.append(mult_result)
     radiation = sum(multiplications)
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
-    total = diffraction + radiation + incoming_fse
+    total = (diffraction + radiation + incoming_fse)*0.05
     kd = total/incoming_fse
 
     # plots
@@ -76,10 +80,13 @@ def lpf(w,res,xtrans,ytrans):
     plt.ylabel("y")
     colorbar = plt.colorbar()
     colorbar.set_label(r'Wave Elevation')
-    # plt.scatter(wecx,wecy, marker = 'o', color = 'black', s = 100)  # Add markers
+    plt.scatter(xtrans + x,ytrans + y, marker = 'o', color = 'black', s = 100)
+    plt.scatter(x,y, marker = 'o', color = 'black', s = 100)
+    plt.scatter(gauge_x,gauge_y, marker = 'o', color = 'red', s = 25)
     # plt.arrow(-50, 50, 20, 0, color='black', width=0.2, head_width=5, head_length=5)
     # plt.text(-60, 40, 'Incident Waves', color='black', fontsize=12, ha='center', va='center')
     plt.tight_layout()
+    plt.savefig('validation.pdf')
     plt.show()
 
     return kd, total, incoming_fse, lam
