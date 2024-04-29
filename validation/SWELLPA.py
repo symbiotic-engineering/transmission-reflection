@@ -1,4 +1,4 @@
-def lpf(w,res,xtrans,ytrans):
+def lpf(w,res,xtrans,ytrans,froude_number):
     # hydro
     import capytaine as cpt
     from scipy.linalg import block_diag
@@ -11,13 +11,13 @@ def lpf(w,res,xtrans,ytrans):
     import matplotlib.pyplot as plt
 
     # initializing parameters
-    r = 0.256/2     # radius [m]
-    l = 0.2
-    draft = 0.110
-    x = 6.79
-    y = 4.2
-    nr = 5         # number of panels along radius
-    ntheta = 10     # number of panels in theta direction
+    r = (0.256/2)#/froude_number     # radius [m]
+    l = (0.2)#/froude_number
+    draft = 0.110#/froude_number
+    x = 6.79#/froude_number
+    y = 4.2#/froude_number
+    nr = 30         # number of panels along radius
+    ntheta = 30     # number of panels in theta direction
     nz = 5         # number of panels in z-direction
     z = 0.5*l-draft
     B = 3*np.pi/2          # wave direction [rad]
@@ -26,16 +26,20 @@ def lpf(w,res,xtrans,ytrans):
     lam = int(2*np.pi/k)
 
     gauge_x = np.array([6.79, 6.79, 6.79, 6.985, 6.595, 6.205, 5.815, 5.425, 6.79, 6.4, 
-                        6.01, 5.62, 6.4, 10.335])
+                        6.01, 5.62, 6.4, 10.335, 6.79, 6.4, 6.01, 5.62, 6.4])#/froude_number
     gauge_y = np.array([2.845, 3.095, 3.295, 4.2, 4.2, 4.2, 4.2, 4.2, 4.608, 4.608, 4.608, 
-                        4.608, 5.87, 4.2])
+                        4.608, 5.87, 4.2, 4.2, 4.2, 4.2, 4.2, 5.07])#/froude_number
     # defining mesh
-    body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
-                                                            resolution=(nr,ntheta,nz),name='cyl'))
+    body = cpt.FloatingBody(mesh=cpt.mesh_sphere(radius=r,center=(x,y,z),
+                                                        resolution=(nr,ntheta),name='cyl'),
+                                                        dofs=cpt.rigid_body_dofs(rotation_center=(0,0,-0.096)))#/froude_number)))
+    # body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
+    #                                                         resolution=(nr,ntheta,nz),name='cyl'))
     body.keep_immersed_part()
-    body.center_of_mass=(0,0,z)
+    body.center_of_mass=(0,0,-0.096)#/froude_number)
     body.add_all_rigid_body_dofs()
     body.inertia_matrix = body.compute_rigid_body_inertia()
+    #print(body.inertia_matrix)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
     body.keep_only_dofs(dofs='Heave')
 
@@ -56,7 +60,32 @@ def lpf(w,res,xtrans,ytrans):
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
     RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
-    heave_RAO = np.array(np.abs(RAO.values))            # this is essentially the true pitch amplitude
+    Heave_RAO = np.array(np.abs(RAO.values))            # this is essentially the true Heave amplitude
+    print('Heave_rao',Heave_RAO)
+    # hydro coeffs
+    damp = np.array([dataset['radiation_damping'].sel(radiating_dof=dof,
+                                            influenced_dof=dof) for dof in array.dofs])
+    add = np.array([dataset['added_mass'].sel(radiating_dof=dof,
+                                            influenced_dof=dof) for dof in array.dofs])
+    stiff = body.hydrostatic_stiffness.values
+    mass = body.inertia_matrix.values
+    inertial_term = [-w**2*(int(mass) + A) for A in add]
+    mech_term = [-1j*w*B + int(stiff) for B in damp]
+    transfer_matrix = [inertial + mech for inertial, mech in zip(inertial_term, mech_term)]
+    #print('H_ij', transfer_matrix)
+    excitationForce_SWELL = np.array([14.1671613442475, 13.0182310220433, 14.5447868563746])#/(froude_number**3)
+    FK1 = froude_krylov_force(diff_prob)['cyl__Heave']
+    FK2 = froude_krylov_force(diff_prob)['2__Heave']
+    FK3 = froude_krylov_force(diff_prob)['3__Heave']
+    FK = np.array([FK1,FK2,FK3])
+    diff_force = np.array([diff_result.forces['cyl__Heave'],diff_result.forces['2__Heave'],
+                            diff_result.forces['3__Heave']])
+    F_ex = (FK + diff_force)*0.05
+    print(abs(F_ex))
+    FexError = (abs(F_ex) - excitationForce_SWELL)/excitationForce_SWELL
+    print('error',FexError)
+    experimental_RAO = np.abs([force / term for force, term in zip(excitationForce_SWELL, transfer_matrix)])
+    #print('RAO',experimental_RAO)
 
     # generating wave height and disturbance datasets
     x1, x2, nx, y1, y2, ny = 5, 11, 300, 2.5, 6, 300 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
@@ -64,15 +93,15 @@ def lpf(w,res,xtrans,ytrans):
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
     multiplications = []
     for i in range(3):
-        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * heave_RAO[0,i]
+        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]# Heave_RAO[0,i]
         multiplications.append(mult_result)
     radiation = sum(multiplications)
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
-    total = (diffraction + radiation + incoming_fse)*0.05
+    total = (diffraction + radiation + incoming_fse)*0.05#/(froude_number)
     kd = total/incoming_fse
 
     # plots
-    Z = np.abs(total)
+    Z = np.real(total)
     X = grid[0]
     Y = grid[1]
     plt.pcolormesh(X, Y, Z) #, cmap=cmap,vmin=0,vmax=2.5)
@@ -89,4 +118,12 @@ def lpf(w,res,xtrans,ytrans):
     plt.savefig('validation.pdf')
     plt.show()
 
-    return kd, total, incoming_fse, lam
+    # After calculating 'total' in your function, add the following lines:
+    # Create a grid of points from gauge_x and gauge_y
+    points = np.column_stack((gauge_x, gauge_y))
+    # Interpolate 'total' onto the gauge points
+    elevation_at_gauges = griddata((X.ravel(), Y.ravel()), total.ravel(), points, method='linear')
+    print(np.abs(elevation_at_gauges))
+    # total_at_gauges now contains the values of 'total' at the gauge locations specified by gauge_x and gauge_y
+
+    return kd, total, incoming_fse, lam, elevation_at_gauges
