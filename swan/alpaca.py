@@ -8,5 +8,5 @@ def swanrun(KR,KT,x,ya,yb,H,T,xgrid,ygrid,mxc,myc):
     d = 30
 
     sfgrid_dat, sfgrid_tbl = run_swan.generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc)
-    post_process.postpro(sfgrid_dat,xgrid,ygrid,mxc,myc)
-    return
+    waveHeight = post_process.postpro(sfgrid_dat,xgrid,ygrid,mxc,myc)
+    return waveHeight

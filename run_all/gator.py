@@ -15,8 +15,8 @@ import numpy as np
 
 xgrid = 3000                                # size of grid in x-direction
 ygrid = 5000                                # size of grid in y-direction
-mxc = 300                                   # number of grid points in x
-myc = 300                                   # number of grid points in y
+mxc = 300                                   # number of grid points in x (-1)
+myc = 300                                   # number of grid points in y (-1)
 
 x = [1490, 1590, 1690, 1420, 1520, 1620]    # x-position of bodies
 ya = 4500                                   # y-position of row 1
@@ -29,4 +29,4 @@ Kr_H, Kt_H, Kr_K, Kt_K = chicken.singlebody(w)
 KR = [Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0]]
 KT = [Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0]]
 
-alpaca.swanrun(KR, KT, x, ya, yb, H, T, xgrid, ygrid, mxc, myc)
+waveHeight = alpaca.swanrun(KR, KT, x, ya, yb, H, T, xgrid, ygrid, mxc, myc)

@@ -5,6 +5,7 @@ def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
     import numpy as np
 
     h_s = pd.read_table(sfgrid_dat, sep="\s+", header=None)
+    waveHeight = np.savetxt('wave_elevation.csv',h_s,delimiter=',')
     nx, ny = (mxc + 1, myc + 1)
     x = np.linspace(0, xgrid, nx)
     y = np.linspace(0, ygrid, ny)
@@ -23,4 +24,4 @@ def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
     plt.tight_layout()
     plt.savefig('test.pdf')
     plt.show()
-    return
+    return waveHeight
