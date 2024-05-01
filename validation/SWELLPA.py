@@ -9,6 +9,7 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     import pandas as pd
     import csv
     import matplotlib.pyplot as plt
+    import xarray as xr
 
     # initializing parameters
     r = (0.256/2)#/froude_number     # radius [m]
@@ -16,29 +17,50 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     draft = 0.110#/froude_number
     x = 6.79#/froude_number
     y = 4.2#/froude_number
-    nr = 30         # number of panels along radius
-    ntheta = 30     # number of panels in theta direction
-    nz = 5         # number of panels in z-direction
+    nr = 20         # number of panels along radius
+    ntheta = 20     # number of panels in theta direction
+    nz = 10         # number of panels in z-direction
     z = 0.5*l-draft
-    B = 3*np.pi/2          # wave direction [rad]
+    B = np.pi/2          # wave direction [rad]
     g = 9.81        # gravitational constant (m/s^2)
     k = w**2/g      # wave number infinite depth (rad^2/m)
     lam = int(2*np.pi/k)
+    cob = -0.021
+    CGz = 0.094
+    CGy = 0.022
 
     gauge_x = np.array([6.79, 6.79, 6.79, 6.985, 6.595, 6.205, 5.815, 5.425, 6.79, 6.4, 
                         6.01, 5.62, 6.4, 10.335, 6.79, 6.4, 6.01, 5.62, 6.4])#/froude_number
     gauge_y = np.array([2.845, 3.095, 3.295, 4.2, 4.2, 4.2, 4.2, 4.2, 4.608, 4.608, 4.608, 
                         4.608, 5.87, 4.2, 4.2, 4.2, 4.2, 4.2, 5.07])#/froude_number
     # defining mesh
-    body = cpt.FloatingBody(mesh=cpt.mesh_sphere(radius=r,center=(x,y,z),
-                                                        resolution=(nr,ntheta),name='cyl'),
-                                                        dofs=cpt.rigid_body_dofs(rotation_center=(0,0,-0.096)))#/froude_number)))
-    # body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
-    #                                                         resolution=(nr,ntheta,nz),name='cyl'))
+    # body = cpt.FloatingBody(mesh=cpt.mesh_sphere(radius=r,center=(x,y,z),
+    #                                                     resolution=(nr,ntheta),name='cyl'),
+    #                                                     dofs=cpt.rigid_body_dofs(rotation_center=(0,CGy,CGz)))#/froude_number)))
+    body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
+                                                            resolution=(nr,ntheta,nz),name='cyl'),
+                                                            dofs=cpt.rigid_body_dofs(rotation_center=(0,CGy,CGz)))
     body.keep_immersed_part()
-    body.center_of_mass=(0,0,-0.096)#/froude_number)
+    body.center_of_mass=(0,CGy,CGz)#/froude_number)
     body.add_all_rigid_body_dofs()
-    body.inertia_matrix = body.compute_rigid_body_inertia()
+    print('cob',body.center_of_buoyancy)
+    m_arm = 1.157                   # mass of arm
+    m_float = 4                     # mass of float
+    m = m_arm + m_float
+    def mass_matrix(m,r,x=0.,y=0.):
+        M = np.eye(6)*m
+        M[3:,3:] *= r**2
+        
+        # Rotation about global origin. Adjust mass matrix accordingly:
+        M[3,3] += m*x**2 
+        M[4,4] += m*y**2 
+        return M
+    M = mass_matrix(m,r)
+    body.inertia_matrix = xr.DataArray(M, dims=['influenced_dof', 'radiating_dof'],
+                                        coords={'influenced_dof': list(body.dofs),'radiating_dof': list(body.dofs)},
+                                        name='inertia_matrix')
+    
+    #body.inertia_matrix = body.compute_rigid_body_inertia()
     #print(body.inertia_matrix)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
     body.keep_only_dofs(dofs='Heave')
@@ -47,7 +69,7 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
     array.add_all_rigid_body_dofs()
     array.keep_only_dofs(dofs=['cyl__Heave','2__Heave','3__Heave'])
-    # array.show_matplotlib()
+    #array.show_matplotlib()
 
     # solving hydrodynamics
     solver = cpt.BEMSolver()
@@ -73,7 +95,7 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     mech_term = [-1j*w*B + int(stiff) for B in damp]
     transfer_matrix = [inertial + mech for inertial, mech in zip(inertial_term, mech_term)]
     #print('H_ij', transfer_matrix)
-    excitationForce_SWELL = np.array([14.1671613442475, 13.0182310220433, 14.5447868563746])#/(froude_number**3)
+    excitationForce_SWELL = np.array([17.0947148425932, 15.7179554013022, 17.5956099088629])#/(froude_number**3)
     FK1 = froude_krylov_force(diff_prob)['cyl__Heave']
     FK2 = froude_krylov_force(diff_prob)['2__Heave']
     FK3 = froude_krylov_force(diff_prob)['3__Heave']
@@ -88,12 +110,12 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     #print('RAO',experimental_RAO)
 
     # generating wave height and disturbance datasets
-    x1, x2, nx, y1, y2, ny = 5, 11, 300, 2.5, 6, 300 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
+    x1, x2, nx, y1, y2, ny = 5, 11, 200, 2.5, 6, 200 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
     multiplications = []
     for i in range(3):
-        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]# Heave_RAO[0,i]
+        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0] #Heave_RAO[0,i]
         multiplications.append(mult_result)
     radiation = sum(multiplications)
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
