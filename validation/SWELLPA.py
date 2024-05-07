@@ -1,4 +1,4 @@
-def lpf(w,res,xtrans,ytrans,froude_number):
+def lpf(w,res,xtrans,ytrans,froude_number,farm):
     # hydro
     import capytaine as cpt
     from scipy.linalg import block_diag
@@ -12,27 +12,27 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     import xarray as xr
 
     # initializing parameters
-    r = (0.256/2)#/froude_number     # radius [m]
-    l = (0.2)#/froude_number
-    draft = 0.110#/froude_number
-    x = 6.79#/froude_number
-    y = 4.2#/froude_number
+    r = (0.256/2)/froude_number     # radius [m]
+    l = (0.2)/froude_number
+    draft = 0.110/froude_number
+    x = 6.79/froude_number
+    y = -1*4.2/froude_number
     nr = 20         # number of panels along radius
     ntheta = 20     # number of panels in theta direction
     nz = 10         # number of panels in z-direction
     z = 0.5*l-draft
-    B = np.pi/2          # wave direction [rad]
+    B = 3*np.pi/2          # wave direction [rad]
     g = 9.81        # gravitational constant (m/s^2)
     k = w**2/g      # wave number infinite depth (rad^2/m)
     lam = int(2*np.pi/k)
-    cob = -0.021
-    CGz = 0.094
-    CGy = 0.022
+    cob = -0.021/froude_number
+    CGz = 0.094/froude_number
+    CGy = 0.022/froude_number
 
     gauge_x = np.array([6.79, 6.79, 6.79, 6.985, 6.595, 6.205, 5.815, 5.425, 6.79, 6.4, 
-                        6.01, 5.62, 6.4, 10.335, 6.79, 6.4, 6.01, 5.62, 6.4])#/froude_number
-    gauge_y = np.array([2.845, 3.095, 3.295, 4.2, 4.2, 4.2, 4.2, 4.2, 4.608, 4.608, 4.608, 
-                        4.608, 5.87, 4.2, 4.2, 4.2, 4.2, 4.2, 5.07])#/froude_number
+                        6.01, 5.62, 6.4, 10.335])/froude_number #, 6.79, 6.4, 6.01, 5.62, 6.4])/froude_number
+    gauge_y = -1*np.array([2.845, 3.095, 3.295, 4.2, 4.2, 4.2, 4.2, 4.2, 4.608, 4.608, 4.608, 
+                        4.608, 5.87, 4.2])/froude_number #, 4.2, 4.2, 4.2, 4.2, 5.07])/froude_number
     # defining mesh
     # body = cpt.FloatingBody(mesh=cpt.mesh_sphere(radius=r,center=(x,y,z),
     #                                                     resolution=(nr,ntheta),name='cyl'),
@@ -44,8 +44,8 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     body.center_of_mass=(0,CGy,CGz)#/froude_number)
     body.add_all_rigid_body_dofs()
     print('cob',body.center_of_buoyancy)
-    m_arm = 1.157                   # mass of arm
-    m_float = 4                     # mass of float
+    m_arm = 1.157/froude_number**3                   # mass of arm
+    m_float = 4/froude_number**3                     # mass of float
     m = m_arm + m_float
     def mass_matrix(m,r,x=0.,y=0.):
         M = np.eye(6)*m
@@ -71,6 +71,9 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     array.keep_only_dofs(dofs=['cyl__Heave','2__Heave','3__Heave'])
     #array.show_matplotlib()
 
+    if farm == False:
+        array = body
+    
     # solving hydrodynamics
     solver = cpt.BEMSolver()
     diff_prob = cpt.DiffractionProblem(body=array, wave_direction=B, omega=w)
@@ -84,6 +87,7 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
     Heave_RAO = np.array(np.abs(RAO.values))            # this is essentially the true Heave amplitude
     print('Heave_rao',Heave_RAO)
+
     # hydro coeffs
     damp = np.array([dataset['radiation_damping'].sel(radiating_dof=dof,
                                             influenced_dof=dof) for dof in array.dofs])
@@ -95,31 +99,44 @@ def lpf(w,res,xtrans,ytrans,froude_number):
     mech_term = [-1j*w*B + int(stiff) for B in damp]
     transfer_matrix = [inertial + mech for inertial, mech in zip(inertial_term, mech_term)]
     #print('H_ij', transfer_matrix)
-    excitationForce_SWELL = np.array([17.0947148425932, 15.7179554013022, 17.5956099088629])#/(froude_number**3)
-    FK1 = froude_krylov_force(diff_prob)['cyl__Heave']
-    FK2 = froude_krylov_force(diff_prob)['2__Heave']
-    FK3 = froude_krylov_force(diff_prob)['3__Heave']
-    FK = np.array([FK1,FK2,FK3])
-    diff_force = np.array([diff_result.forces['cyl__Heave'],diff_result.forces['2__Heave'],
-                            diff_result.forces['3__Heave']])
+    if farm==False:
+        excitationForce_SWELL = np.array([17.3403])/(froude_number**3)
+        FK = froude_krylov_force(diff_prob)['Heave']
+        diff_force = diff_result.forces['Heave']
+    else:
+        excitationForce_SWELL = np.array([17.0947148425932, 15.7179554013022, 17.5956099088629])/(froude_number**3)
+        FK1 = froude_krylov_force(diff_prob)['cyl__Heave']
+        FK2 = froude_krylov_force(diff_prob)['2__Heave']
+        FK3 = froude_krylov_force(diff_prob)['3__Heave']
+        FK = np.array([FK1,FK2,FK3])
+        diff_force = np.array([diff_result.forces['cyl__Heave'],diff_result.forces['2__Heave'],
+                                diff_result.forces['3__Heave']])
+    
     F_ex = (FK + diff_force)*0.05
     print(abs(F_ex))
     FexError = (abs(F_ex) - excitationForce_SWELL)/excitationForce_SWELL
     print('error',FexError)
-    experimental_RAO = np.abs([force / term for force, term in zip(excitationForce_SWELL, transfer_matrix)])
+
+    experimental_RAO = np.abs([force / term for force, term in zip(excitationForce_SWELL*froude_number**3, transfer_matrix)])
     #print('RAO',experimental_RAO)
 
-    # generating wave height and disturbance datasets
-    x1, x2, nx, y1, y2, ny = 5, 11, 200, 2.5, 6, 200 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
+    # generating wave height and disturbance datasets (5, 11, 2.5, 6)
+    x1, x2, nx, y1, y2, ny = 5/froude_number, 11/froude_number, 300, -1*2.5/froude_number, -1*6/froude_number, 300 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
     multiplications = []
-    for i in range(3):
-        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0] #Heave_RAO[0,i]
-        multiplications.append(mult_result)
-    radiation = sum(multiplications)
+    if farm == False:
+        for i in range(1):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0] #Heave_RAO[0,i]
+            multiplications.append(mult_result)
+        radiation = sum(multiplications)
+    else:
+        for i in range(3):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0] #Heave_RAO[0,i]
+            multiplications.append(mult_result)
+        radiation = sum(multiplications)
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
-    total = (diffraction + radiation + incoming_fse)*0.05#/(froude_number)
+    total = (diffraction + radiation + incoming_fse)*0.05/(froude_number)
     kd = total/incoming_fse
 
     # plots
