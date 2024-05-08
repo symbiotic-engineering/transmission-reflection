@@ -1,4 +1,4 @@
-def lpf(w,res,xtrans,ytrans):
+def lpf(w,res,xtrans,ytrans,farm):
     # hydro
     import capytaine as cpt
     from scipy.linalg import block_diag
@@ -42,6 +42,9 @@ def lpf(w,res,xtrans,ytrans):
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
     array.add_all_rigid_body_dofs()
     array.keep_only_dofs(dofs=['rect__Pitch','2__Pitch','3__Pitch'])
+    
+    if farm == False:
+        array = body
     # array.show_matplotlib()
 
     # solving hydrodynamics
@@ -62,11 +65,17 @@ def lpf(w,res,xtrans,ytrans):
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)  # wave el due to diffraction
     multiplications = []
-    for i in range(3):
-        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * pitch_RAO[0,i]
-        multiplications.append(mult_result)
+    if farm == False:
+        for i in range(1):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * pitch_RAO[0,i]
+            multiplications.append(mult_result)
+    else:
+        for i in range(3):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * pitch_RAO[0,i]
+            multiplications.append(mult_result)
     radiation = sum(multiplications)
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)     # incident wave el
     total = diffraction + radiation + incoming_fse                          # total wave el
     kd = total/incoming_fse
+
     return kd, total, incoming_fse, lam

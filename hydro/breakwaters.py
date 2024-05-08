@@ -1,5 +1,5 @@
 # hydrostatic calcs
-def lpf(w, res,xtrans,ytrans):
+def lpf(w, res,xtrans,ytrans,farm):
     import capytaine as cpt
     from scipy.linalg import block_diag
     from scipy.spatial import Delaunay
@@ -41,6 +41,9 @@ def lpf(w, res,xtrans,ytrans):
 
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
     array.add_all_rigid_body_dofs()
+
+    if farm == False:
+        array = body
     #array.show_matplotlib()
 
     # solving diffraction
@@ -55,4 +58,5 @@ def lpf(w, res,xtrans,ytrans):
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
     total = fse + incoming_fse
     kd = total/incoming_fse
+    
     return kd, total, incoming_fse, lam

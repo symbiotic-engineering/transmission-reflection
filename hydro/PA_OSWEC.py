@@ -1,4 +1,4 @@
-def lpf(w,res,xtrans,ytrans):
+def lpf(w,res,xtrans,ytrans,farm):
     # hydro
     import capytaine as cpt
     from scipy.linalg import block_diag
@@ -79,7 +79,6 @@ def lpf(w,res,xtrans,ytrans):
 
     RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
     body_RAO = np.array(np.abs(RAO.values))            # this is essentially the true pitch amplitude
-    print('heave_RAO',body_RAO[0,0])
 
     # generating wave height and disturbance datasets
     x1, x2, nx, y1, y2, ny = -res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
@@ -92,15 +91,15 @@ def lpf(w,res,xtrans,ytrans):
     total = diffraction + radiation + incoming_fse
     kd = total/incoming_fse
 
-    Z = np.real(radiation)
-    X = grid[0]
-    Y = grid[1]
-    plt.pcolormesh(X, Y, Z)
-    plt.xlabel("x")
-    plt.ylabel("y")
-    colorbar = plt.colorbar()
-    colorbar.set_label('Radiated Wave Field')
-    plt.tight_layout()
-    plt.savefig('radiation.pdf')
-    plt.show()
+    # Z = np.real(radiation)
+    # X = grid[0]
+    # Y = grid[1]
+    # plt.pcolormesh(X, Y, Z)
+    # plt.xlabel("x")
+    # plt.ylabel("y")
+    # colorbar = plt.colorbar()
+    # colorbar.set_label('Radiated Wave Field')
+    # plt.tight_layout()
+    # plt.savefig('radiation.pdf')
+    # plt.show()
     return kd, total, incoming_fse, lam

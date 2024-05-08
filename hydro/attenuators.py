@@ -1,5 +1,7 @@
-def lpf(w,res,xtrans,ytrans):
+def lpf(w,res,N,D,farm):
     # hydro
+    # N = number of bodies = 4
+    # D = distance btwn bodies = 30
     import capytaine as cpt
     from scipy.linalg import block_diag
     import numpy as np
@@ -31,12 +33,16 @@ def lpf(w,res,xtrans,ytrans):
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
 
     # create whole body
-    array = body.assemble_regular_array(30,(4,3))
+    array = body.assemble_regular_array(D,(4,N))
     array.add_all_rigid_body_dofs()
     array.keep_only_dofs(dofs=['0_0__Pitch','1_0__Pitch','2_0__Pitch','3_0__Pitch','0_1__Pitch','1_1__Pitch',
                                '2_1__Pitch','3_1__Pitch','0_2__Pitch','1_2__Pitch','2_2__Pitch','3_2__Pitch'])
 
-
+    if farm == False:
+        array = body.assemble_regular_array(30,(4,1))
+        array.add_all_rigid_body_dofs()
+        array.keep_only_dofs(dofs=['0_0__Pitch','1_0__Pitch','2_0__Pitch','3_0__Pitch'])
+    
     # solving hydrodynamics
     solver = cpt.BEMSolver()
     diff_prob = cpt.DiffractionProblem(body=array, wave_direction=B, water_depth=depth,omega=w)
@@ -56,12 +62,17 @@ def lpf(w,res,xtrans,ytrans):
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
     multiplications = []
-    for i in range(12):
-        mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * pitch_RAO[0,i]
-        multiplications.append(mult_result)
+    if farm == False:
+        for i in range(4):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * pitch_RAO[0,i]
+            multiplications.append(mult_result)
+    else:
+        for i in range(4*N):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * pitch_RAO[0,i]
+            multiplications.append(mult_result)
     radiation = sum(multiplications)
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
-    rad_dif = radiation + diffraction
     total = radiation + diffraction + incoming_fse
     kd = total/incoming_fse
+
     return kd, total, incoming_fse, lam
