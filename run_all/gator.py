@@ -3,7 +3,7 @@ import os
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
-hydro_dir = os.path.join(parent_dir, 'hydro', 'single')
+hydro_dir = os.path.join(parent_dir, 'hydro')
 swan_dir = os.path.join(parent_dir, 'swan')
 
 sys.path.append(hydro_dir)
@@ -25,7 +25,7 @@ H = 1.3832                                  # avg significant wave height [m]
 T = 6                                       # avg wave period [s]
 w = np.array([2*np.pi/T])   # wave frequency
 
-Kr_H, Kt_H, Kr_K, Kt_K = chicken.singlebody(w)
+Kr_H, Kt_H, Kr_K, Kt_K = chicken.wec_run(w)
 KR = [Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0]]
 KT = [Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0]]
 

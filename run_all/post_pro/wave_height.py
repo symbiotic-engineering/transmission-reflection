@@ -8,7 +8,7 @@ myc = 300                                   # number of grid points in y
 x_conversion = xgrid/(mxc + 1)
 y_conversion = ygrid/(myc + 1)
 
-Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/run_all/wave_elevation.csv',delimiter=',')
+Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/wave_elevation.csv',delimiter=',')
 Hs = Hs.reshape(mxc + 1,myc + 1)
 
 x = [1490, 1590, 1690, 1420, 1520, 1620]    # x-position of bodies
