@@ -13,7 +13,7 @@ def wec_run(w):
 
     # if you want an array, farm = True
     # for single body, farm = False
-    farm = False
+    farm = True
     rad = False                                      # only false for breakwater case
 
     B = 0                                           # wave direction [rad]
