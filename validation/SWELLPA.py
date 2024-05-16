@@ -1,4 +1,4 @@
-def lpf(w,res,xtrans,ytrans,froude_number,farm):
+def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     # hydro
     import capytaine as cpt
     from scipy.linalg import block_diag
@@ -34,16 +34,13 @@ def lpf(w,res,xtrans,ytrans,froude_number,farm):
     gauge_y = -1*np.array([2.845, 3.095, 3.295, 4.2, 4.2, 4.2, 4.2, 4.2, 4.608, 4.608, 4.608, 
                         4.608, 5.87, 4.2])/froude_number #, 4.2, 4.2, 4.2, 4.2, 5.07])/froude_number
     # defining mesh
-    # body = cpt.FloatingBody(mesh=cpt.mesh_sphere(radius=r,center=(x,y,z),
-    #                                                     resolution=(nr,ntheta),name='cyl'),
-    #                                                     dofs=cpt.rigid_body_dofs(rotation_center=(0,CGy,CGz)))#/froude_number)))
     body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
                                                             resolution=(nr,ntheta,nz),name='cyl'),
                                                             dofs=cpt.rigid_body_dofs(rotation_center=(0,CGy,CGz)))
     body.keep_immersed_part()
-    body.center_of_mass=(0,CGy,CGz)#/froude_number)
+    body.center_of_mass=(0,CGy,CGz)
     body.add_all_rigid_body_dofs()
-    print('cob',body.center_of_buoyancy)
+
     m_arm = 1.157/froude_number**3                   # mass of arm
     m_float = 4/froude_number**3                     # mass of float
     m = m_arm + m_float
@@ -60,8 +57,6 @@ def lpf(w,res,xtrans,ytrans,froude_number,farm):
                                         coords={'influenced_dof': list(body.dofs),'radiating_dof': list(body.dofs)},
                                         name='inertia_matrix')
     
-    #body.inertia_matrix = body.compute_rigid_body_inertia()
-    #print(body.inertia_matrix)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
     body.keep_only_dofs(dofs='Heave')
 
@@ -69,24 +64,64 @@ def lpf(w,res,xtrans,ytrans,froude_number,farm):
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
     array.add_all_rigid_body_dofs()
     array.keep_only_dofs(dofs=['cyl__Heave','2__Heave','3__Heave'])
-    #array.show_matplotlib()
 
     if farm == False:
         array = body
     
+    # # initializing parameters
+    # wi = 19.3         # width of box [m]
+    # th = 1          # thickness of box [m]
+    # h = 2           # height of box [m]
+    # xwall = 0
+    # ywall = -10
+    # z = -0.5        # box center [m]
+    # nw = 15         # number of panels along width (x)
+    # nt = 2         # number of panels along thickness (y)
+    # nh = 3          # number of panels along height (z)
+
+    # # defining mesh
+    # wall = cpt.FloatingBody(cpt.meshes.predefined.rectangles.mesh_parallelepiped(size=(th, wi, h), 
+    #                                                                              resolution=(nt, nw, nh), 
+    #                                                                              center=(xwall, ywall, z), 
+    #                                                                              name='wall'))
+    # wall.keep_immersed_part()
+    # wall.center_of_mass=(0,0,-h/2)
+    # wall.add_all_rigid_body_dofs()
+    # wall.inertia_matrix = wall.compute_rigid_body_inertia()
+    # wall.hydrostatic_stiffness = wall.compute_hydrostatic_stiffness()
+    # wall_dist = 14.6 + (th/2)
+
+    # back_wall = cpt.FloatingBody(cpt.meshes.predefined.rectangles.mesh_parallelepiped(size=(wi, th, h), 
+    #                                                                              resolution=(nw, nt, nh), 
+    #                                                                              center=(8, -20, z), 
+    #                                                                              name='backwall'))
+    # back_wall.keep_immersed_part()
+    # back_wall.center_of_mass=(0,0,-h/2)
+    # back_wall.add_all_rigid_body_dofs()
+    # back_wall.inertia_matrix = back_wall.compute_rigid_body_inertia()
+    # back_wall.hydrostatic_stiffness = back_wall.compute_hydrostatic_stiffness()
+
+    # walls = wall + wall.translated((wall_dist,0,0),name='wall2') + back_wall
+    # walls.add_all_rigid_body_dofs()
+    # walls.show_matplotlib()
+
+
     # solving hydrodynamics
     solver = cpt.BEMSolver()
-    diff_prob = cpt.DiffractionProblem(body=array, wave_direction=B, omega=w)
+    diff_prob = cpt.DiffractionProblem(body=array, water_depth=depth, wave_direction=B, omega=w)
     diff_result = solver.solve(diff_prob,keep_details=(True))
     rad_prob = [
-    cpt.RadiationProblem(body=array, radiating_dof=dof, omega=w)
+    cpt.RadiationProblem(body=array, water_depth=depth, radiating_dof=dof, omega=w)
     for dof in array.dofs
     ]
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
     RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
-    Heave_RAO = np.array(np.abs(RAO.values))            # this is essentially the true Heave amplitude
-    print('Heave_rao',Heave_RAO)
+    RAO = np.array(np.abs(RAO.values))            # this is essentially the true Heave amplitude
+    print('rao',RAO)
+
+    #wall_diff = cpt.DiffractionProblem(body=walls, water_depth=depth, wave_direction=B, omega=w)
+    #wall_diff_result = solver.solve(wall_diff,keep_details=(True))
 
     # hydro coeffs
     damp = np.array([dataset['radiation_damping'].sel(radiating_dof=dof,
@@ -118,11 +153,12 @@ def lpf(w,res,xtrans,ytrans,froude_number,farm):
     print('error',FexError)
 
     experimental_RAO = np.abs([force / term for force, term in zip(excitationForce_SWELL*froude_number**3, transfer_matrix)])
-    #print('RAO',experimental_RAO)
+    print('RAO',experimental_RAO)
 
     # generating wave height and disturbance datasets (5, 11, 2.5, 6)
-    x1, x2, nx, y1, y2, ny = 5/froude_number, 11/froude_number, 300, -1*2.5/froude_number, -1*6/froude_number, 300 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
+    x1, x2, nx, y1, y2, ny = 5/froude_number, 10/froude_number, 300, -1*2/froude_number, -1*15/froude_number, 300 #-res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
+    # wall_diffraction = solver.compute_free_surface_elevation(grid, wall_diff_result)
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)
     multiplications = []
     if farm == False:

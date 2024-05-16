@@ -10,10 +10,11 @@ T = 1.5/np.sqrt(froude_number)                 # period in seconds
 w = np.array([2*np.pi/T])   # wave frequency
 xtrans = np.array([-0.39,-0.78])/froude_number
 ytrans = np.array([0,0])
+depth = 0.9/froude_number
 
 for w in w:
     if w < 0.8:
         res = 2
     else: 
         res = 4                                   # resolution factor of grid wrt lambda
-    kd, total, incoming_fse, lam, elevation_at_gauges = SWELLPA.lpf(w,res,xtrans,ytrans,froude_number,farm=False)
+    kd, total, incoming_fse, lam, elevation_at_gauges = SWELLPA.lpf(w,res,xtrans,ytrans,depth,froude_number,farm=True)
