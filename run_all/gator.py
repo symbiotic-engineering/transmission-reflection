@@ -5,11 +5,10 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 hydro_dir = os.path.join(parent_dir, 'hydro')
 swan_dir = os.path.join(parent_dir, 'swan')
-
 sys.path.append(hydro_dir)
 sys.path.append(swan_dir)
 
-import chicken
+import sheep
 import alpaca
 import numpy as np
 
@@ -25,8 +24,15 @@ H = 1.3832                                  # avg significant wave height [m]
 T = 6                                       # avg wave period [s]
 w = np.array([2*np.pi/T])   # wave frequency
 
-Kr_H, Kt_H, Kr_K, Kt_K = chicken.wec_run(w)
-KR = [Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0], Kr_K[0]]
-KT = [Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0], Kt_K[0]]
+breakwtr=False
+point_absorber=False
+oscillating_surge=False
+attenuator=True
+farm=True
+
+Kt_H, Kr_H, w_vals = sheep.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm)
+KR = [abs(Kr_H[0][0]), abs(Kr_H[1][0]), abs(Kr_H[2][0]), abs(Kr_H[0][0]), abs(Kr_H[1][0]), abs(Kr_H[2][0])]
+KT = [abs(Kt_H[0][0]), abs(Kt_H[1][0]), abs(Kt_H[2][0]), abs(Kt_H[0][0]), abs(Kt_H[1][0]), abs(Kt_H[2][0])]
+print(KR)
 
 waveHeight = alpaca.swanrun(KR, KT, x, ya, yb, H, T, xgrid, ygrid, mxc, myc)

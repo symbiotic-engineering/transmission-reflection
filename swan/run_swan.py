@@ -10,6 +10,7 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
         "READINP BOTTOM -1. 'bathymetry.bot' 1 0 FREE",
         "BOU SHAP JONSWAP 0.77 PEAK DSPR DEGREES",
         f"BOU SIDE N CONSTANT PAR {H} {T} 270 15",
+        f"BOU SIDE S CONSTANT PAR {H} {T} 270 15",
         f"BOU SIDE W CONSTANT PAR {H} {T} 270 15",
         f"BOU SIDE E CONSTANT PAR {H} {T} 270 15",
         "GEN3",
@@ -20,6 +21,8 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
 
     # Add obstacle lines with varying KT and KR values
     for i in range(len(x)):
+        if KT[i] > 1:
+            KT[i] = 1 - KR[i]
         line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya if i < 3 else yb}"
         commands.append(line)
 

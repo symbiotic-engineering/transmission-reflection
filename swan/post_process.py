@@ -5,7 +5,7 @@ def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
     import numpy as np
 
     h_s = pd.read_table(sfgrid_dat, sep="\s+", header=None)
-    waveHeight = np.savetxt('/mnt/c/Users/ov162/transmission-reflection/data/wave_elevation.csv',h_s,delimiter=',')
+    waveHeight = np.savetxt('/mnt/c/Users/ov162/transmission-reflection/data/atten_6bodcoeff.csv',h_s,delimiter=',')
     nx, ny = (mxc + 1, myc + 1)
     x = np.linspace(0, xgrid, nx)
     y = np.linspace(0, ygrid, ny)
@@ -17,7 +17,7 @@ def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
 
     ax.ticklabel_format(axis='both',style='sci')
     cbar = fig.colorbar(cp)
-    cbar.set_label('Significant Wave Height',fontsize=17,rotation=270,labelpad=17)
+    cbar.set_label('Wave Height',fontsize=17,rotation=270,labelpad=17)
     cbar.ax.tick_params(labelsize=15)
     plt.xticks(fontsize=14, rotation=90)
     plt.yticks(fontsize=14, rotation=90)

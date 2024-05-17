@@ -11,10 +11,10 @@ def wave_height(total, incoming_fse,lam,res,xtrans,ytrans,farm):
     z_up = total[int((res/2)*lam-1),:int((res/2)*lam)]
     z_down = total[int((res/2)*lam-1),int((res/2)*lam):]
 
-    avg_H_zup = np.mean(abs(z_up))
-    avg_H_zincup = np.mean(abs(zinc_up))
-    avg_H_zdown = np.mean(abs(z_down))
-    avg_H_zincdown = np.mean(abs(zinc_down))
+    avg_H_zup = np.array([np.mean(abs(z_up))])
+    avg_H_zincup = np.array([np.mean(abs(zinc_up))])
+    avg_H_zdown = np.array([np.mean(abs(z_down))])
+    avg_H_zincdown = np.array([np.mean(abs(zinc_down))])
 
     if farm == True:
         z_upWEC1 = total[int((res/2)*lam-1) + ytrans[0],:int((res/2)*lam)]
