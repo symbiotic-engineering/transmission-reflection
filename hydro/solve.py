@@ -1,7 +1,7 @@
-def solver(array,B,depth,w,res,farm,rad):
+def hydro(array,B,depth,w,farm,controls):
     import capytaine as cpt
     import numpy as np
-    from capytaine.bem.airy_waves import airy_waves_free_surface_elevation
+    import controls
 
     g = 9.81            # gravitational constant (m/s^2)
     k = w**2/g      # wave number infinite depth (rad^2/m)
@@ -17,8 +17,20 @@ def solver(array,B,depth,w,res,farm,rad):
         ]
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
+
     RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
-    RAO_vals = np.array(np.abs(RAO.values))            # this is essentially the true pitch amplitude
+    RAO_vals = abs(np.array((RAO.values)))            # this is essentially the true pitch amplitude
+
+    RAO_controlled = controls.RAO(diff_prob,diff_result,dataset,array,w,farm)
+    if controls == True:
+        RAO_vals = RAO_controlled
+    return diff_result,rad_result,RAO_vals,lam
+
+def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad):
+    import numpy as np
+    from capytaine.bem.airy_waves import airy_waves_free_surface_elevation
+    import capytaine as cpt
+    solver = cpt.BEMSolver()
 
     # defining the computational grid and preparing post-process data
     x1, x2, nx, y1, y2, ny = -res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
@@ -40,4 +52,4 @@ def solver(array,B,depth,w,res,farm,rad):
     total = diffraction + radiation + incoming_fse                          # total wave el
     kd = total/incoming_fse
 
-    return kd, total, incoming_fse, lam
+    return kd, total, incoming_fse
