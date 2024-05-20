@@ -69,11 +69,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-file_name = 'PA_array_coeff.pdf'
+file_name = 'atten_array_coeff.pdf'
 
 w = np.array([0.5,0.65,0.75,0.85,0.95,1.047,1.2])   # wave frequency
 
-Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,attenuator=False,farm=True)
+Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,attenuator=True,farm=True)
 
 cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
 linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
