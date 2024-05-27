@@ -1,6 +1,6 @@
 1
 
-                    Execution started at 20240517.134155         
+                    Execution started at 20240527.092014         
 
 
 
@@ -21,37 +21,43 @@
     
  READINP BOTTOM -1. 'bathymetry.bot' 1 0 FREE
     
- BOU SHAP JONSWAP 0.77 PEAK DSPR DEGREES
+ WIND 4.92 243
     
- BOU SIDE N CONSTANT PAR 1.3832 6 270 15
+ BOU SHAP JONSWAP 1.54 PEAK DSPR DEGREES
     
- BOU SIDE S CONSTANT PAR 1.3832 6 270 15
+ BOU SIDE N CONSTANT PAR 0.8 5 270 15
     
- BOU SIDE W CONSTANT PAR 1.3832 6 270 15
+ BOU SIDE S CONSTANT PAR 0.8 5 270 15
     
- BOU SIDE E CONSTANT PAR 1.3832 6 270 15
+ BOU SIDE W CONSTANT PAR 0.8 5 270 15
     
- GEN3
+ BOU SIDE E CONSTANT PAR 0.8 5 270 15
     
- OFF WCAP
+ DIFFRAC
     
- OFF QUAD
+ FRICTION JON CONSTANT
+    
+ PROP BSBT
+    
+ GEN3 WESTH
+    
+ WCAP
+    
+ QUAD
     
  OFF BREA
     
- OBSTACLE TRANS 0.9859980157273143 REFL 0.01400198427268573 RDIFF 1 LINE 1490 4500 1520 4500
+ OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1490 4500 1520 4500
     
- OBSTACLE TRANS 0.8758678862309627 REFL 0.04669961662823019 RDIFF 1 LINE 1590 4500 1620 4500
+ OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1590 4500 1620 4500
     
- OBSTACLE TRANS 0.9772528766667808 REFL 0.005075281440597212 RDIFF 1 LINE 1690 4500 1720 4500
+ OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1690 4500 1720 4500
     
- OBSTACLE TRANS 0.9859980157273143 REFL 0.01400198427268573 RDIFF 1 LINE 1420 4400 1450 4400
+ OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1420 4400 1450 4400
     
- OBSTACLE TRANS 0.8758678862309627 REFL 0.04669961662823019 RDIFF 1 LINE 1520 4400 1550 4400
+ OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1520 4400 1550 4400
     
- OBSTACLE TRANS 0.9772528766667808 REFL 0.005075281440597212 RDIFF 1 LINE 1620 4400 1650 4400
-    
- DIFFRAC
+ OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1620 4400 1650 4400
     
  FRAME 'SFG' 0 0 0 3000 5000 300 300
     
@@ -92,7 +98,9 @@ OBSTACLE POINTS (    1420.00,    4400.00), and (    1450.00,    4400.00),moved t
 OBSTACLE POINTS (    1520.00,    4400.00), and (    1550.00,    4400.00),moved to: (    1520.00,    4399.90), and (    1550.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1520.00,    4400.00).
  ** Warning          : Obstacle points moved
 OBSTACLE POINTS (    1620.00,    4400.00), and (    1650.00,    4400.00),moved to: (    1620.00,    4399.90), and (    1650.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1620.00,    4400.00).
- ** Warning          : Limiter is de-activated in case of no quadruplets
+ ** Warning          : relative frequency resolution (df/f) deviates more
+ ** Warning          : than 5% from 10%-resolution. This may be problematic
+ ** Warning          : when quadruplets are approximated by means of DIA.
 
 ----------------------------------------------------------------
                   COMPUTATIONAL PART OF SWAN
@@ -104,39 +112,45 @@ OBSTACLE POINTS (    1620.00,    4400.00), and (    1650.00,    4400.00),moved t
                       : MTC               1
                       : NSTATC            0 ITERMX          50
  Propagation flags    : ITFRE             1 IREFR            1
- Source term flags    : IBOT              0 ISURF            0
-                      : IWCAP             0 IWIND            0
-                      : ITRIAD            0 IQUAD            0
+ Source term flags    : IBOT              1 ISURF            0
+                      : IWCAP             7 IWIND            5
+                      : ITRIAD            0 IQUAD            2
                       : IBRAG             0 IQCM             0
                       : IVEG              0 ITURBV           0
                       : IMUD              0 IICE             0
  Spatial step         : DX       0.1000E+02 DY      0.1667E+02
  Spectral bin         : df/f     0.4106E-01 DDIR    0.3600E+01
  Physical constants   : GRAV     0.9810E+01 RHO     0.1025E+04
- Wind input           : WSPEED   0.0000E+00 DIR     0.0000E+00
+ Wind input           : WSPEED   0.4920E+01 DIR    -0.1170E+03
                       : ICEWIND  0.00
  Tail parameters      : E(f)     0.4000E+01 E(k)    0.2500E+01
                       : A(f)     0.5000E+01 A(k)    0.3000E+01
  Accuracy parameters  : DREL     0.1000E-01 NPNTS   0.9950E+02
                       : DHABS    0.5000E-02 CURVAT  0.5000E-02
-                      : GRWMX    0.1000E+21
+                      : GRWMX    0.1000E+00
  Drying/flooding      : LEVEL    0.0000E+00 DEPMIN  0.5000E-01
  The Cartesian convention for wind and wave directions is used
  Scheme for geographic propagation is BSBT  
  Scheme geogr. space  : PROPSC            1 ICMAX            5
  Scheme spectral space: CSS      0.5000E+00 CDD     0.5000E+00
  Current is off
- Quadruplets is off
+ Quadruplets          : IQUAD             2
+                      : LAMBDA   0.2500E+00 CNL4    0.3000E+08
+                      : CSH1     0.5500E+01 CSH2    0.8330E+00
+                      : CSH3    -0.1250E+01
+ Maximum Ursell nr for Snl4 :    0.1000E+02
  Triads is off
  Bragg scattering is off
  QC scattering is off
  Surfbeat (IEM) is off
- Bottom friction is off
+ JONSWAP (`73)        : GAMMA    0.3800E-01
  Vegetation is off
  Turbulence is off
  Fluid mud is off
  Dissipation by sea ice is off
- Whitecapping is off
+ W-cap Alves-Banner   : CDS2     0.5000E-04 BR      0.1750E-02
+ Wind drag is Wu
+ Yan/Westhuysen wind input
  Surf breaking is off
  Set-up is off
  Diffraction          : SMPAR    0.0000E+00 SMNUM            0
@@ -151,17 +165,33 @@ OBSTACLE POINTS (    1620.00,    4400.00), and (    1650.00,    4400.00),moved t
                       : CDRAG    0.1230E-02 UMIN    0.1000E+01
                       : LIM_PM   0.1300E+00
 
+  ---------------------------------------------------------------
+  First guess by 2nd generation model flags for first iteration:
+  ITER       1 GRWMX      0.1000E+23 ALFA       0.0000E+00
+  IWIND      2 IWCAP      0 IQUAD      0
+  ITRIAD     0 IBOT       1 ISURF      0
+  IVEG       0 ITURBV     0 IMUD       0        IBRAG    0
+  IICE       0 ICEWIND    0.00
+  ---------------------------------------------------------------
  iteration    1; sweep 1
  iteration    1; sweep 2
  iteration    1; sweep 3
  iteration    1; sweep 4
  not possible to compute, first iteration
 
+  ---------------------------------------------------------------
+  Options given by user are activated for proceeding calculation:
+  ITER       2 GRWMX      0.1000E+00 ALFA       0.0000E+00
+  IWIND      5 IWCAP      7 IQUAD      2
+  ITRIAD     0 IBOT       1 ISURF      0
+  IVEG       0 ITURBV     0 IMUD       0        IBRAG    0
+  IICE       0 ICEWIND    0.00
+  ---------------------------------------------------------------
  iteration    2; sweep 1
  iteration    2; sweep 2
  iteration    2; sweep 3
  iteration    2; sweep 4
- accuracy OK in  95.17 % of wet grid points ( 99.50 % required)
+ accuracy OK in  27.69 % of wet grid points ( 99.50 % required)
 
  iteration    3; sweep 1
  iteration    3; sweep 2

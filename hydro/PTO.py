@@ -15,13 +15,16 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm):
     ex_force = FK + dif
     
     # Define simple PTO damping and stiffness
-    B_pto = B
-    K_pto = w**2*(M+A)-K  
-    # B_pto = (B**2+(w*(M+A)-K/w)**2)**0.5
-    # K_pto = 0 
+    # B_pto = B
+    # K_pto = w**2*(M+A)-K  
+    B_pto = (B**2+(w*(M+A)-K/w)**2)**0.5
+    K_pto = 0 
     
     # WEC motion (complex) 
     RAO_controlled = abs((np.diag(ex_force/((-w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))) 
+    print('rao',RAO_controlled)
+    power = 0.5*B_pto*(abs(RAO_controlled))**2*w**2
+    print('power',power)
          
     return RAO_controlled
 

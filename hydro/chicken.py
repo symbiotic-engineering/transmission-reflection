@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import sheep
 
 file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-file_name = 'OS_test.pdf'
+file_name = 'atten_cont_comp.pdf'
 
 breakwtr=False
 point_absorber=False
-oscillating_surge=True
-attenuator=False
-farm=True
+oscillating_surge=False
+attenuator=True
+farm=False
 
 w = np.array([0.5,0.65,0.75,0.85,0.95,1.047,1.2])   # wave frequency
 

@@ -52,7 +52,7 @@ def lpf(w,res,xtrans,ytrans,farm):
     OSWEC = cpt.FloatingBody(cpt.meshes.predefined.rectangles.mesh_parallelepiped(size=(th, wi, h), 
                                                                                 resolution=(nt, nw, nh), 
                                                                                 center=(xtrans[1], ytrans[1], z),
-                                                                                name='rect'))
+                                                                                name='rect1'))
     OSWEC.keep_immersed_part()
     OSWEC.center_of_mass=(0,0,cog)
     OSWEC.add_all_rigid_body_dofs()
@@ -61,45 +61,27 @@ def lpf(w,res,xtrans,ytrans,farm):
     OSWEC.keep_only_dofs(dofs='Pitch')
 
     # create array
-    array = PA + OSWEC
+    array = PA + OSWEC + OSWEC.translated((xtrans[0],2*ytrans[0],0),name='rect2')
     array.add_all_rigid_body_dofs()
-    array.keep_only_dofs(dofs=['cyl__Heave','rect__Pitch'])
-    #array.show_matplotlib()
+    array.keep_only_dofs(dofs=['cyl__Heave','rect1__Pitch','rect2__Pitch'])
+    # array.show_matplotlib()
 
-    # solving hydrodynamics
-    solver = cpt.BEMSolver()
-    diff_prob = cpt.DiffractionProblem(body=array, wave_direction=B, omega=w)
-    diff_result = solver.solve(diff_prob,keep_details=(True))
-    rad_prob = [
-    cpt.RadiationProblem(body=array, radiating_dof=dof, omega=w)
-    for dof in array.dofs
-    ]
-    rad_result = solver.solve_all(rad_prob,keep_details=(True))
-    dataset = cpt.assemble_dataset(rad_result + [diff_result])
+    return array
 
-    RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
-    body_RAO = np.array(np.abs(RAO.values))            # this is essentially the true pitch amplitude
+# import solve
+# import numpy as np
+# import PTO
 
-    # generating wave height and disturbance datasets
-    x1, x2, nx, y1, y2, ny = -res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
-    grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
-    diffraction = solver.compute_free_surface_elevation(grid, diff_result)
-    radiation_PA = solver.compute_free_surface_elevation(grid, rad_result[0]) * body_RAO[0,0]
-    radiation_OSWEC = solver.compute_free_surface_elevation(grid, rad_result[1]) * body_RAO[0,1]
-    radiation = radiation_PA + radiation_OSWEC
-    incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
-    total = diffraction + radiation + incoming_fse
-    kd = total/incoming_fse
+# xtrans = np.array([0,0])                        # x translation of bodies if farm
+# ytrans = np.array([50,-50])                     # y translation of bodies if farm
+# res = 2
+# farm = True
+# controls = True
+# rad = True
+# w = 1.047
+# B = 0
+# depth = 40
 
-    # Z = np.real(radiation)
-    # X = grid[0]
-    # Y = grid[1]
-    # plt.pcolormesh(X, Y, Z)
-    # plt.xlabel("x")
-    # plt.ylabel("y")
-    # colorbar = plt.colorbar()
-    # colorbar.set_label('Radiated Wave Field')
-    # plt.tight_layout()
-    # plt.savefig('radiation.pdf')
-    # plt.show()
-    return kd, total, incoming_fse, lam
+# array = lpf(w,res,xtrans,ytrans,farm)
+# diff_result,rad_result,RAO_vals,lam = solve.hydro(array,B,depth,w,farm,controls)
+# kd, total, incoming_fse = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad)

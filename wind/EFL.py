@@ -19,26 +19,27 @@ rho_water = 1023  # Density of seawater (kg/m^3)
 g = 9.81  # Gravity (m/s^2)
 C_d = 1.0  # Drag coefficient (dimensionless)
 C_m = 2.0  # Inertia coefficient (dimensionless)
-D = 14  # Cylinder diameter (m)
+D = 10.97  # monopile diameter (m)
 A_projected = np.pi * (D/2)**2  # Projected area (m^2)
 submerge_depth = 40  # Assume 6 m below the water surface
 V_submerged = A_projected * submerge_depth  # Submerged volume (m^3)
-Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/OSWEC_elevation.csv', delimiter=',')
-Hs = Hs[:y_investigated, x_investigated]
-H_inc = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/blank_elevation.csv',delimiter=',')
-H_inc = H_inc[:y_investigated, x_investigated]
+#Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/OSWEC_elevation.csv', delimiter=',')
+#Hs = Hs[:y_investigated, x_investigated]
+#H_inc = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/blank_elevation.csv',delimiter=',')
+#H_inc = H_inc[:y_investigated, x_investigated]
 
-wave_period = 6  # Wave period (s)
+wave_period = 5  # Wave period (s)
 h = 40  # Water depth (m)
 x = 0.0  # Horizontal position at which force is calculated (m)
 z = 0.0  # Vertical coordinate at the water surface
-
+lambda_wave=0
 # Morrison equation
 def morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_wave, z, h, x, t):
     omega = (2 * np.pi) / wave_period
     
     # Calculate wave number (k)
-    k = (2 * np.pi) / lambda_wave
+    #k = (2 * np.pi) / lambda_wave
+    k = omega**2/g
     
     # Horizontal wave particle velocity (u)
     u = ((H * omega * np.cosh(k * (z + h))) / (2 * np.sinh(k * h))) * np.cos(k * x - omega * t)
@@ -47,7 +48,11 @@ def morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_
     du_dt = ((-H * omega**2 * np.cosh(k * (z + h))) / (2 * np.sinh(k * h))) * np.sin(k * x - omega * t)
     
     # Morrison equation to calculate wave force
-    F_wave = 0.5 * rho_water * C_d * np.abs(u) * u * A_projected + rho_water * C_m * V_submerged * du_dt
+    F_wave = (0.5 * rho_water * C_d * np.abs(u) * u * A_projected) + (rho_water * C_m * V_submerged * du_dt)
+    #other = (0.5 * rho_water * C_d * A_projected) + (rho_water * C_m * V_submerged)
+    #print('other',other)
+    #velocity = u*abs(u) + du_dt
+    #F_wave=velocity
     return F_wave
 
 # Function to calculate stress from wave force
@@ -60,6 +65,16 @@ m = 3
 N = 10**6
 max_stresses = []
 EFL_values = []
+
+h_dummy = np.linspace(0,15,15)
+wave_force_dummy =[]
+for H in h_dummy:
+    wave_forces_dummy = np.array([morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_wave, z, h, x, t) for t in time_points])
+    #plt.plot(time_points,wave_forces_dummy)
+    #plt.show()
+    wave_force_dummy.append(max(wave_forces_dummy))
+plt.plot(wave_force_dummy)
+plt.show()
 
 # Calculate max stress for each wave height and EFL using the max stress
 for H in Hs:

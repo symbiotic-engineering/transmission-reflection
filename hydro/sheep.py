@@ -1,12 +1,9 @@
 def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls):
     ################ SCRIPT FOR CALCULATING AT COEFFS ############
     # run all Kt and Kr calcs for any body here
-    # "body" contains functions for PA, OSWEC, and breakwater initialization
+    # "body" contains functions for PA, OSWEC, attenuator, and breakwater initialization
     import body
-    import attenuators
-    import PA_OSWEC
     import wave_height
-    import kd_post
     import solve
     import numpy as np
     import matplotlib.pyplot as plt 
@@ -18,12 +15,12 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
     B = 0                                           # wave direction [rad]
     depth = 40                                      # average water depth at southfork
-    xtrans = np.array([0,0])                        # x translation of bodies if farm
+    xtrans = np.array([50,50])                        # x translation of bodies if farm
     ytrans = np.array([50,-50])                     # y translation of bodies if farm
 
-    ######## attenuator ONLY (right now) ###############
-    N = 3                           # number of bodies
-    D = 30                          # distance btwn bodies
+    ######## attenuator properties ###############
+    N = 3                           # number of attenuators
+    D = 30                          # distance btwn cylinders in a single attenuator
     ##################################################
 
     Kr_H = [[] for _ in range(index)]
@@ -40,29 +37,29 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         if breakwtr == True:
             array = body.breakwater(xtrans,ytrans,farm)
             rad = False               # rad only false for breakwater case
-            diff_result,rad_result,RAO_vals,lam = solve.hydro(array,B,depth,w,farm,controls)
-            kd, total, incoming_fse = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad)
         else:
             rad = True
         if point_absorber == True:
             array = body.PA(xtrans,ytrans,farm)
-            diff_result,rad_result,RAO_vals,lam = solve.hydro(array,B,depth,w,farm,controls)
-            kd, total, incoming_fse = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad)
         if oscillating_surge == True:
             array = body.OSWEC(xtrans,ytrans,farm)
-            diff_result,rad_result,RAO_vals,lam = solve.hydro(array,B,depth,w,farm,controls)
-            kd, total, incoming_fse = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad)
         if attenuator == True:
-            kd, total, incoming_fse, lam = attenuators.lpf(w,res,N,D,farm)
+            array = body.attenuator(xtrans,ytrans,farm,D)
+
+        # this is where the code solves hydrodynamics
+        diff_result,rad_result,RAO_vals,lam = solve.hydro(array,B,depth,w,farm,controls)
+        # this is where the code solves for wave elevation
+        total, incoming_fse = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator)
 
         # this is where the code calculates your reflection and transmission coefficients
         ref_H, trans_H, EB1, EB2 = wave_height.wave_height(total, incoming_fse,lam, res,xtrans,ytrans,farm)
-        # ref_K, trans_K, EB1, EB2 = kd_post.disturbance(kd, lam, res)
         w_vals.append(w)
 
         for i in range(index):
             Kr_H[i].append(ref_H[i])
             Kt_H[i].append(trans_H[i])
+        
+
     return Kt_H, Kr_H, w_vals
 
 
@@ -70,12 +67,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-file_name = 'atten_coeffs.pdf'
+file_name = 'test.pdf'
 
-w = np.array([0.5,0.65,0.75,0.85,0.95,1.047,1.2])   # wave frequency
+w = np.array([0.5,0.65,0.75,0.85,0.95,1.047,1.2,1.25,1.3])   # wave frequency
 
-Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
-                             attenuator=True,farm=False,controls=False)
+Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,
+                             attenuator=False,farm=False,controls=False)
 
 cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
 linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
