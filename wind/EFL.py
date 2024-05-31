@@ -23,10 +23,10 @@ D = 10.97  # monopile diameter (m)
 A_projected = np.pi * (D/2)**2  # Projected area (m^2)
 submerge_depth = 40  # Assume 6 m below the water surface
 V_submerged = A_projected * submerge_depth  # Submerged volume (m^3)
-#Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/OSWEC_elevation.csv', delimiter=',')
-#Hs = Hs[:y_investigated, x_investigated]
-#H_inc = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/blank_elevation.csv',delimiter=',')
-#H_inc = H_inc[:y_investigated, x_investigated]
+Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/OS_1d.csv', delimiter=',')
+Hs = Hs[:y_investigated, x_investigated]
+H_inc = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/blank_elevation.csv',delimiter=',')
+H_inc = H_inc[:y_investigated, x_investigated]
 
 wave_period = 5  # Wave period (s)
 h = 40  # Water depth (m)
@@ -49,10 +49,7 @@ def morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_
     
     # Morrison equation to calculate wave force
     F_wave = (0.5 * rho_water * C_d * np.abs(u) * u * A_projected) + (rho_water * C_m * V_submerged * du_dt)
-    #other = (0.5 * rho_water * C_d * A_projected) + (rho_water * C_m * V_submerged)
-    #print('other',other)
-    #velocity = u*abs(u) + du_dt
-    #F_wave=velocity
+
     return F_wave
 
 # Function to calculate stress from wave force
@@ -66,14 +63,20 @@ N = 10**6
 max_stresses = []
 EFL_values = []
 
-h_dummy = np.linspace(0,15,15)
+h_dummy = np.linspace(1,500,500)
 wave_force_dummy =[]
 for H in h_dummy:
     wave_forces_dummy = np.array([morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_wave, z, h, x, t) for t in time_points])
     #plt.plot(time_points,wave_forces_dummy)
     #plt.show()
     wave_force_dummy.append(max(wave_forces_dummy))
-plt.plot(wave_force_dummy)
+
+plt.plot(h_dummy,wave_force_dummy)
+plt.xlabel('Wave Height [m]',fontsize=14)
+plt.ylabel('Wave Force [N]',fontsize=14)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+plt.savefig('/mnt/c/Users/ov162/transmission-reflection/wind/H_dummy_relationship.pdf')
 plt.show()
 
 # Calculate max stress for each wave height and EFL using the max stress
@@ -118,12 +121,14 @@ for i in range(len(Hs)):
     #print("The percent difference of the highest and lowest wave height is", first_last_Hs_difference)
 
 
-# Plotting the EFL values against wave heights
-distance_from_array = abs(np.linspace(0, y_investigated * y_conversion, len(Hs)) - ygrid)
-plt.figure(figsize=(10, 6))
-plt.plot(distance_from_array, percent_EFL, marker='o', linestyle='-', color='b')
-plt.xlabel('Wave Height Reduction [%]')
-plt.ylabel('EFL Reduction [%]')
-plt.grid(True)
-plt.savefig('/mnt/c/Users/ov162/transmission-reflection/wind/OS_perc_red_dist.pdf')
-plt.show()
+# # Plotting the EFL values against wave heights
+# # distance_from_array = abs(np.linspace(0, y_investigated * y_conversion, len(Hs)) - ygrid)
+# plt.figure(figsize=(10, 6))
+# plt.plot(percent_Hs, percent_EFL, marker='o', linestyle='-', color='b')
+# plt.xlabel('Wave Height Reduction [%]',fontsize=14)
+# plt.ylabel('EFL Reduction [%]',fontsize=14)
+# plt.xticks(fontsize=12)
+# plt.yticks(fontsize=12)
+# plt.grid(True)
+# plt.savefig('/mnt/c/Users/ov162/transmission-reflection/wind/percent_load_reduction.pdf')
+# plt.show()

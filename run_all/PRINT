@@ -1,6 +1,6 @@
 1
 
-                    Execution started at 20240527.092014         
+                    Execution started at 20240529.201646         
 
 
 
@@ -47,17 +47,17 @@
     
  OFF BREA
     
- OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1490 4500 1520 4500
+ OBSTACLE TRANS 0.8241300592520944 REFL 0.0005560390356398326 RDIFF 1 LINE 1490 4500 1505 4600
     
- OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1590 4500 1620 4500
+ OBSTACLE TRANS 0.8241300592520944 REFL 0.0005560390356398326 RDIFF 1 LINE 1590 4500 1605 4600
     
- OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1690 4500 1720 4500
+ OBSTACLE TRANS 0.8241300592520944 REFL 0.0005560390356398326 RDIFF 1 LINE 1690 4500 1705 4600
     
- OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1420 4400 1450 4400
+ OBSTACLE TRANS 0.8241300592520944 REFL 0.0005560390356398326 RDIFF 1 LINE 1420 4400 1435 4300
     
- OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1520 4400 1550 4400
+ OBSTACLE TRANS 0.8241300592520944 REFL 0.0005560390356398326 RDIFF 1 LINE 1520 4400 1535 4300
     
- OBSTACLE TRANS 0.7295409477186703 REFL 0.08728667967522441 RDIFF 1 LINE 1620 4400 1650 4400
+ OBSTACLE TRANS 0.8241300592520944 REFL 0.0005560390356398326 RDIFF 1 LINE 1620 4400 1635 4300
     
  FRAME 'SFG' 0 0 0 3000 5000 300 300
     
@@ -87,17 +87,17 @@
  ** Warning          : (corner)point outside bottom grid
        Set of output locations: SFG       coordinates:     3000.00     5000.00
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1490.00,    4500.00), and (    1520.00,    4500.00),moved to: (    1490.00,    4499.90), and (    1520.00,    4499.90), because OBSTACLE line piece was on computational grid point (    1490.00,    4500.00).
+OBSTACLE POINTS (    1490.00,    4500.00), and (    1505.00,    4600.00),moved to: (    1490.10,    4499.99), and (    1505.10,    4599.99), because OBSTACLE line piece was on computational grid point (    1490.00,    4500.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1590.00,    4500.00), and (    1620.00,    4500.00),moved to: (    1590.00,    4499.90), and (    1620.00,    4499.90), because OBSTACLE line piece was on computational grid point (    1590.00,    4500.00).
+OBSTACLE POINTS (    1590.00,    4500.00), and (    1605.00,    4600.00),moved to: (    1590.10,    4499.99), and (    1605.10,    4599.99), because OBSTACLE line piece was on computational grid point (    1590.00,    4500.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1690.00,    4500.00), and (    1720.00,    4500.00),moved to: (    1690.00,    4499.90), and (    1720.00,    4499.90), because OBSTACLE line piece was on computational grid point (    1690.00,    4500.00).
+OBSTACLE POINTS (    1690.00,    4500.00), and (    1705.00,    4600.00),moved to: (    1690.10,    4499.99), and (    1705.10,    4599.99), because OBSTACLE line piece was on computational grid point (    1690.00,    4500.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1420.00,    4400.00), and (    1450.00,    4400.00),moved to: (    1420.00,    4399.90), and (    1450.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1420.00,    4400.00).
+OBSTACLE POINTS (    1420.00,    4400.00), and (    1435.00,    4300.00),moved to: (    1419.90,    4399.99), and (    1434.90,    4299.99), because OBSTACLE line piece was on computational grid point (    1420.00,    4400.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1520.00,    4400.00), and (    1550.00,    4400.00),moved to: (    1520.00,    4399.90), and (    1550.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1520.00,    4400.00).
+OBSTACLE POINTS (    1520.00,    4400.00), and (    1535.00,    4300.00),moved to: (    1519.90,    4399.99), and (    1534.90,    4299.99), because OBSTACLE line piece was on computational grid point (    1520.00,    4400.00).
  ** Warning          : Obstacle points moved
-OBSTACLE POINTS (    1620.00,    4400.00), and (    1650.00,    4400.00),moved to: (    1620.00,    4399.90), and (    1650.00,    4399.90), because OBSTACLE line piece was on computational grid point (    1620.00,    4400.00).
+OBSTACLE POINTS (    1620.00,    4400.00), and (    1635.00,    4300.00),moved to: (    1619.90,    4399.99), and (    1634.90,    4299.99), because OBSTACLE line piece was on computational grid point (    1620.00,    4400.00).
  ** Warning          : relative frequency resolution (df/f) deviates more
  ** Warning          : than 5% from 10%-resolution. This may be problematic
  ** Warning          : when quadruplets are approximated by means of DIA.
@@ -191,7 +191,7 @@ OBSTACLE POINTS (    1620.00,    4400.00), and (    1650.00,    4400.00),moved t
  iteration    2; sweep 2
  iteration    2; sweep 3
  iteration    2; sweep 4
- accuracy OK in  27.69 % of wet grid points ( 99.50 % required)
+ accuracy OK in  27.92 % of wet grid points ( 99.50 % required)
 
  iteration    3; sweep 1
  iteration    3; sweep 2

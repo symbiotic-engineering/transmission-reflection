@@ -1,4 +1,4 @@
-def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
+def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, attenuator):
     import subprocess
     # Calculate xe values
     xe = [xi + d for xi in x]
@@ -25,12 +25,19 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
 
     # Add obstacle lines with varying KT and KR values
     for i in range(len(x)):
-        if KT[i] > 1:
-            KT[i] = 1 - KR[i]
-        EB = KT[i]**2 + KR[i]**2
+        if KR[i] < 0:
+            KR[i] = 0
+        EB = (KT[i])**2 + (KR[i])**2
         if EB > 1:
-            KT[1] = KT[i] - 0.01
-        line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya if i < 3 else yb}"
+            KT[i] = 1
+            KR[i] = 0
+        if attenuator == True:
+            d = 15
+            xe = [xi + d for xi in x]
+            # i == 1 for 3bod staggered, i < 3 for all other cases
+            line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya+100 if i < 3 else yb-100}"
+        else:
+            line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya if i < 3 else yb}"
         commands.append(line)
 
     # Add the remaining commands
