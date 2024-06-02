@@ -16,7 +16,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
     B = 0                                           # wave direction [rad]
     depth = 40                                      # average water depth at southfork
-    xtrans = np.array([0,0])                      # x translation of bodies if farm
+    xtrans = np.array([0,0])                        # x translation of bodies if farm
     ytrans = np.array([50,-50])                     # y translation of bodies if farm
 
     # attenuator properties (because it has to be modeled a little differently)
@@ -32,11 +32,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
     # the free surfuce wrt to wavelength. this keeps computational time reasonable
     # for long wavelength and accuracy up to par for short wavelengths
     for w in w:
-        if w < 0.8:
-            res = 2
-        else: 
-            res = 3                                   # resolution factor of grid wrt lambda
-
+        res = 2.5
         # this where the code generates the body based on which you chose
         if breakwtr == True:
             array, rel_dim = body.breakwater(xtrans,ytrans,farm)
@@ -74,25 +70,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-file_name = 'test.pdf'
+file_name = 'PA_reg_uncontrolled.pdf'
 
-w = np.array([1.047])#([0.5,0.65,0.75,0.85,0.95,1.047,1.2,1.25,1.3])   # wave frequency
+w = np.array([0.7,0.8,0.9,1.0,1.1,1.2,1.3]) #([0.5,0.65,0.75,0.85,0.95,1.047,1.2,1.25,1.3])   # wave frequency
 
 Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,
-                             attenuator=False,farm=True,controls=True)
+                             attenuator=False,farm=True,controls=False)
 
-# cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
-# linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
+cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
+linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
 
-# for i, kt_h_values in enumerate(Kt_H):
-#     plt.plot(w_vals, kt_h_values, marker='o', label=f'$K_t$ for body {i+1}', 
-#              color=cud_colors[i % len(cud_colors)], linestyle=linestyles[i % len(linestyles)])
-# for i, kr_h_values in enumerate(Kr_H):
-#     plt.plot(w_vals, kr_h_values, marker='x', label=f'$K_r$ for body {i+1}', 
-#              color=cud_colors[i+1 % len(cud_colors)], linestyle=linestyles[i % len(linestyles)])
+for i, kt_h_values in enumerate(Kt_H):
+    plt.plot(w_vals, kt_h_values, marker='o', label=f'$K_t$ for body {i+1}', 
+             color=cud_colors[i % len(cud_colors)], linestyle=linestyles[i % len(linestyles)])
+for i, kr_h_values in enumerate(Kr_H):
+    plt.plot(w_vals, kr_h_values, marker='x', label=f'$K_r$ for body {i+1}', 
+             color=cud_colors[i+1 % len(cud_colors)], linestyle=linestyles[i % len(linestyles)])
 
-# plt.legend()
-# plt.xlabel('$\omega$ [rad/s]')
-# plt.ylabel('Coefficient Value')
-# plt.savefig(f'{file_path}{file_name}')
-# plt.show()
+plt.legend()
+plt.xlabel('$\omega$ [rad/s]')
+plt.ylabel('Coefficient Value')
+plt.savefig(f'{file_path}{file_name}')
+plt.show()

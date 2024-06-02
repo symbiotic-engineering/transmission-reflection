@@ -7,8 +7,8 @@ def PA(xtrans,ytrans,farm):
     y = 0               # y-position of body center
     z = 0               # z-position of body center
     nr = 20
-    ntheta = 10         # number of panels in theta direction
-    nz = 5              # number of panels in z-direction
+    ntheta = 15          # number of panels in theta direction (was 10)
+    nz = 15              # number of panels in z-direction (was 5)
     rel_dim = r + abs(xtrans[0])
 
 
@@ -44,7 +44,7 @@ def OSWEC(xtrans, ytrans, farm):
     y = 0           # y-position of body center
     z = 0.5*h-draft # z-position of body center [m]
     cog = -11.4     # center of gravity [m]
-    nt = 3         # this might need to be 8... eek!
+    nt = 7         # this was 3
     nh = 10        # this was good!        
     nw = 10         # this was good!
     rel_dim = th + abs(xtrans[0])
@@ -82,8 +82,8 @@ def breakwater(xtrans,ytrans,farm):
     y = 0
     z = -0.5        # box center [m]
     nw = 10         # number of panels along width (x)
-    nt = 5          # number of panels along thickness (y) might need to be 13, eek!
-    nh = 2          # number of panels along height (z) should probably be 20 yikes!!
+    nt = 8         # number of panels along thickness (y)
+    nh = 10          # number of panels along height (z)
     rel_dim = th + abs(xtrans[0])
 
     # defining mesh
@@ -116,8 +116,8 @@ def attenuator(xtrans,ytrans,farm,D):
     l = 29
     x = -50
     y = 0
-    nr = 2        # number of panels along radius
-    ntheta = 5     # number of panels in theta direction
+    nr = 10        # number of panels along radius (was 2)
+    ntheta = 12     # number of panels in theta direction (was 5)
     nz = 10         # number of panels in z-direction
     z = 0
     rel_dim = ((l*4)/2) + abs(xtrans[0])

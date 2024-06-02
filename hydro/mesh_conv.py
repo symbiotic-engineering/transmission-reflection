@@ -10,15 +10,18 @@ controls = False
 attenuator = False
 B = 0
 depth = 40
-w = 0.7
+w = 1.25
 rad = True
 N = 3
 D = 30
 
 # for the point absorber
-# nz_values = np.linspace(1, 50, 49)
-# ntheta_values = np.linspace(5,30,24)
-# nr_values = np.linspace(5,50,44)
+# nr = 20
+# ntheta = 15
+# nz = 15
+#nz_values = np.linspace(1, 50, 49)
+#ntheta_values = np.linspace(5,30,24)
+#nr_values = np.linspace(5,50,44)
 
 # for OSWEC
 # nt = 3         # this might need to be 8... eek!
@@ -30,7 +33,7 @@ D = 30
 
 # for breakwater
 # nw = 10         # number of panels along width (x)
-# nt = 5          # number of panels along thickness (y) might need to be 13, eek!
+# nt = 10          # number of panels along thickness (y) might need to be 13, eek!
 # nh = 2          # number of panels along height (z) should probably be 20 yikes!!
 # nw_values = np.linspace(1,30,29)         # number of panels along width (x)
 # nt_values = np.linspace(1,20,18)          # number of panels along thickness (y)
@@ -47,11 +50,12 @@ D = 30
 # Initialize lists to store results
 radial_mesh = []
 tot_el_1pt = []
-res_values = np.linspace(1,4,4)
+#res_values = np.linspace(0.5,3,15)
+res = 2.5
 
-for i in range(len(res_values)):
-    res = int(res_values[i])
-    array, rel_dim = body.PA(xtrans, ytrans, farm)
+for i in range(len(nh_values)):
+    nh = int(nh_values[i])
+    array, rel_dim = body.breakwater(xtrans, ytrans, farm,nw,nt,nh)
     #array, rel_dim = body.attenuator(xtrans, ytrans, farm, D,nr,ntheta,nz)
     diff_result, rad_result, RAO_vals, lam = solve.hydro(array, B, depth, w, farm, controls)
     
@@ -59,13 +63,13 @@ for i in range(len(res_values)):
     total, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res, lam, diff_result, rad_result, RAO_vals, farm, rad, controls, N, attenuator, rel_dim)
     
     # Extract the specific point from the array 'total'
-    specific_point = np.mean(total)# RAO[0, 0]
+    specific_point = RAO_vals[0, 0] # np.mean(total)
     
     # Append the extracted value to tot_el_1pt list
     tot_el_1pt.append(specific_point)
     
     # Append the radial mesh value
-    radial_mesh.append(res)
+    radial_mesh.append(nh)
 
 # Calculate the percent difference between consecutive tot_el_1pt values
 percent_diff = [0]  # Start with 0 for the first value as there's no previous value to compare
@@ -76,10 +80,12 @@ for i in range(1, len(tot_el_1pt)):
 # Plot the percent difference
 plt.figure(figsize=(12, 6))
 plt.plot(radial_mesh, percent_diff, marker='o',color='red')
-plt.xlabel('Resolution Multiplier to Wavelength',fontsize=17)
+plt.xlabel('Z-Direction Number of Panels',fontsize=17)
 plt.ylabel('Percent Difference [%]',fontsize=17)
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
 #plt.title('Percent Difference in Total Elevation vs Z-direction Mesh Values')
 plt.legend()
 plt.tight_layout()
-plt.savefig('07_res_smaller_conv_perc.pdf')
+plt.savefig('break_nh_conv_perc.pdf')
 plt.show()
