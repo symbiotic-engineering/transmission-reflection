@@ -7,8 +7,8 @@ def PA(xtrans,ytrans,farm):
     y = 0               # y-position of body center
     z = 0               # z-position of body center
     nr = 20
-    ntheta = 15          # number of panels in theta direction (was 10)
-    nz = 15              # number of panels in z-direction (was 5)
+    ntheta = 10          # number of panels in theta direction (was 10)
+    nz = 5              # number of panels in z-direction (was 5)
     rel_dim = r + abs(xtrans[0])
 
 
@@ -44,7 +44,7 @@ def OSWEC(xtrans, ytrans, farm):
     y = 0           # y-position of body center
     z = 0.5*h-draft # z-position of body center [m]
     cog = -11.4     # center of gravity [m]
-    nt = 7         # this was 3
+    nt = 4         # this was 3
     nh = 10        # this was good!        
     nw = 10         # this was good!
     rel_dim = th + abs(xtrans[0])
@@ -83,7 +83,7 @@ def breakwater(xtrans,ytrans,farm):
     z = -0.5        # box center [m]
     nw = 10         # number of panels along width (x)
     nt = 8         # number of panels along thickness (y)
-    nh = 10          # number of panels along height (z)
+    nh = 8          # number of panels along height (z)
     rel_dim = th + abs(xtrans[0])
 
     # defining mesh
@@ -116,9 +116,9 @@ def attenuator(xtrans,ytrans,farm,D):
     l = 29
     x = -50
     y = 0
-    nr = 10        # number of panels along radius (was 2)
-    ntheta = 12     # number of panels in theta direction (was 5)
-    nz = 10         # number of panels in z-direction
+    nr = 4        # number of panels along radius (was 2)
+    ntheta = 6     # number of panels in theta direction (was 5)
+    nz = 12         # number of panels in z-direction
     z = 0
     rel_dim = ((l*4)/2) + abs(xtrans[0])
 
@@ -141,4 +141,5 @@ def attenuator(xtrans,ytrans,farm,D):
         array = body + body.translated((D,0,0),name='1b') + body.translated((D*2,0,0),name='1c') + body.translated((D*3,0,0),name='1d')
         array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch','1c__Pitch','1d__Pitch'])
         rel_dim = ((l*4)/2)
+        array.show_matplotlib()
     return array, rel_dim
