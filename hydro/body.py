@@ -116,11 +116,11 @@ def attenuator(xtrans,ytrans,farm,D):
     l = 29
     x = -50
     y = 0
-    nr = 4        # number of panels along radius (was 2)
-    ntheta = 6     # number of panels in theta direction (was 5)
-    nz = 12         # number of panels in z-direction
+    nr = 4        # number of panels along radius (was 4)
+    ntheta = 6     # number of panels in theta direction (was 6)
+    nz = 12         # number of panels in length-direction
     z = 0
-    rel_dim = ((l*4)/2) + abs(xtrans[0])
+    rel_dim = int(((l*4)/2) + abs(xtrans[0]))
 
     # defining mesh
     body = cpt.FloatingBody(mesh=cpt.mesh_horizontal_cylinder(length=l, radius=r,center=(x,y,z),

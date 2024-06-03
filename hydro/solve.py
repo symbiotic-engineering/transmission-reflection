@@ -73,7 +73,7 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
     total = diffraction + radiation + incoming_fse                          # total wave el
 
     # import matplotlib.patheffects as path_effects
-    # xtrans = np.array([0,0,0])                        # x translation of bodies if farm
+    # xtrans = np.array([50,0,50])                        # x translation of bodies if farm
     # ytrans = np.array([50,0,-50])
     # # plots
     # Z = np.real(total)
@@ -86,17 +86,19 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
     # colorbar.set_label(r"Total Wave Elevation, $\eta$")
     # pcm.set_clim([-2, 2])
     # # Add markers with black outline
-    # plt.scatter(xtrans, ytrans, marker='|', color='red', s=200, edgecolor='black', linewidth=3)
+    # plt.scatter(xtrans, ytrans, marker='_', color='red', s=200, edgecolor='black', linewidth=3)
     # # Add arrow with black outline
-    # plt.arrow(-100, 100, 50, 0, color='black', width=0.3, head_width=7, head_length=7)
-    # plt.arrow(-100, 100, 50, 0, color='red', width=0.2, head_width=5, head_length=5)
+    # plt.arrow(-100, 50, 50, 0, color='black', width=0.3, head_width=7, head_length=7)
+    # plt.arrow(-100, 50, 50, 0, color='red', width=0.2, head_width=5, head_length=5)
 
     # # Add text with black outline
-    # text = plt.text(-75, 130, 'Incident Waves', color='red', fontsize=12, ha='center', va='center')
+    # text = plt.text(-75, 75, 'Incident Waves', color='red', fontsize=12, ha='center', va='center')
     # text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'), path_effects.Normal()])
 
     # plt.tight_layout()
-    # plt.savefig('wave_field.pdf')
-    # plt.show()
+    # print('tip')
+    # plt.savefig('atten_wave_field.pdf')
+    # print('top')
+    # #plt.show()
 
     return total, incoming_fse, x1, x2, nx, y1, y2, ny

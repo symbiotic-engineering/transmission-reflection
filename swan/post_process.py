@@ -4,10 +4,11 @@ def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
     import pandas as pd
     import numpy as np
 
-    wecx = [1490+15, 1590+15, 1690+15, 1420+15, 1520+15, 1620+15]    # x-position of bodies #, 1790+20,1890+20,1990+20] 
-    wecy = [4500, 4500, 4500, 4400, 4400, 4400]    # y-position of row 1
+    wecx = [1490+15, 1590+15, 1690+15]#, 1420+15, 1520+15, 1620+15]    # x-position of bodies #, 1790+20,1890+20,1990+20] 
+    wecy = [4500, 4500, 4500]#, 4400, 4400, 4400]    # y-position of row 1
     h_s = pd.read_table(sfgrid_dat, sep="\s+", header=None)
-    waveHeight = np.savetxt('/mnt/c/Users/ov162/transmission-reflection/data/atten_1d.csv',h_s,delimiter=',')
+    waveHeight = np.savetxt('atten_1d.csv',h_s,delimiter=',')
+    #waveHeight = np.savetxt('/mnt/c/Users/ov162/transmission-reflection/data/atten_1d.csv',h_s,delimiter=',')
     #h_s = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/break_1c.csv',delimiter=',')
     nx, ny = (mxc + 1, myc + 1)
     x = np.linspace(0, xgrid, nx)
@@ -15,7 +16,7 @@ def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
     X, Y = np.meshgrid(x,y)
     fig,ax = plt.subplots(1,1)
     cp = ax.contourf(X,Y,h_s,40)
-    plt.scatter(wecx,wecy,marker='|',color='red',s=100, linewidth=2)
+    plt.scatter(wecx,wecy,marker='_',color='red',s=100, linewidth=2)
     ax.set_xlabel('x [m]',fontsize=17)
     ax.set_ylabel('y [m]',fontsize=17)
 
@@ -27,8 +28,10 @@ def postpro(sfgrid_dat,xgrid,ygrid,mxc,myc):
     plt.xticks(fontsize=14, rotation=90)
     plt.yticks(fontsize=14, rotation=90)
     plt.tight_layout()
-    plt.savefig('swanfield.pdf')
-    plt.show()
+    print('yip')
+    plt.savefig('break_1a.pdf')
+    print('ee')
+    #plt.show()
     return waveHeight
 
 # import numpy as np

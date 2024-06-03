@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sheep
 
 file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-file_name = 'atten_cont_comp.pdf'
+file_name = 'OS_cont_comp.pdf'
 
 breakwtr=False
 point_absorber=False
@@ -12,7 +12,7 @@ oscillating_surge=False
 attenuator=True
 farm=False
 
-w = np.array([0.5,0.65,0.75,0.85,0.95,1.047,1.2])   # wave frequency
+w = np.array([0.7,0.8,0.9,1.0,1.1,1.2,1.3])  # wave frequency
 
 Kt_H, Kr_H, w_vals = sheep.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls=False)
 Kt_cont, Kr_cont, w_vals = sheep.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls=True)
@@ -37,5 +37,8 @@ for i, kr_cont in enumerate(Kr_cont):
 plt.legend()
 plt.xlabel('$\omega$ [rad/s]')
 plt.ylabel('Coefficient Value')
-plt.savefig(f'{file_path}{file_name}')
-plt.show()
+print('bee')
+plt.savefig('atten_cont_comp.pdf')
+print('bop')
+#plt.savefig(f'{file_path}{file_name}')
+#plt.show()

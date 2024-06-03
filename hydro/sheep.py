@@ -32,7 +32,10 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
     # the free surfuce wrt to wavelength. this keeps computational time reasonable
     # for long wavelength and accuracy up to par for short wavelengths
     for w in w:
-        res = 1
+        if w < 1.3:
+            res = 2
+        else:
+            res = 2
         # this where the code generates the body based on which you chose
         if breakwtr == True:
             array, rel_dim = body.breakwater(xtrans,ytrans,farm)
@@ -65,17 +68,17 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
     return Kt_H, Kr_H, w_vals
 
 
-# this is where i've been generating my Kt(omega)/Kr(omega) plots
-import numpy as np
-import matplotlib.pyplot as plt
+# # this is where i've been generating my Kt(omega)/Kr(omega) plots
+# import numpy as np
+# import matplotlib.pyplot as plt
 
-file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-file_name = 'test.pdf'
+# file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
+# file_name = 'PA_reg_uncontrolled.pdf'
 
-w = np.array([0.7,0.8,0.9,1.0,1.1,1.2,1.3]) #([0.5,0.65,0.75,0.85,0.95,1.047,1.2,1.25,1.3])   # wave frequency
+# w = np.array([1])#0.7,0.8,0.9,1.0,1.1,1.2,1.3])   # wave frequency
 
-Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
-                             attenuator=True,farm=False,controls=False)
+# Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
+#                              attenuator=True,farm=True,controls=True)
 
 # cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
 # linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
@@ -90,5 +93,8 @@ Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_s
 # plt.legend()
 # plt.xlabel('$\omega$ [rad/s]')
 # plt.ylabel('Coefficient Value')
-# plt.savefig(f'{file_path}{file_name}')
-# plt.show()
+# print('beep')
+# plt.savefig('break_single.pdf')
+# # plt.savefig(f'{file_path}{file_name}')
+# print('boop')
+# #plt.show()
