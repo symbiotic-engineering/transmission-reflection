@@ -17,19 +17,19 @@ ygrid = 5000                                # size of grid in y-direction
 mxc = 300                                   # number of grid points in x (-1)
 myc = 300                                   # number of grid points in y (-1)
 
-x = [1490, 1590, 1690, 1420, 1520, 1620]    # x-position of bodies #,  
+x = [1490, 1590, 1690]#, 1420, 1520, 1620]    # x-position of bodies #,  
 ya = 4500                                   # y-position of row 1
 yb = 4400                                   # y-position of row 2
 H = 0.8                                     # avg significant wave height [m] (i had 1.3832  for some reason?)
 T = 5                                       # avg wave period [s] from buoy 44097
 w = np.array([2*np.pi/T])   # wave frequency
 
-breakwtr=False
+breakwtr=True
 point_absorber=False
 oscillating_surge=False
-attenuator=True
+attenuator=False
 farm=False
-controls=True
+controls=False
 
 Kt_H, Kr_H, w_vals = sheep.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls)
 if farm == True:
