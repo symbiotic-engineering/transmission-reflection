@@ -68,7 +68,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
     return Kt_H, Kr_H, w_vals
 
 
-# # this is where i've been generating my Kt(omega)/Kr(omega) plots
+# this is where i've been generating my Kt(omega)/Kr(omega) plots
 # import numpy as np
 # import matplotlib.pyplot as plt
 
@@ -77,8 +77,8 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
 # w = np.array([1])#0.7,0.8,0.9,1.0,1.1,1.2,1.3])   # wave frequency
 
-# Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
-#                              attenuator=True,farm=True,controls=True)
+# Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=True,point_absorber=True,oscillating_surge=True,
+#                              attenuator=False,farm=False,controls=True)
 
 # cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
 # linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
