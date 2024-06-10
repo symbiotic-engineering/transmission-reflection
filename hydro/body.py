@@ -1,5 +1,6 @@
 def PA(xtrans,ytrans,farm):
     import capytaine as cpt
+    import matplotlib.pyplot as plt
     # initializing parameters
     r = 10              # radius [m]
     l = 5               # length [m]
@@ -21,6 +22,7 @@ def PA(xtrans,ytrans,farm):
     body.inertia_matrix = body.compute_rigid_body_inertia()             # compute inertia matrix (required)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()   # compute hydrostatic stiffness (required)
     body.keep_only_dofs(dofs='Heave')
+    body.show_matplotlib()
 
     # create array
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
@@ -34,6 +36,7 @@ def PA(xtrans,ytrans,farm):
 
 def OSWEC(xtrans, ytrans, farm):
     import capytaine as cpt
+    import matplotlib.pyplot as plt
 
     # initializing parameters
     wi = 25         # width of flap [m]
@@ -60,6 +63,7 @@ def OSWEC(xtrans, ytrans, farm):
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
     body.keep_only_dofs(dofs='Pitch')
+    body.show_matplotlib()
 
     # create array
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
@@ -96,6 +100,7 @@ def breakwater(xtrans,ytrans,farm):
     body.add_all_rigid_body_dofs()
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
+    body.show_matplotlib()
 
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
     array.add_all_rigid_body_dofs()
@@ -141,4 +146,5 @@ def attenuator(xtrans,ytrans,farm,D):
         array = body + body.translated((D,0,0),name='1b') + body.translated((D*2,0,0),name='1c') + body.translated((D*3,0,0),name='1d')
         array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch','1c__Pitch','1d__Pitch'])
         rel_dim = ((l*4)/2)
+        array.show_matplotlib()
     return array, rel_dim

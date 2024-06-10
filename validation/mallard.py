@@ -16,4 +16,4 @@ for w in w:
         res = 2
     else: 
         res = 4                                   # resolution factor of grid wrt lambda
-    kd, total, incoming_fse, lam, elevation_at_gauges = SWELLPA.lpf(w,res,xtrans,ytrans,depth,froude_number,farm=True)
+    total, incoming_fse, lam, elevation_at_gauges = SWELLPA.lpf(w,res,xtrans,ytrans,depth,froude_number,farm=True)

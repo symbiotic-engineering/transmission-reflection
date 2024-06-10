@@ -18,10 +18,14 @@ def load_and_reshape(file_path):
 
 file_paths = [
     'blank_elevation.csv',
-    'atten_1a.csv','atten_1b.csv','atten_1c.csv','atten_1d.csv','atten_2a.csv','atten_3b.csv',
-    'break_1a.csv','break_1b.csv','break_1c.csv','break_1d.csv','break_2a.csv','break_3b.csv',
-    'OS_1a.csv','OS_1b.csv','OS_1c.csv','OS_1d.csv','OS_2a.csv','OS_3b.csv',
-    'PA_1a.csv','PA_1b.csv','PA_1c.csv','PA_1d.csv','PA_2a.csv','PA_3b.csv'
+    #'atten_1a.csv','atten_1b.csv','atten_1c.csv','atten_2a.csv','atten_3b.csv'
+    #'break_1a.csv','break_1b.csv','break_1c.csv','break_2a.csv','break_3b.csv' 
+    #'OS_1a.csv','OS_1b.csv','OS_1c.csv','OS_2a.csv','OS_3b.csv' 
+    'PA_1a.csv','PA_1b.csv','PA_1c.csv','PA_2a.csv','PA_3b.csv'
+    #'atten_1d.csv',
+    #'break_1d.csv',
+    #'OS_1d.csv',
+    #'PA_1d.csv'
 ]
 
 data_arrays = [load_and_reshape(f'/mnt/c/Users/ov162/transmission-reflection/data/{fp}') for fp in file_paths]
@@ -38,7 +42,7 @@ distance_from_array = abs(np.linspace(0, y_investigated * y_conversion, len(midl
 #print(distance_from_array)
 # Find the indices for the specified x-distances
 x_distance_1nm = 5000 - 1852
-x_distance_half_nm = 5000-(3704)
+x_distance_half_nm = 5000-(1852*2)
 x_index_1nm = np.argmin(np.abs(distance_from_array - x_distance_1nm))
 x_index_half_nm = np.argmin(np.abs(distance_from_array - x_distance_half_nm))
 
@@ -48,29 +52,29 @@ percent_decrease_half_nm_values = percent_decrease[:, x_index_half_nm]
 
 # Print the extracted values for each file
 for i, file_path in enumerate(file_paths[1:]):  # Skipping the blank file
-    #print(f"{file_path} - Percent decrease at 1852 meters: {percent_decrease_1nm_values[i]:.2f}%")
-    print(f"{file_path} - Percent decrease at 926 meters: {percent_decrease_half_nm_values[i]:.2f}%")
+    print(f"{file_path} - Percent decrease at 1852 meters: {percent_decrease_1nm_values[i]:.2f}%")
+    #print(f"{file_path} - Percent decrease at 926 meters: {percent_decrease_half_nm_values[i]:.2f}%")
 
 
-# Define color-blind friendly colors
-cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
+# # Define color-blind friendly colors
+# cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
 
-# Plot function
-def plot_data(x, y_data, ylabel, filename):
-    plt.figure()
-    for y, label, color, linestyle in zip(y_data, plot_labels, cud_colors, ['-', '--', '-.', ':','-','--','-.',':']):
-        plt.plot(x, y, label=label, color=color, linestyle=linestyle)
-    plt.axvline(x=1852, color='black', linestyle=':', label='1 nm')
-    plt.axvline(x=(1852)/2, color='black', linestyle='-')
-    plt.xlabel('Distance from Array [m]')
-    plt.ylabel(ylabel)
-    plt.legend()
-    #plt.savefig(f'/mnt/c/Users/ov162/transmission-reflection/run_all/post_pro/{filename}.pdf')
-    plt.show()
+# # Plot function
+# def plot_data(x, y_data, ylabel, filename):
+#     plt.figure()
+#     for y, label, color, linestyle in zip(y_data, plot_labels, cud_colors, ['-', '--', '-.', ':','-','--','-.',':']):
+#         plt.plot(x, y, label=label, color=color, linestyle=linestyle)
+#     #plt.axvline(x=1852, color='black', linestyle=':', label='1 nm')
+#     #plt.axvline(x=(1852)/2, color='black', linestyle='-')
+#     plt.xlabel('Distance from Array [m]')
+#     plt.ylabel(ylabel)
+#     plt.legend()
+#     plt.savefig(f'/mnt/c/Users/ov162/transmission-reflection/run_all/post_pro/{filename}.pdf')
+#     plt.show()
 
-# Plot wave heights
-plot_labels = ['Breakwater', 'PA', 'Attenuator','OS']
-#plot_data(distance_from_array, midline_heights[1:], 'Wave Height [m]', 'compare_bodies')
+# # Plot wave heights
+# plot_labels = ['Attenuator', 'Breakwater', 'OSWEC','PA']
+# #plot_data(distance_from_array, midline_heights[1:], 'Wave Height [m]', 'compare_bodies')
 
-# Plot percent decrease
-plot_data(distance_from_array, percent_decrease, 'Decrease in Wave Height [%]', '1d_percent_decrease')
+# # Plot percent decrease
+# plot_data(distance_from_array, percent_decrease, 'Decrease in Wave Height [%]', '1d_percent_decrease')

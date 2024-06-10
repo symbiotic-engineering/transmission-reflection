@@ -70,16 +70,26 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
 
 # this is where i've been generating my Kt(omega)/Kr(omega) plots
+<<<<<<< HEAD
 import numpy as np
 import matplotlib.pyplot as plt
+=======
+# import numpy as np
+# import matplotlib.pyplot as plt
+>>>>>>> a6b057267f509718507b4b7ff9821919a49cd82f
 
 file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
 file_name = 'PA_reg_uncontrolled.pdf'
 
 w = np.array([1])#0.7,0.8,0.9,1.0,1.1,1.2,1.3])   # wave frequency
 
+<<<<<<< HEAD
 Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
                              attenuator=True,farm=False,controls=True)
+=======
+# Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=True,point_absorber=True,oscillating_surge=True,
+#                              attenuator=False,farm=False,controls=True)
+>>>>>>> a6b057267f509718507b4b7ff9821919a49cd82f
 
 cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
 linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
@@ -91,6 +101,7 @@ for i, kr_h_values in enumerate(Kr_H):
     plt.plot(w_vals, kr_h_values, marker='x', label=f'$K_r$ for body {i+1}', 
              color=cud_colors[i+1 % len(cud_colors)], linestyle=linestyles[i % len(linestyles)])
 
+<<<<<<< HEAD
 plt.legend()
 plt.xlabel('$\omega$ [rad/s]')
 plt.ylabel('Coefficient Value')
@@ -99,3 +110,13 @@ plt.savefig('break_single.pdf')
 # plt.savefig(f'{file_path}{file_name}')
 print('boop')
 #plt.show()
+=======
+# plt.legend()
+# plt.xlabel('$\omega$ [rad/s]')
+# plt.ylabel('Coefficient Value')
+# print('beep')
+# plt.savefig('break_single.pdf')
+# # plt.savefig(f'{file_path}{file_name}')
+# print('boop')
+# #plt.show()
+>>>>>>> a6b057267f509718507b4b7ff9821919a49cd82f

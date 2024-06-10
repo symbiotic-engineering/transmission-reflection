@@ -35,8 +35,10 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, atte
             d = 15
             xe = [xi + d for xi in x]
             # i == 1 for 3bod staggered, i < 3 for all other cases
+            #line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i == 1 else yb} {xe[i]} {ya+100 if i == 1 else yb-100}"
             line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya+100 if i < 3 else yb-100}"
         else:
+            #line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i ==1 else yb} {xe[i]} {ya if i == 1 else yb}"
             line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya if i < 3 else yb}"
         commands.append(line)
 

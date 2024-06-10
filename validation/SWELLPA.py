@@ -112,42 +112,57 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     experimental_RAO = np.abs([force / term for force, term in zip(excitationForce_SWELL*froude_number**3, transfer_matrix)])
     print('RAO',experimental_RAO)
 
-    # generating wave height and disturbance datasets (5, 11, 2.5, 6)
-    x1, x2, nx, y1, y2, ny = 5/froude_number, 12/froude_number, 100, -1*2/froude_number, -1*7/froude_number, 100
-    grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
-    diffraction = solver.compute_free_surface_elevation(grid, diff_result)
-    multiplications = []
-    if farm == False:
-        for i in range(1):
-            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]
-            multiplications.append(mult_result)
-        radiation = sum(multiplications)
-    else:
-        for i in range(3):
-            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]
-            multiplications.append(mult_result)
-        radiation = sum(multiplications)
-    incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
-    total = (diffraction + radiation + incoming_fse)*0.02/(froude_number)
+    # # generating wave height and disturbance datasets (5, 11, 2.5, 6)
+    # x1, x2, nx, y1, y2, ny = 5/froude_number, 12/froude_number, 100, -1*2/froude_number, -1*7/froude_number, 100
+    # grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
+    # diffraction = solver.compute_free_surface_elevation(grid, diff_result)
+    # multiplications = []
+    # if farm == False:
+    #     for i in range(1):
+    #         mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]
+    #         multiplications.append(mult_result)
+    #     radiation = sum(multiplications)
+    # else:
+    #     for i in range(3):
+    #         mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]
+    #         multiplications.append(mult_result)
+    #     radiation = sum(multiplications)
+    # incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
+    # total = (diffraction + radiation + incoming_fse)*0.02/(froude_number)
 
     import matplotlib.patheffects as path_effects
     # plots
-    Z = np.real(incoming_fse)
-    X = grid[0]
-    Y = grid[1]
-    plt.pcolormesh(X, Y, Z) 
-    plt.xlabel("x")
-    plt.ylabel("y")
-    colorbar = plt.colorbar()
-    colorbar.set_label(r'Wave Elevation')
+    # Z = np.real(incoming_fse)
+    # X = grid[0]
+    # Y = grid[1]
+    # plt.pcolormesh(X, Y, Z) 
+    # plt.xlabel("x")
+    # plt.ylabel("y")
+    # colorbar = plt.colorbar()
+    # colorbar.set_label(r'Wave Elevation')
     #plt.scatter(xtrans + x,ytrans + y, marker = 'o', color = 'black', s = 100)
     #plt.scatter(x,y, marker = 'o', color = 'black', s = 100)
-    plt.scatter(gauge_x,gauge_y, marker = 'o', color = 'red', s = 25)
     #plt.arrow(-50, 50, 20, 0, color='black', width=0.2, head_width=5, head_length=5)
     #text = plt.text(-60, 40, 'Incident Waves', color='black', fontsize=12, ha='center', va='center')
     #text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'), path_effects.Normal()])
+    plt.figure(figsize=(10, 8)) 
+    plt.scatter(gauge_x,gauge_y, marker = 'o', color = 'red', s = 35)
+    # x_offset = 0.05  # Adjust as needed
+    y_offset = 0.05  # Adjust as needed
+    for i, (x, y) in enumerate(zip(gauge_x, gauge_y), start=1):
+        plt.text(x, y - y_offset, f'{i}', fontsize=12, ha='center', va='top')
+    # Add labels, alternating between above and below the points with specified offset
+    # for i, (x, y) in enumerate(zip(gauge_x, gauge_y)):
+    #     if i % 2 == 0:
+    #         plt.text(x, y - y_offset, f'({x:.2f}, {y:.2f})', fontsize=10, ha='center', va='top')
+    #     else:
+    #         plt.text(x, y + y_offset, f'({x:.2f}, {y:.2f})', fontsize=10, ha='center', va='bottom')
+    plt.xlabel('X [m]',fontsize='14')
+    plt.ylabel('Y [m]',fontsize='14')
+    plt.xticks(fontsize='12')
+    plt.yticks(fontsize='12')
     plt.tight_layout()
-    plt.savefig('validation.pdf')
+    plt.savefig('validation_sensors.pdf')
     plt.show()
 
     points = np.column_stack((gauge_x, gauge_y))
@@ -156,4 +171,4 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     print(np.abs(elevation_at_gauges))
     # total_at_gauges now contains the values of 'total' at the gauge locations specified by gauge_x and gauge_y
 
-    return kd, total, incoming_fse, lam, elevation_at_gauges
+    return total, incoming_fse, lam, elevation_at_gauges
