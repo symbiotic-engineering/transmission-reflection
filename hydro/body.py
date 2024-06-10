@@ -1,4 +1,4 @@
-def PA(xtrans,ytrans,farm):
+def PA(xtrans,ytrans,farm,nr,ntheta,nz):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     # initializing parameters
@@ -7,9 +7,9 @@ def PA(xtrans,ytrans,farm):
     x = 0               # x-position of body center
     y = 0               # y-position of body center
     z = 0               # z-position of body center
-    nr = 20
-    ntheta = 10          # number of panels in theta direction (was 10)
-    nz = 5              # number of panels in z-direction (was 5)
+    # nr = 20
+    # ntheta = 10          # number of panels in theta direction (was 10)
+    # nz = 5              # number of panels in z-direction (was 5)
     rel_dim = r + abs(xtrans[0])
 
 
@@ -22,7 +22,7 @@ def PA(xtrans,ytrans,farm):
     body.inertia_matrix = body.compute_rigid_body_inertia()             # compute inertia matrix (required)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()   # compute hydrostatic stiffness (required)
     body.keep_only_dofs(dofs='Heave')
-    body.show_matplotlib()
+    #body.show_matplotlib()
 
     # create array
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')

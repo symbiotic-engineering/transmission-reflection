@@ -2,6 +2,7 @@ import body
 import solve
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 xtrans = np.array([0,0]) 
 ytrans = np.array([50,50]) 
@@ -15,52 +16,28 @@ rad = True
 N = 3
 D = 30
 
-# for the point absorber
-# nr = 20
-# ntheta = 15
-# nz = 15
-#nz_values = np.linspace(1, 50, 49)
-#ntheta_values = np.linspace(5,30,24)
-#nr_values = np.linspace(5,50,44)
-
-# for OSWEC
-# nt = 3         # this might need to be 8... eek!
-# nh = 10        # this was good!        
-# nw = 10         # this was good!
-# nw_values = np.linspace(1,30,29)#10         # number of panels along width (x)
-# nt_values = np.linspace(1,20,18)          # number of panels along thickness (y)
-# nh_values = np.linspace(1,30,29)         # number of panels along height (z)
-
-# for breakwater
-# nw = 10         # number of panels along width (x)
-# nt = 10          # number of panels along thickness (y) might need to be 13, eek!
-# nh = 2          # number of panels along height (z) should probably be 20 yikes!!
-# nw_values = np.linspace(1,30,29)         # number of panels along width (x)
-# nt_values = np.linspace(1,20,18)          # number of panels along thickness (y)
-# nh_values = np.linspace(1,30,29)         # number of panels along height (z)
-
-# for attenuator
-# nr = 2        # 10 or 15 would be better
-# ntheta = 5     # 12 would be better
-# nz = 10            # 10 was perfect!
-# nz_values = np.linspace(1, 50, 49)
-# ntheta_values = np.linspace(3,40,39)
-# nr_values = np.linspace(1,20,19)
+# for PA
+r = 10              # radius [m]
+l = 5               # length [m]
+points = np.linspace(1,30,30)
 
 # Initialize lists to store results
-radial_mesh = []
+panels = []
 tot_el_1pt = []
-#res_values = np.linspace(0.5,3,15)
-res = 2.5
 
-for i in range(len(nh_values)):
-    nh = int(nh_values[i])
-    array, rel_dim = body.breakwater(xtrans, ytrans, farm,nw,nt,nh)
+for i in range(len(points)):
+# Compute cosine spacing for each dimension
+    nr = int((r/l)*points[i])
+    print(nr)
+    nz = int((l/r)*points[i])
+    ntheta = int((2*np.pi)*points[i])
+
+    array, rel_dim = body.PA(xtrans, ytrans, farm,nr,ntheta,nz)
     #array, rel_dim = body.attenuator(xtrans, ytrans, farm, D,nr,ntheta,nz)
     diff_result, rad_result, RAO_vals, lam = solve.hydro(array, B, depth, w, farm, controls)
     
     # Calculate elevation (replace with actual implementation)
-    total, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res, lam, diff_result, rad_result, RAO_vals, farm, rad, controls, N, attenuator, rel_dim)
+    # total, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res, lam, diff_result, rad_result, RAO_vals, farm, rad, controls, N, attenuator, rel_dim)
     
     # Extract the specific point from the array 'total'
     specific_point = RAO_vals[0, 0] # np.mean(total)
@@ -69,7 +46,12 @@ for i in range(len(nh_values)):
     tot_el_1pt.append(specific_point)
     
     # Append the radial mesh value
-    radial_mesh.append(nh)
+    panels.append(points)
+df = pd.DataFrame(tot_el_1pt, columns=['TotEl1pt'])
+# Define the CSV file path
+csv_file_path = 'PA_RAO.csv'
+# Write the DataFrame to a CSV file
+df.to_csv(csv_file_path, index=False)
 
 # Calculate the percent difference between consecutive tot_el_1pt values
 percent_diff = [0]  # Start with 0 for the first value as there's no previous value to compare
@@ -79,13 +61,12 @@ for i in range(1, len(tot_el_1pt)):
 
 # Plot the percent difference
 plt.figure(figsize=(12, 6))
-plt.plot(radial_mesh, percent_diff, marker='o',color='red')
-plt.xlabel('Z-Direction Number of Panels',fontsize=17)
-plt.ylabel('Percent Difference [%]',fontsize=17)
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-#plt.title('Percent Difference in Total Elevation vs Z-direction Mesh Values')
+plt.plot(panels, percent_diff, marker='o',color='red')
+plt.xlabel('Z-Direction Number of Panels',fontsize=20)
+plt.ylabel('Percent Difference [%]',fontsize=20)
+plt.xticks(fontsize=20)
+plt.yticks(fontsize=20)
 plt.legend()
 plt.tight_layout()
-plt.savefig('break_nh_conv_perc.pdf')
+plt.savefig('PA_panel_conv.pdf')
 plt.show()
