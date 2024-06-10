@@ -24,12 +24,12 @@ H = 0.8                                     # avg significant wave height [m] (i
 T = 5                                       # avg wave period [s] from buoy 44097
 w = np.array([2*np.pi/T])   # wave frequency
 
-breakwtr=True
+breakwtr=False
 point_absorber=False
-oscillating_surge=False
+oscillating_surge=True
 attenuator=False
-farm=False
-controls=False
+farm=True
+controls=True
 
 Kt_H, Kr_H, w_vals = sheep.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls)
 if farm == True:
@@ -39,7 +39,8 @@ else:
 
 KR = [Kr_H[0][0], Kr_H[i][0], Kr_H[2*i][0], Kr_H[0][0], Kr_H[i][0], Kr_H[2*i][0]]
 KT = [Kt_H[0][0], Kt_H[i][0], Kt_H[2*i][0], Kt_H[0][0], Kt_H[i][0], Kt_H[2*i][0]]
+print('OS_3')
 print(KR)
 print(KT)
 
-waveHeight = alpaca.swanrun(KR, KT, x, ya, yb, H, T, xgrid, ygrid, mxc, myc,attenuator)
+# waveHeight = alpaca.swanrun(KR, KT, x, ya, yb, H, T, xgrid, ygrid, mxc, myc,attenuator)
