@@ -2,90 +2,99 @@ import body
 import solve
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
-xtrans = np.array([0,0]) 
-ytrans = np.array([50,50]) 
+xtrans = [0,0]
+ytrans = [-50,50]
 farm = False
 controls = False
 attenuator = False
 B = 0
 depth = 40
-w = 1.25
+w1 = 1.0
+w2 = 1.25
+w3 = 1.3
 rad = True
 N = 3
 D = 30
 
-# for the point absorber
-# nr = 20
-# ntheta = 15
-# nz = 15
-#nz_values = np.linspace(1, 50, 49)
-#ntheta_values = np.linspace(5,30,24)
-#nr_values = np.linspace(5,50,44)
-
-# for OSWEC
-# nt = 3         # this might need to be 8... eek!
-# nh = 10        # this was good!        
-# nw = 10         # this was good!
-# nw_values = np.linspace(1,30,29)#10         # number of panels along width (x)
-# nt_values = np.linspace(1,20,18)          # number of panels along thickness (y)
-# nh_values = np.linspace(1,30,29)         # number of panels along height (z)
-
-# for breakwater
-# nw = 10         # number of panels along width (x)
-# nt = 10          # number of panels along thickness (y) might need to be 13, eek!
-# nh = 2          # number of panels along height (z) should probably be 20 yikes!!
-# nw_values = np.linspace(1,30,29)         # number of panels along width (x)
-# nt_values = np.linspace(1,20,18)          # number of panels along thickness (y)
-# nh_values = np.linspace(1,30,29)         # number of panels along height (z)
-
-# for attenuator
-# nr = 2        # 10 or 15 would be better
-# ntheta = 5     # 12 would be better
-# nz = 10            # 10 was perfect!
-# nz_values = np.linspace(1, 50, 49)
-# ntheta_values = np.linspace(3,40,39)
-# nr_values = np.linspace(1,20,19)
-
 # Initialize lists to store results
-radial_mesh = []
-tot_el_1pt = []
-#res_values = np.linspace(0.5,3,15)
-res = 2.5
+panels = []
+RAO_07 = []
+RAO_125 = []
+RAO_13 = []
+points = np.linspace(0.5,6.0,12)
 
-for i in range(len(nh_values)):
-    nh = int(nh_values[i])
-    array, rel_dim = body.breakwater(xtrans, ytrans, farm,nw,nt,nh)
+for i in range(len(points)):
+    res = points[i]
+    print('res',res)
+#     nt = int((th/(2*h))*points[i])
+#     nh = int(points[i])
+#     if nh < 1:
+#         nh = 1
+#     nw = int((wi/(4*h))*points[i])
+#     print('points',points[i])
+#     print('nt',nt)
+#     print('nh',nh)
+#     print('nw',nw)
+
+    array, rel_dim = body.PA(xtrans, ytrans, farm)
     #array, rel_dim = body.attenuator(xtrans, ytrans, farm, D,nr,ntheta,nz)
-    diff_result, rad_result, RAO_vals, lam = solve.hydro(array, B, depth, w, farm, controls)
     
-    # Calculate elevation (replace with actual implementation)
-    total, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res, lam, diff_result, rad_result, RAO_vals, farm, rad, controls, N, attenuator, rel_dim)
-    
-    # Extract the specific point from the array 'total'
-    specific_point = RAO_vals[0, 0] # np.mean(total)
-    
-    # Append the extracted value to tot_el_1pt list
-    tot_el_1pt.append(specific_point)
+    diff_result1, rad_result1, RAO_vals1, lam = solve.hydro(array, B, depth, w1, farm, controls)
+    total1, incoming_fse1, x1, x2, nx, y1, y2, ny = solve.elevation(res, lam, diff_result1, rad_result1, RAO_vals1, farm, rad, controls, N, attenuator, rel_dim)
+    rao1 = abs(total1[40,0])
+    RAO_07.append(rao1)
+    # rao1 = RAO_vals1[0, 0] # np.mean(total)
+    # RAO_07.append(rao1)
+
+    diff_result2, rad_result2, RAO_vals2, lam = solve.hydro(array, B, depth, w2, farm, controls)
+    total2, incoming_fse2, x1, x2, nx, y1, y2, ny = solve.elevation(res, lam, diff_result2, rad_result2, RAO_vals2, farm, rad, controls, N, attenuator, rel_dim)
+    rao2 = abs(total2[40,0])
+    RAO_125.append(rao2)
+    # rao2 = RAO_vals2[0, 0] # np.mean(total)
+    # RAO_125.append(rao2)
+
+    diff_result3, rad_result3, RAO_vals3, lam = solve.hydro(array, B, depth, w3, farm, controls)
+    total3, incoming_fse3, x1, x2, nx, y1, y2, ny = solve.elevation(res, lam, diff_result3, rad_result3, RAO_vals3, farm, rad, controls, N, attenuator, rel_dim)
+    rao3 = abs(total3[40,0])
+    RAO_13.append(rao3)
+    # rao3 = RAO_vals3[0, 0] # np.mean(total)
+    # RAO_13.append(rao3)
     
     # Append the radial mesh value
-    radial_mesh.append(nh)
+    panels.append(points)
 
-# Calculate the percent difference between consecutive tot_el_1pt values
-percent_diff = [0]  # Start with 0 for the first value as there's no previous value to compare
-for i in range(1, len(tot_el_1pt)):
-    diff = 100 * (tot_el_1pt[i] - tot_el_1pt[i - 1]) / tot_el_1pt[i - 1]
-    percent_diff.append(diff)
+percent1 = [0]  
+for i in range(1, len(RAO_07)):
+    diff1 = 100 * (RAO_07[i] - RAO_07[i - 1]) / RAO_07[i - 1]
+    percent1.append(diff1)
+print('percent1',percent1)
+percent2 = [0]  
+for i in range(1, len(RAO_125)):
+    diff2 = 100 * (RAO_125[i] - RAO_125[i - 1]) / RAO_125[i - 1]
+    percent2.append(diff2)
+print('percent2',percent2)
+percent3 = [0]  
+for i in range(1, len(RAO_13)):
+    diff3 = 100 * (RAO_13[i] - RAO_13[i - 1]) / RAO_13[i - 1]
+    percent3.append(diff3)
+print('percent3',percent3)
 
+#Blue: #377eb8 Orange: #ff7f00 Green: #4daf4a Purple: #984ea3 Yellow: #ffff33 Cyan: #a65628
 # Plot the percent difference
 plt.figure(figsize=(12, 6))
-plt.plot(radial_mesh, percent_diff, marker='o',color='red')
-plt.xlabel('Z-Direction Number of Panels',fontsize=17)
-plt.ylabel('Percent Difference [%]',fontsize=17)
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-#plt.title('Percent Difference in Total Elevation vs Z-direction Mesh Values')
-plt.legend()
+plt.plot(points, percent1, marker='o',color='#377eb8',label='$\omega$=1.0 rad/s')
+plt.plot(points, percent2, marker='o',color='#ff7f00',label='$\omega$=1.25 rad/s')
+plt.plot(points, percent3, marker='o',color='#984ea3',label='$\omega$=1.3 rad/s')
+#plt.scatter(5.07,0.0878,marker='*',color='black',s=400,zorder=10,label='Chosen AR')
+plt.xlabel('Aspect Ratio',fontsize=20)
+plt.ylabel('Percent Change Wave Elevation [%]',fontsize=20)
+plt.xticks(fontsize=20)
+plt.yticks(fontsize=20)
+plt.legend(fontsize=20, markerscale=1)
 plt.tight_layout()
-plt.savefig('break_nh_conv_perc.pdf')
-plt.show()
+print('yip')
+plt.savefig('free_surface_conv.pdf')
+print('eee')
+#plt.show()

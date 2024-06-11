@@ -37,8 +37,8 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
     # defining the computational grid and preparing post-process data
     # x1, x2, nx, y1, y2, ny = -res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     x1, x2, y1, y2 = -(lam + rel_dim), (lam + rel_dim), -100, 100
-    nx = int(res*(abs(x1)+x2))
     ny = int(res*(abs(y1)+y2))
+    nx = int(res*(abs(x1)+x2))
     # if attenuator == True:
     #     x1, x2, nx, y1, y2, ny = -2*res*lam, 2*res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))

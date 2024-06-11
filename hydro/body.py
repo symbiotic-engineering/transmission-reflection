@@ -7,9 +7,9 @@ def PA(xtrans,ytrans,farm):
     x = 0               # x-position of body center
     y = 0               # y-position of body center
     z = 0               # z-position of body center
-    nr = 20
-    ntheta = 10          # number of panels in theta direction (was 10)
-    nz = 5              # number of panels in z-direction (was 5)
+    nr = 12
+    ntheta = 19          # number of panels in theta direction (was 10)
+    nz = 4              # number of panels in z-direction (was 5)
     rel_dim = r + abs(xtrans[0])
 
 
@@ -22,7 +22,7 @@ def PA(xtrans,ytrans,farm):
     body.inertia_matrix = body.compute_rigid_body_inertia()             # compute inertia matrix (required)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()   # compute hydrostatic stiffness (required)
     body.keep_only_dofs(dofs='Heave')
-    body.show_matplotlib()
+    #body.show_matplotlib()
 
     # create array
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
@@ -47,9 +47,9 @@ def OSWEC(xtrans, ytrans, farm):
     y = 0           # y-position of body center
     z = 0.5*h-draft # z-position of body center [m]
     cog = -11.4     # center of gravity [m]
-    nt = 4         # this was 3
-    nh = 20        # this was good!        
-    nw = 20         # this was good!
+    nt = 3         
+    nh = 10              
+    nw = 18
     rel_dim = th + abs(xtrans[0])
 
     # defining mesh
@@ -63,7 +63,7 @@ def OSWEC(xtrans, ytrans, farm):
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
     body.keep_only_dofs(dofs='Pitch')
-    body.show_matplotlib()
+    #body.show_matplotlib()
 
     # create array
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
@@ -85,9 +85,9 @@ def breakwater(xtrans,ytrans,farm):
     x = 0
     y = 0
     z = -0.5        # box center [m]
-    nw = 10         # number of panels along width (x)
-    nt = 10         # number of panels along thickness (y)
-    nh = 10          # number of panels along height (z)
+    nw = 12         # number of panels along width (x)
+    nt = 6         # number of panels along thickness (y)
+    nh = 5          # number of panels along height (z)
     rel_dim = th + abs(xtrans[0])
 
     # defining mesh
@@ -100,7 +100,7 @@ def breakwater(xtrans,ytrans,farm):
     body.add_all_rigid_body_dofs()
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
-    body.show_matplotlib()
+    #body.show_matplotlib()
 
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
     array.add_all_rigid_body_dofs()
@@ -121,9 +121,9 @@ def attenuator(xtrans,ytrans,farm,D):
     l = 29
     x = -50
     y = 0
-    nr = 10        # number of panels along radius (was 4)
-    ntheta = 10     # number of panels in theta direction (was 6)
-    nz = 12         # number of panels in length-direction
+    nr = 1        # number of panels along radius (was 4)
+    ntheta = 15     # number of panels in theta direction (was 6)
+    nz = 41         # number of panels in length-direction
     z = 0
     rel_dim = int(((l*4)/2) + abs(xtrans[0]))
 
