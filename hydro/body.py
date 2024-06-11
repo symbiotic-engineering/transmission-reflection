@@ -1,4 +1,4 @@
-def PA(xtrans,ytrans,farm):
+def PA(xtrans,ytrans,farm,nr,ntheta,nz):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     # initializing parameters
