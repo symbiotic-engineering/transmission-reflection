@@ -1,12 +1,14 @@
-def PA(xtrans,ytrans,farm,nr,ntheta,nz):
+def PA(xtrans,ytrans,farm):
     import capytaine as cpt
     import matplotlib.pyplot as plt
+    import numpy as np
     # initializing parameters
     r = 10              # radius [m]
     l = 5               # length [m]
     x = 0               # x-position of body center
     y = 0               # y-position of body center
     z = 0               # z-position of body center
+    cog = -0.72         # center of mass as reported by WECSim
     nr = 12
     ntheta = 19          # number of panels in theta direction (was 10)
     nz = 4              # number of panels in z-direction (was 5)
@@ -17,7 +19,7 @@ def PA(xtrans,ytrans,farm,nr,ntheta,nz):
     body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
                                                             resolution=(nr,ntheta,nz),name='cyl'))
     body.keep_immersed_part()               # clips body for computation
-    body.center_of_mass=(0,0,z)             # defines center of mass (required)
+    body.center_of_mass=np.array([0,0,cog])             # defines center of mass (required)
     body.add_all_rigid_body_dofs()          # capytaine requirement
     body.inertia_matrix = body.compute_rigid_body_inertia()             # compute inertia matrix (required)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()   # compute hydrostatic stiffness (required)
@@ -37,6 +39,7 @@ def PA(xtrans,ytrans,farm,nr,ntheta,nz):
 def OSWEC(xtrans, ytrans, farm):
     import capytaine as cpt
     import matplotlib.pyplot as plt
+    import numpy as np
 
     # initializing parameters
     wi = 25         # width of flap [m]
@@ -58,7 +61,7 @@ def OSWEC(xtrans, ytrans, farm):
                                                                                 center=(x, y, z),
                                                                                 name='rect'))
     body.keep_immersed_part()
-    body.center_of_mass=(0,0,cog)
+    body.center_of_mass=np.array([0,0,cog])
     body.add_all_rigid_body_dofs()
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
@@ -78,6 +81,7 @@ def OSWEC(xtrans, ytrans, farm):
 def breakwater(xtrans,ytrans,farm):
     import capytaine as cpt
     import matplotlib.pyplot as plt
+    import numpy as np
     # initializing parameters
     wi = 20         # width of box [m]
     th = 5          # thickness of box [m]
@@ -85,6 +89,7 @@ def breakwater(xtrans,ytrans,farm):
     x = 0
     y = 0
     z = -0.5        # box center [m]
+    cog = -0.162    # 10.8% of the draft, equivalent to PA cog
     nw = 12         # number of panels along width (x)
     nt = 6         # number of panels along thickness (y)
     nh = 5          # number of panels along height (z)
@@ -96,7 +101,7 @@ def breakwater(xtrans,ytrans,farm):
                                                                                  center=(x, y, z), 
                                                                                  name='rect'))
     body.keep_immersed_part()
-    body.center_of_mass=(0,0,-h/2)
+    body.center_of_mass=np.array([0,0,cog])
     body.add_all_rigid_body_dofs()
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
@@ -115,23 +120,24 @@ def attenuator(xtrans,ytrans,farm,D):
     # D = distance btwn cylinders (in the single attenuator) = 30
     import capytaine as cpt
     import matplotlib.pyplot as plt
-
+    import numpy as np
     # initializing parameters
     r = 1.75     # radius [m]
     l = 29
     x = -50
     y = 0
-    nr = 1        # number of panels along radius (was 4)
-    ntheta = 15     # number of panels in theta direction (was 6)
-    nz = 41         # number of panels in length-direction
+    nr = 1        # number of panels along radius (was 1)
+    ntheta = 15    # number of panels in theta direction (was 6)
+    nz = 41         # number of panels in length-direction (41)
     z = 0
+    cog = -0.189   # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
     rel_dim = int(((l*4)/2) + abs(xtrans[0]))
 
     # defining mesh
     body = cpt.FloatingBody(mesh=cpt.mesh_horizontal_cylinder(length=l, radius=r,center=(x,y,z),
                                                             resolution=(nr,ntheta,nz),name='cyl'))
     body.keep_immersed_part()
-    body.center_of_mass=(0,0,0)
+    body.center_of_mass=np.array([0,0,cog])
     body.add_all_rigid_body_dofs()
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
@@ -146,5 +152,5 @@ def attenuator(xtrans,ytrans,farm,D):
         array = body + body.translated((D,0,0),name='1b') + body.translated((D*2,0,0),name='1c') + body.translated((D*3,0,0),name='1d')
         array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch','1c__Pitch','1d__Pitch'])
         rel_dim = ((l*4)/2)
-        array.show_matplotlib()
+        # array.show_matplotlib()
     return array, rel_dim

@@ -19,7 +19,9 @@ def hydro(array,B,depth,w,farm,controls):
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
 
     RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
-    RAO_vals = abs((RAO.values))            # this is essentially the true pitch amplitude
+    # RAO_vals = abs((RAO.values))            # this is essentially the true pitch amplitude
+    RAO_vals = RAO.values
+    print('rao',RAO_vals)
 
     if controls == True:
         RAO_controlled = PTO.RAO(diff_prob,diff_result,dataset,array,w,farm)
@@ -35,12 +37,9 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
     solver = cpt.BEMSolver()
 
     # defining the computational grid and preparing post-process data
-    # x1, x2, nx, y1, y2, ny = -res*lam, res*lam, res*lam, -res*lam, res*lam, res*lam
     x1, x2, y1, y2 = -(lam + rel_dim), (lam + rel_dim), -100, 100
     ny = int(res*(abs(y1)+y2))
     nx = int(res*(abs(x1)+x2))
-    # if attenuator == True:
-    #     x1, x2, nx, y1, y2, ny = -2*res*lam, 2*res*lam, res*lam, -res*lam, res*lam, res*lam
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)  # wave el due to diffraction
     multiplications = []

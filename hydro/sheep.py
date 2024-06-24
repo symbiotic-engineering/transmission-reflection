@@ -28,15 +28,22 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
     w_vals = []                             # for storing omega values
 
-    # here, we change the resolution of the computational grid of
-    # the free surfuce wrt to wavelength. this keeps computational time reasonable
-    # for long wavelength and accuracy up to par for short wavelengths
     for w in w:
-        res=1.8
-        # if w < 1.3:
-        #     res = 2
-        # else:
-        #     res = 2
+
+        # this is where you set the grid resolution based on wavelength.
+        # shorter wavelengths require finer mesh resolution based on 
+        # mesh convergence study.
+        if w < 0.95:
+            res = 1
+        elif w == 1.0:
+            res = 2.0
+        elif w == 1.1:
+            res = 2.5
+        elif w == 1.25:
+            res = 2.5
+        elif w == 1.3:
+            res = 3.5
+
         # this where the code generates the body based on which you chose
         if breakwtr == True:
             array, rel_dim = body.breakwater(xtrans,ytrans,farm)
@@ -52,6 +59,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
         # this is where the code solves hydrodynamics
         diff_result,rad_result,RAO_vals,lam = solve.hydro(array,B,depth,w,farm,controls)
+
         # this is where the code solves for wave elevation
         total, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
 
@@ -70,53 +78,49 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
 
 # this is where i've been generating my Kt(omega)/Kr(omega) plots
-<<<<<<< HEAD
 import numpy as np
 import matplotlib.pyplot as plt
-=======
-# import numpy as np
-# import matplotlib.pyplot as plt
->>>>>>> a6b057267f509718507b4b7ff9821919a49cd82f
+import csv
 
-file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-file_name = 'PA_reg_uncontrolled.pdf'
+# file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
+# file_name = 'PA_reg_uncontrolled.pdf'
 
-w = np.array([1])#0.7,0.8,0.9,1.0,1.1,1.2,1.3])   # wave frequency
+w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
-<<<<<<< HEAD
 Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
                              attenuator=True,farm=False,controls=True)
-=======
-# Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=True,point_absorber=True,oscillating_surge=True,
-#                              attenuator=False,farm=False,controls=True)
->>>>>>> a6b057267f509718507b4b7ff9821919a49cd82f
 
-cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
+print('frequency',w_vals)
+print('transmission coeff',Kt_H)
+print('reflection coeff',Kr_H)
+
+cud_colors = ['#009E73','#D55E00','#E69F00', '#56B4E9','#0072B2', '#CC79A7', '#000000','#F0E442']
 linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
 
 for i, kt_h_values in enumerate(Kt_H):
-    plt.plot(w_vals, kt_h_values, marker='o', label=f'$K_t$ for body {i+1}', 
-             color=cud_colors[i % len(cud_colors)], linestyle=linestyles[i % len(linestyles)])
+    plt.plot(w_vals, kt_h_values, marker='s', markersize='10',label=f'$K_t$ body {i+1}',
+             color=cud_colors[i % len(cud_colors)], linestyle=linestyles[i % len(linestyles)],linewidth=3)
 for i, kr_h_values in enumerate(Kr_H):
-    plt.plot(w_vals, kr_h_values, marker='x', label=f'$K_r$ for body {i+1}', 
-             color=cud_colors[i+1 % len(cud_colors)], linestyle=linestyles[i % len(linestyles)])
+    plt.plot(w_vals, kr_h_values, marker='d', markersize='10', label=f'$K_r$ body {i+1}', 
+             color=cud_colors[i+1 % len(cud_colors)], linestyle=linestyles[i % len(linestyles)],linewidth=3)
 
-<<<<<<< HEAD
-plt.legend()
-plt.xlabel('$\omega$ [rad/s]')
-plt.ylabel('Coefficient Value')
+plt.xticks(fontsize=20)
+plt.yticks(fontsize=20)
+plt.xlabel('$\omega$ [rad/s]', fontsize=20)
+plt.ylabel('Coefficient Value', fontsize=20)
+plt.tight_layout()
 print('beep')
-plt.savefig('break_single.pdf')
+plt.savefig('atten_damp.pdf')
 # plt.savefig(f'{file_path}{file_name}')
 print('boop')
 #plt.show()
-=======
-# plt.legend()
-# plt.xlabel('$\omega$ [rad/s]')
-# plt.ylabel('Coefficient Value')
-# print('beep')
-# plt.savefig('break_single.pdf')
-# # plt.savefig(f'{file_path}{file_name}')
-# print('boop')
-# #plt.show()
->>>>>>> a6b057267f509718507b4b7ff9821919a49cd82f
+
+# this is to save the data if you just want to fiddle with plots
+file_path = 'atten_damp.csv'
+with open(file_path, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))]
+    writer.writerow(header)
+    for i in range(len(w_vals)):
+        row = [w_vals[i]] + [Kt_H[j][i] for j in range(len(Kt_H))] + [Kr_H[j][i] for j in range(len(Kr_H))]
+        writer.writerow(row)

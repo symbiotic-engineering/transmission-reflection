@@ -5,9 +5,11 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm):
     import numpy as np
 
     B = np.array([dataset['radiation_damping'].sel(radiating_dof=dofs,influenced_dof=dofs) for dofs in array.dofs])
+    print('damping',B)
     A = np.array([dataset['added_mass'].sel(radiating_dof=dofs, influenced_dof=dofs) for dofs in array.dofs])
     K = array.hydrostatic_stiffness.values
     M = array.inertia_matrix.values
+    print('inertia matrix',M)
 
     # heave exciting forces
     FK = np.array([froude_krylov_force(diff_prob)[dof] for dof in array.dofs])
@@ -21,8 +23,9 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm):
     K_pto = 0 
     
     # WEC motion (complex) 
-    RAO_controlled = abs((np.diag(ex_force/((-w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))) 
-    print('rao',RAO_controlled)
+    # RAO_controlled = abs((np.diag(ex_force/((-w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))) 
+    RAO_controlled = (np.diag(ex_force/((-w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))
+    print('rao controlled',RAO_controlled)
     power = 0.5*np.diag(B_pto)*(abs(RAO_controlled))**2*w**2
     print('power',power)
          
