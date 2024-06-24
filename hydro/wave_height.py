@@ -1,3 +1,13 @@
+'''This script will find the wave elevation directly in front of and behind
+each body. It will take the average of the total wave elevation in front of 
+and behind each body and divide it by the average incident wave elevation
+in front of and behind each body. This is how the reflection and transmission
+coefficients are found, respectively. The energy blance and energy dissipation
+are also computed. 
+
+The commented out plot allows you to visualize where exactly (w.r.t. the
+bodies) wave elevation is being used for computation.'''
+
 def wave_height(total, incoming_fse, lam, xtrans, ytrans, farm, rel_dim, nx, ny, x1, x2, y1, y2):
     import numpy as np
     import matplotlib.pyplot as plt

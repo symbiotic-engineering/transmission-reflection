@@ -1,3 +1,10 @@
+'''this file is how I generated figures to compare the wave height as a
+function of distance for different cases. It loads .csv files and finds the 
+midline heights of the datasets. .csv files are used because SWAN is
+computationally expensive. It is more straightforward to generate good figures
+to work with saved datasets rather than conducting 9 consecutive Capytaine
+and SWAN runs. You will need to change the file path in line 39 to run.'''
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -5,7 +12,7 @@ import matplotlib.pyplot as plt
 xgrid = 3000
 ygrid = 5000
 mxc = 300
-myc = 300
+myc = 500
 x_conversion = xgrid / (mxc + 1)
 y_conversion = ygrid / (myc + 1)
 x_investigated = int(1550 / x_conversion)       # dead x-center of array
@@ -28,6 +35,7 @@ file_paths = [
     #'PA_1d.csv'
 ]
 
+# you will need to change the file path to run
 data_arrays = [load_and_reshape(f'/mnt/c/Users/ov162/transmission-reflection/data/{fp}') for fp in file_paths]
 
 # Extract midline heights

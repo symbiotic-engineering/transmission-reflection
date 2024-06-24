@@ -1,3 +1,11 @@
+'''This is the run file to run all the near field functions. It runs:
+1. body.name() which initializes the body
+2. solve.hydro() which solves the body hydrodynamics (and includes the
+power take-off function nested within)
+3. solve.elevation() which solves for the free surface elevation
+4. wave_height.wave_height() which solves for wave height ratios i.e.
+the transmission and reflection coefficients.'''
+
 def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls):
     ################ SCRIPT FOR CALCULATING AT COEFFS ############
     # run all Kt and Kr calcs for any body here
@@ -16,7 +24,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
     B = 0                                           # wave direction [rad]
     depth = 40                                      # average water depth at southfork
-    xtrans = np.array([0,0])                        # x translation of bodies if farm
+    xtrans = np.array([50,50])                        # x translation of bodies if farm
     ytrans = np.array([50,-50])                     # y translation of bodies if farm
 
     # attenuator properties (because it has to be modeled a little differently)
@@ -65,10 +73,12 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
         # this is where the code calculates your reflection and transmission coefficients
         ref, trans, EB, KD = wave_height.wave_height(total, incoming_fse,lam,xtrans,ytrans,farm,rel_dim,nx,ny,x1,x2,y1,y2)
+        
         print('energy balance',EB)
         print('Kt',trans)
         print('Kr',ref)
         print('dissipation',KD)
+
         w_vals.append(w)
         for i in range(index):
             Kr_H[i].append(ref[i])
@@ -76,24 +86,40 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         
     return Kt_H, Kr_H, w_vals
 
+### COMMENT THIS BIT OUT if you are going to run the big_run.py script ###
+# this is where i've been generating my Kt(omega)/Kr(omega) datasets
+# for post processing 
+'''if you are running the attenuator, you will likely run into the issue of 
+overlapping panels in Capytaine. Making slight tweaks to the grid resolution
+can mediate this issue.'''
 
-# this is where i've been generating my Kt(omega)/Kr(omega) plots
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-# file_path = '/mnt/c/Users/ov162/transmission-reflection/hydro/figures/'
-# file_name = 'PA_reg_uncontrolled.pdf'
+w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency 
 
-w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
-
-Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=True,
-                             attenuator=False,farm=False,controls=True)
+# manually set False and True statements according to your goals
+# if you set breakwtr=True, you must set controls=False
+Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=True,point_absorber=False,oscillating_surge=False,
+                             attenuator=False,farm=True,controls=False)
 
 print('frequency',w_vals)
 print('transmission coeff',Kt_H)
 print('reflection coeff',Kr_H)
 
+# this is to save the data to a .csv file
+file_path = 'break_stag_test.csv'
+with open(file_path, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))]
+    writer.writerow(header)
+    for i in range(len(w_vals)):
+        row = [w_vals[i]] + [Kt_H[j][i] for j in range(len(Kt_H))] + [Kr_H[j][i] for j in range(len(Kr_H))]
+        writer.writerow(row)
+
+# you can plot directly here or use the .csv files in the coeff_plots.py script
+# color blind friendly plotting color palette
 cud_colors = ['#009E73','#D55E00','#E69F00', '#56B4E9','#0072B2', '#CC79A7', '#000000','#F0E442']
 linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
 
@@ -110,17 +136,6 @@ plt.xlabel('$\omega$ [rad/s]', fontsize=20)
 plt.ylabel('Coefficient Value', fontsize=20)
 plt.tight_layout()
 print('beep')
-plt.savefig('atten_damp.pdf')
-# plt.savefig(f'{file_path}{file_name}')
+plt.savefig('break_stag.pdf')
 print('boop')
 #plt.show()
-
-# this is to save the data if you just want to fiddle with plots
-file_path = 'atten_damp.csv'
-with open(file_path, mode='w', newline='') as file:
-    writer = csv.writer(file)
-    header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))]
-    writer.writerow(header)
-    for i in range(len(w_vals)):
-        row = [w_vals[i]] + [Kt_H[j][i] for j in range(len(Kt_H))] + [Kr_H[j][i] for j in range(len(Kr_H))]
-        writer.writerow(row)

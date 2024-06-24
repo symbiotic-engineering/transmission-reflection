@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 xgrid = 3000
 ygrid = 5000
 mxc = 300
-myc = 300
+myc = 500
 x_conversion = xgrid / (mxc + 1)
 y_conversion = ygrid / (myc + 1)
 x_positions = [1490, 1590, 1690, 1420, 1520, 1620]
@@ -15,24 +15,24 @@ x_investigated = int(1550 / x_conversion)
 y_investigated = int(4385 / y_conversion)
 
 # Constants
-rho_water = 1023  # Density of seawater (kg/m^3)
-g = 9.81  # Gravity (m/s^2)
-C_d = 1.0  # Drag coefficient (dimensionless)
-C_m = 2.0  # Inertia coefficient (dimensionless)
-D = 10.97  # monopile diameter (m)
-A_projected = np.pi * (D/2)**2  # Projected area (m^2)
-submerge_depth = 40  # Assume 6 m below the water surface
-V_submerged = A_projected * submerge_depth  # Submerged volume (m^3)
+rho_water = 1023        # Density of seawater (kg/m^3)
+g = 9.81                # Gravity (m/s^2)
+C_d = 1.0               # Drag coefficient (dimensionless)
+C_m = 2.0               # Inertia coefficient (dimensionless)
+D = 10.97               # monopile diameter (m)
+A_projected = np.pi * (D/2)**2                  # Projected area (m^2)
+submerge_depth = 40                             # Assume 6 m below the water surface
+V_submerged = A_projected * submerge_depth      # Submerged volume (m^3)
 Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/OS_1d.csv', delimiter=',')
 Hs = Hs[:y_investigated, x_investigated]
 H_inc = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/blank_elevation.csv',delimiter=',')
 H_inc = H_inc[:y_investigated, x_investigated]
 
-wave_period = 5  # Wave period (s)
-h = 40  # Water depth (m)
-x = 0.0  # Horizontal position at which force is calculated (m)
-z = 0.0  # Vertical coordinate at the water surface
-lambda_wave=0
+wave_period = 5             # Wave period (s)
+h = 40                      # Water depth (m)
+x = 0.0                     # Horizontal position at which force is calculated (m)
+z = 0.0                     # Vertical coordinate at the water surface
+lambda_wave = 0
 # Morrison equation
 def morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_wave, z, h, x, t):
     omega = (2 * np.pi) / wave_period

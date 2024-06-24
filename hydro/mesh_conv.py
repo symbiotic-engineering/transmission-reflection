@@ -1,3 +1,8 @@
+'''this is probably the least straightforward and least informative
+script in this whole repository. The geometric ratios I used for
+each body are writted in my notes instead of leaving them commented
+out in this file. I'm not sure the best way to consolidate this.'''
+
 import body
 import solve
 import numpy as np

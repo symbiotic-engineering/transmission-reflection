@@ -1,3 +1,16 @@
+'''this file contains initialization for the following bodies:
+1. Point Absorber (based off of Reference Model 3 from NREL)
+2. Oscillating Surge WEC (based off Reference Model 5 from NREL)
+3. Floating Breakwater (based off Naval Standard)
+4. Attenuator (based off Pelamis device)
+
+This script will generate a single body and an array. It will
+fix the bodies such that the only degree of freedom considered is the
+one in which they extract power. Mesh sizes were determined from the
+mesh_conv.py script. The "rel_dim" is the "relevant dimension," used
+in the wave_height.py script to ensure the Kt and Kr coefficients 
+are not calculated over a space the body occupies.'''
+
 def PA(xtrans,ytrans,farm):
     import capytaine as cpt
     import matplotlib.pyplot as plt
@@ -24,7 +37,7 @@ def PA(xtrans,ytrans,farm):
     body.inertia_matrix = body.compute_rigid_body_inertia()             # compute inertia matrix (required)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()   # compute hydrostatic stiffness (required)
     body.keep_only_dofs(dofs='Heave')
-    #body.show_matplotlib()
+    # body.show_matplotlib()
 
     # create array
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
@@ -34,6 +47,7 @@ def PA(xtrans,ytrans,farm):
     if farm == False:
         rel_dim = r
         array = body
+
     return array, rel_dim
 
 def OSWEC(xtrans, ytrans, farm):
