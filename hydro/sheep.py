@@ -87,8 +87,8 @@ import csv
 
 w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
-Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
-                             attenuator=True,farm=False,controls=True)
+Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=True,
+                             attenuator=False,farm=False,controls=True)
 
 print('frequency',w_vals)
 print('transmission coeff',Kt_H)
