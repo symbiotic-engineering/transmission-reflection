@@ -28,6 +28,7 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     cob = -0.021/froude_number
     CGz = 0.094/froude_number
     CGy = 0.022/froude_number
+    # checking to see if i can push properly now
 
     gauge_x = np.array([6.79, 6.79, 6.79, 6.985, 6.595, 6.205, 5.815, 5.425, 6.79, 6.4, 
                         6.01, 5.62, 6.4, 10.335])/froude_number
