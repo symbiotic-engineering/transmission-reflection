@@ -5,7 +5,7 @@ in front of and behind each body. This is how the reflection and transmission
 coefficients are found, respectively. The energy blance and energy dissipation
 are also computed.'''
 
-def wave_height(total, rad_dif, incoming_fse, lam, xtrans, ytrans, farm, rel_dim, nx, ny, x1, x2, y1, y2):
+def wave_height(total, incoming_fse, xtrans, ytrans, farm, rel_dim, w, nx, ny, x1, x2, y1, y2):
     import numpy as np
     import matplotlib.pyplot as plt
     import warnings
@@ -19,10 +19,10 @@ def wave_height(total, rad_dif, incoming_fse, lam, xtrans, ytrans, farm, rel_dim
     convy = int(ny/(abs(y1)+y2))
     
     # Extract z_up and z_down using rel_dim to determine the region
-    zinc_up = incoming_fse[mid_y, :mid_x - int(rel_dim*convx)]
-    zinc_down = incoming_fse[mid_y, mid_x + int(rel_dim*convx):]
-    z_up = total[mid_y, :mid_x - int(rel_dim*convx)]
-    z_down = total[mid_y, mid_x + int(rel_dim*convx):]
+    zinc_up = incoming_fse[mid_y, :mid_x - int(rel_dim*convx)]      # incident wave height upstream
+    zinc_down = incoming_fse[mid_y, mid_x + int(rel_dim*convx):]    # incident wave height downstream
+    z_up = total[mid_y, :mid_x - int(rel_dim*convx)]                # total wave height upstream
+    z_down = total[mid_y, mid_x + int(rel_dim*convx):]              # transmitted wave height
     
     avg_H_zup = np.array([np.mean(abs(z_up))])
     avg_H_zincup = np.array([np.mean(abs(zinc_up))])
@@ -43,4 +43,10 @@ def wave_height(total, rad_dif, incoming_fse, lam, xtrans, ytrans, farm, rel_dim
     trans = abs(avg_H_zdown / avg_H_zincdown)
     EB = trans**2 + ref**2     # energy balance
     KD = 1 - EB  
-    return ref, trans, EB, KD
+
+    rho = 1025                  # [kg/m^3] density of sea water
+    g = 9.81  
+    # absorbed power per unit width
+    power_abs = ((rho*g**2)/(4*w))*((avg_H_zincup/2)**2 - ((avg_H_zup - avg_H_zincup)/2)**2 - (avg_H_zdown/2)**2) # [W/m]
+    print('absorber power',power_abs)
+    return ref, trans, EB, KD,power_abs

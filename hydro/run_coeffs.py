@@ -24,7 +24,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         index = 3
 
     B = 0                                           # wave direction [rad]
-    depth = 40                                      # average water depth at southfork
+    depth = 500                                     # keep deep water assumption for EB
     xtrans = np.array([0,0])                        # x translation of bodies if farm
     ytrans = np.array([50,-50])                     # y translation of bodies if farm
 
@@ -56,39 +56,31 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
             res = 2
 
         # this where the code generates the body based on which you chose
-        if breakwtr == True:
+        if breakwtr:
             array, rel_dim, char_dim = body.breakwater(xtrans,ytrans,farm)
             rad = False               # rad only false for breakwater case
         else:
             rad = True
-        if point_absorber == True:
+        if point_absorber:
             array, rel_dim, char_dim, budal_limit = body.PA(xtrans,ytrans,farm,w)
-        if oscillating_surge == True:
+        if oscillating_surge:
             array, rel_dim, char_dim, budal_limit = body.OSWEC(xtrans,ytrans,farm,w)
-        if attenuator == True:
+        if attenuator:
             array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,D,w)
         #print('budal limit', budal_limit)
 
         # this is where the code solves hydrodynamics
-        diff_result,rad_result,RAO_vals,lam,CWR,B_pto,power = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber,oscillating_surge,budal_limit)
+        diff_result,rad_result,RAO_vals,lam,CWR,power = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber)
 
         # this is where the code solves for wave elevation
-        total, rad_dif, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
+        total, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
 
         # this is where the code calculates your reflection and transmission coefficients
-        ref, trans, EB, KD = wave_height.wave_height(total, rad_dif, incoming_fse,lam,xtrans,ytrans,farm,rel_dim,nx,ny,x1,x2,y1,y2)
-        
-        #while CWR > KD:
-        #    CWR = KD
-        
-        controlled_EB = 1 - (ref**2 + trans**2 + CWR)
-        #print('energy balance',EB)
+        ref, trans, EB, KD,power_abs = wave_height.wave_height(total, incoming_fse,xtrans,ytrans,farm,rel_dim,w,nx,ny,x1,x2,y1,y2)
+
         print('Kt',trans)
         print('Kr',ref)
         print('dissipation',KD)
-        print('for array, power balance must be 0<PB<N (number of bodies)')
-        print('for single body, power balance must be 0<PB<1')
-        print('power balance',controlled_EB)
 
         w_vals.append(w)
         for i in range(index):
@@ -112,15 +104,15 @@ w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
 # manually set False and True statements according to your goals
 # if you set breakwtr=True, you must set controls=False
-Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
-                             attenuator=True,farm=False,controls=True)
+Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,
+                             attenuator=False,farm=True,controls=True)
 
 #print('frequency',w_vals)
 #print('transmission coeff',Kt_H)
 #print('reflection coeff',Kr_H)
 
 # this is to save the data to a .csv file
-file_path = 'atten_damp.csv'
+file_path = 'tests.csv'
 with open(file_path, mode='w', newline='') as file:
     writer = csv.writer(file)
     header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))]
@@ -147,6 +139,6 @@ plt.xlabel('$\omega$ [rad/s]', fontsize=20)
 plt.ylabel('Coefficient Value', fontsize=20)
 plt.tight_layout()
 print('beep')
-plt.savefig('atten_damp.pdf')
+plt.savefig('tests.pdf')
 print('boop')
 #plt.show()

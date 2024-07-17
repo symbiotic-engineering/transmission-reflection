@@ -16,9 +16,10 @@ def PA(xtrans,ytrans,farm,w):
     import matplotlib.pyplot as plt
     import numpy as np
     import logging
-    logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('capytaine').setLevel(logging.ERROR)
+
     # initializing parameters
-    r,l = 10, 5              # radius [m], length [m]
+    r,l = 10, 5              # radius [m], length (5) [m]
     x, y, z = 0, 0, 0        # body center position           
     cog = -0.72         # center of mass as reported by WECSim
     nr, ntheta, nz = 12, 19, 5      # panels in each direction
@@ -40,8 +41,11 @@ def PA(xtrans,ytrans,farm,w):
     budal_limit = (1/4)*rho*g*A*w*V     # Budal's power limit for heaving axisymmetric body [kg-m^2/s^3]
 
     # defining the mesh and create floating body
-    body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
-                                                            resolution=(nr,ntheta,nz),name='cyl'))
+    cylinder_mesh = cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
+                                                            resolution=(nr,ntheta,nz),
+                                                            name='cyl')
+    #lid_mesh = cylinder_mesh.generate_lid(z=-0.1)
+    body = cpt.FloatingBody(mesh=cylinder_mesh)#,lid_mesh=lid_mesh)
     body.keep_immersed_part()               # clips body for computation
     body.center_of_mass=np.array([0,0,cog])             # defines center of mass (required)
     body.add_all_rigid_body_dofs()          # capytaine requirement
@@ -66,7 +70,7 @@ def OSWEC(xtrans, ytrans, farm, w):
     import matplotlib.pyplot as plt
     import numpy as np
     import logging
-    logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('capytaine').setLevel(logging.ERROR)
 
     # initializing parameters
     wi, th, h = 25, 1, 19         # width, thickness, and height of flap [m]
@@ -114,7 +118,7 @@ def breakwater(xtrans,ytrans,farm):
     import matplotlib.pyplot as plt
     import numpy as np
     import logging
-    logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('capytaine').setLevel(logging.ERROR)
     # initializing parameters
     wi, th, h = 20, 5, 2         # width, thickness, and height of box [m]
     x, y, z = 0, 0, -0.5         # box center
@@ -154,7 +158,7 @@ def attenuator(xtrans,ytrans,farm,D,w):
     import matplotlib.pyplot as plt
     import numpy as np
     import logging
-    logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('capytaine').setLevel(logging.ERROR)
 
     # initializing parameters
     r, l = 1.75, 29                     # radius, length (of one cylinder) [m]
