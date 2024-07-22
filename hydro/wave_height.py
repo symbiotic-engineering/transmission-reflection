@@ -49,4 +49,5 @@ def wave_height(total, incoming_fse, xtrans, ytrans, farm, rel_dim, w, nx, ny, x
     # absorbed power per unit width
     power_abs = ((rho*g**2)/(4*w))*((avg_H_zincup/2)**2 - ((avg_H_zup - avg_H_zincup)/2)**2 - (avg_H_zdown/2)**2) # [W/m]
     print('absorber power',power_abs)
-    return ref, trans, EB, KD,power_abs
+
+    return ref, trans, EB, KD, power_abs

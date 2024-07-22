@@ -33,9 +33,7 @@ def hydro(array,B,depth,w,char_dim,farm,controls,point_absorber):
     ## This loop applies Budal's upper bound specifically to the RAO of the ##
     ## point absorber (only problematic body). Equation can be found in     ##
     ## Falnes and Kurniawan (2020) Eq. (6.69). The real part of the RAO is  ##
-    ## reduced until the condition is met. Energy balance is still violated ##
-    ## some cases, but by less than 0.1% in most cases (2.6% max), so it is ## 
-    ## deemed negligible.                                                   ##
+    ## reduced until the condition is met.                                  ##
     print('uncontrolled rao',RAO_vals)
     if controls == False:
         if point_absorber:
@@ -55,13 +53,12 @@ def hydro(array,B,depth,w,char_dim,farm,controls,point_absorber):
             print('Magnitude of RAO_vals:', np.abs(RAO_vals))
 
     if controls == True:
-        RAO_controlled, CWR,power = PTO.RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber)
+        RAO_controlled, CWR = PTO.RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber)
         RAO_vals = RAO_controlled
         print('controlled rao',RAO_vals)
     else:
         CWR = 0
-        power = 0
-    return diff_result,rad_result,RAO_vals,lam,CWR,power
+    return diff_result,rad_result,RAO_vals,lam,CWR
 
 def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim):
     import numpy as np
@@ -83,7 +80,7 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
 
     multiplications = []
     if attenuator == True:
-        single = 4
+        single = 2 #4
         multiple = single*N
     else:
         single = 1

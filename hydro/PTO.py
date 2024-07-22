@@ -31,7 +31,6 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
     
     # WEC motion (complex) 
     RAO_controlled = (np.diag(ex_force/((-1*w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))
-    #print('inital rao controlled',RAO_controlled)
 
     amplitude = 1.000  # unit wave amplitude [m]
     if point_absorber:
@@ -60,7 +59,7 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
     CWR = CW / char_dim                  # unitless
     print('capture width ratio',CWR)
 
-    return RAO_controlled, CWR, power
+    return RAO_controlled, CWR
 
     # while np.any(power > budal_limit):
     #     # Create a mask for elements that exceed the budal_limit

@@ -34,6 +34,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
     Kr_H = [[] for _ in range(index)]       # initializing reflection coeff
     Kt_H = [[] for _ in range(index)]       # initializing transmission coeff
+    power = [[] for _ in range(index)]      # initializing absorberd power [W/m]
 
     w_vals = []                             # for storing omega values
 
@@ -67,17 +68,17 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
             array, rel_dim, char_dim, budal_limit = body.OSWEC(xtrans,ytrans,farm,w)
         if attenuator:
             array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,D,w)
-        #print('budal limit', budal_limit)
 
         # this is where the code solves hydrodynamics
-        diff_result,rad_result,RAO_vals,lam,CWR,power = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber)
+        diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber)
 
         # this is where the code solves for wave elevation
-        total, incoming_fse, x1, x2, nx, y1, y2, ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
+        total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
 
         # this is where the code calculates your reflection and transmission coefficients
-        ref, trans, EB, KD,power_abs = wave_height.wave_height(total, incoming_fse,xtrans,ytrans,farm,rel_dim,w,nx,ny,x1,x2,y1,y2)
-
+        ref,trans,EB,KD,power_abs = wave_height.wave_height(total, incoming_fse,xtrans,ytrans,farm,rel_dim,w,nx,ny,x1,x2,y1,y2)
+        if controls == False:
+            power_abs = power_abs*0
         print('Kt',trans)
         print('Kr',ref)
         print('dissipation',KD)
@@ -86,8 +87,9 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         for i in range(index):
             Kr_H[i].append(ref[i])
             Kt_H[i].append(trans[i])
+            power[i].append(power_abs[i])
         
-    return Kt_H, Kr_H, w_vals
+    return Kt_H, Kr_H, w_vals, power
 
 ### COMMENT THIS BIT OUT if you are going to run the big_run.py script ###
 # this is where i've been generating my Kt(omega)/Kr(omega) datasets
@@ -104,21 +106,17 @@ w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
 # manually set False and True statements according to your goals
 # if you set breakwtr=True, you must set controls=False
-Kt_H, Kr_H, w_vals = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,
-                             attenuator=False,farm=True,controls=True)
-
-#print('frequency',w_vals)
-#print('transmission coeff',Kt_H)
-#print('reflection coeff',Kr_H)
+Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
+                             attenuator=True,farm=False,controls=True)
 
 # this is to save the data to a .csv file
-file_path = 'tests.csv'
+file_path = 'atten_reactive_test.csv'
 with open(file_path, mode='w', newline='') as file:
     writer = csv.writer(file)
-    header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))]
+    header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))] + [f'power_{i+1}' for i in range(len(power))]
     writer.writerow(header)
     for i in range(len(w_vals)):
-        row = [w_vals[i]] + [Kt_H[j][i] for j in range(len(Kt_H))] + [Kr_H[j][i] for j in range(len(Kr_H))]
+        row = [w_vals[i]] + [Kt_H[j][i] for j in range(len(Kt_H))] + [Kr_H[j][i] for j in range(len(Kr_H))] + [power[j][i] for j in range(len(power))]
         writer.writerow(row)
 
 # you can plot directly here or use the .csv files in the coeff_plots.py script
