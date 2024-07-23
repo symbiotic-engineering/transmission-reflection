@@ -71,14 +71,7 @@ def OSWEC(xtrans, ytrans, farm, w):
     import logging
     logging.getLogger('capytaine').setLevel(logging.ERROR)
 
-    # # initializing parameters
-    # wi, th, h = 25, 1, 19         # width, thickness, and height of flap [m]
-    # draft = 16                    # draft [m]
-    # x, y, z = 0, 0, 0.5*h-draft   # postion of body center
-    # cog = -11.4                   # center of gravity [m]
-    # nt, nh, nw = 3, 10, 18        # number of panels in each direction    
-    
-    # TESTING DIF SIZE FOR MAHA
+    # initializing parameters
     wi, th, h = 20, 1, 19         # width, thickness, and height of flap [m]
     draft = 16                    # draft [m]
     x, y, z = 0, 0, 0.5*h-draft   # postion of body center
@@ -165,24 +158,23 @@ def attenuator(xtrans,ytrans,farm,D,w):
     import logging
     logging.getLogger('capytaine').setLevel(logging.ERROR)
 
-    # initializing parameters
-    r, l = 1.75, 29                     # radius, length (of one cylinder) [m]
-    x = -(3/2)*(1 + l)
-    x, y, z = x, 0, 0                 # body center
-    total_length = l*4 + 1*3
-    nr, ntheta, nz = 1, 15, 41          # number of panels in each direction
-    cog = -0.189                        # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
-    D = l + 1                           # distance btwn cylinders (in the single attenuator)
-
-    # # testing for maha
-    # r, l = 2, 10                     # radius, length (of one cylinder) [m]
-    # total_length = l*2 + 1
-    # #x = -(3/2)*(1 + l)               # formula for four body
-    # x = -(1/2)*(1 + l)                # formula for two body
-    # x, y, z = x, 0, 0                 # body center of first cylinder
-    # nr, ntheta, nz = 2, 15, 10         # number of panels in each direction
+    # # initializing parameters
+    # r, l = 1.75, 29                     # radius, length (of one cylinder) [m]
+    # x = -(3/2)*(1 + l)
+    # x, y, z = x, 0, 0                 # body center
+    # total_length = l*4 + 1*3
+    # nr, ntheta, nz = 1, 15, 41          # number of panels in each direction
     # cog = -0.189                        # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
-    # D = l + 1                           # distance btwn cylinder centers (in the single attenuator)
+    # D = l + 1                           # distance btwn cylinders (in the single attenuator)
+
+    # testing for maha
+    r, l = 2, 15                     # radius, length (of one cylinder) [m]
+    total_length = l*2 + 1
+    x = -(1/2)*(1 + l)                # formula for two body
+    x, y, z = x, 0, 0                 # body center of first cylinder
+    nr, ntheta, nz = 3, 15, 24        # number of panels in each direction
+    cog = -(r/2)*0.108                # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
+    D = l + 1                         # distance btwn cylinder centers (in the single attenuator)
     
     # dimension relevant for computing Kt and Kr while avoiding
     # body location (orthogonal to wave)
@@ -211,8 +203,7 @@ def attenuator(xtrans,ytrans,farm,D,w):
 
 
     if farm == False:
-        array = body + body.translated((D,0,0),name='1b') + body.translated((D*2,0,0),name='1c') + body.translated((D*3,0,0),name='1d')
-        array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch','1c__Pitch','1d__Pitch'])
-        #rel_dim = ((l*4)/2)
+        array = body + body.translated((D,0,0),name='1b')# + body.translated((D*2,0,0),name='1c')# + body.translated((D*3,0,0),name='1d')
+        array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch'])#,'1c__Pitch','1d__Pitch'])
         #array.show_matplotlib()
     return array, rel_dim, char_dim, budal_limit

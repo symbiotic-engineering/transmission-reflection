@@ -110,7 +110,7 @@ Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=False,oscill
                              attenuator=True,farm=False,controls=True)
 
 # this is to save the data to a .csv file
-file_path = 'atten_reactive_test.csv'
+file_path = 'atten_reactive.csv'
 with open(file_path, mode='w', newline='') as file:
     writer = csv.writer(file)
     header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))] + [f'power_{i+1}' for i in range(len(power))]

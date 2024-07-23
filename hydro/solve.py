@@ -87,7 +87,7 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
         multiple = 3
     if farm == False:
         for i in range(single):
-            if controls == True:
+            if controls:
                 mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * np.abs(RAO_vals[i])
                 multiplications.append(mult_result)
             else:
@@ -95,7 +95,7 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
                 multiplications.append(mult_result)
     else:
         for i in range(multiple):
-            if controls == True:
+            if controls:
                 mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * RAO_vals[i]
                 multiplications.append(mult_result)
             else:
