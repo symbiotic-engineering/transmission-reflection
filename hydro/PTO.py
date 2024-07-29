@@ -22,12 +22,12 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
     
     # Define simple optimal PTO damping and stiffness
     # for reactive control:
-    B_pto = B
-    K_pto = w**2*(M+A)-K  
+    #B_pto = B
+    #K_pto = w**2*(M+A)-K  
 
     # for damping only:
-    #B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
-    #K_pto = 0 
+    B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
+    K_pto = 0 
     
     # WEC motion (complex) 
     RAO_controlled = (np.diag(ex_force/((-1*w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))

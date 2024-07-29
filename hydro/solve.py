@@ -80,7 +80,7 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
 
     multiplications = []
     if attenuator == True:
-        single = 2 #4
+        single = 2
         multiple = single*N
     else:
         single = 1

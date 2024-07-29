@@ -92,10 +92,10 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     mass = body.inertia_matrix.values
     inertial_term = [-w**2*(int(mass) + A) for A in add]
     mech_term = [-1j*w*B + int(stiff) for B in damp]
-    transfer_matrix = [inertial + mech for inertial, mech in zip(inertial_term, mech_term)]
+    transfer_matrix = [inertial + mech for inertial, mech in zip(inertial_term, mech_term)] + stiff
 
     if farm==False:
-        excitationForce_SWELL = np.array([17.0876])     # /(froude_number**3)
+        excitationForce_SWELL = np.array([17.0876])     #/(froude_number**3)
         FK = froude_krylov_force(diff_prob)['Heave']
         diff_force = diff_result.forces['Heave']
     else:
@@ -113,9 +113,11 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     print('F_ex error',FexError)
 
     experimental_RAO = ([force / term for force, term in zip(excitationForce_SWELL, transfer_matrix)])
-    print('RAO',experimental_RAO)
-    #exp_pwr = 0.5*np.abs(experimental_RAO*1j*w)**2*damp
-    #print('POWER',exp_pwr)
+    print('RAO',experimental_RAO[0])
+
+    # B_pto = (damp**2 + ( w*(mass+add) - (stiff/w) )**2)**0.5
+    # exp_pwr = 0.5*((abs(experimental_RAO[0]*1j*w)**2)/0.025)*B_pto
+    # print('POWER',exp_pwr)
 
     # generating wave height and disturbance datasets (5, 11, 2.5, 6)
     x1, x2, nx, y1, y2, ny = 5/froude_number, 12/froude_number, 100, -1*2/froude_number, -1*7/froude_number, 100
@@ -135,46 +137,46 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)*0.05 # multipled by 0.05 bc SWELL incident wave height
     total = (incoming_fse + diffraction + radiation)/(froude_number)
 
-    import matplotlib.patheffects as path_effects
-    # plots
-    Z = np.real(incoming_fse)
-    X = grid[0]
-    Y = grid[1]
-    plt.pcolormesh(X, Y, Z) 
-    plt.xlabel("x")
-    plt.ylabel("y")
-    colorbar = plt.colorbar()
-    colorbar.set_label(r'Wave Elevation')
-    plt.scatter(xtrans + x,ytrans + y, marker = 'o', color = 'black', s = 100)
-    plt.scatter(x,y, marker = 'o', color = 'black', s = 100)
-    #plt.arrow(-50, 50, 20, 0, color='black', width=0.2, head_width=5, head_length=5)
-    #text = plt.text(-60, 40, 'Incident Waves', color='black', fontsize=12, ha='center', va='center')
-    #text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'), path_effects.Normal()])
-    plt.figure(figsize=(10, 8)) 
-    plt.scatter(gauge_x,gauge_y, marker = 'o', color = 'red', s = 35)
-    # x_offset = 0.05  # Adjust as needed
-    y_offset = 0.05  # Adjust as needed
-    #for i, (x, y) in enumerate(zip(gauge_x, gauge_y), start=1):
-    #    plt.text(x, y - y_offset, f'{i}', fontsize=12, ha='center', va='top')
-    # Add labels, alternating between above and below the points with specified offset
-    # for i, (x, y) in enumerate(zip(gauge_x, gauge_y)):
-    #     if i % 2 == 0:
-    #         plt.text(x, y - y_offset, f'({x:.2f}, {y:.2f})', fontsize=10, ha='center', va='top')
-    #     else:
-    #         plt.text(x, y + y_offset, f'({x:.2f}, {y:.2f})', fontsize=10, ha='center', va='bottom')
-    plt.xlabel('X [m]',fontsize='14')
-    plt.ylabel('Y [m]',fontsize='14')
-    plt.xticks(fontsize='12')
-    plt.yticks(fontsize='12')
-    plt.tight_layout()
-    plt.savefig('validation_sensors.pdf')
-    #plt.show()
+    # import matplotlib.patheffects as path_effects
+    # # plots
+    # Z = np.real(incoming_fse)
+    # X = grid[0]
+    # Y = grid[1]
+    # plt.pcolormesh(X, Y, Z) 
+    # plt.xlabel("x")
+    # plt.ylabel("y")
+    # colorbar = plt.colorbar()
+    # colorbar.set_label(r'Wave Elevation')
+    # plt.scatter(xtrans + x,ytrans + y, marker = 'o', color = 'black', s = 100)
+    # plt.scatter(x,y, marker = 'o', color = 'black', s = 100)
+    # #plt.arrow(-50, 50, 20, 0, color='black', width=0.2, head_width=5, head_length=5)
+    # #text = plt.text(-60, 40, 'Incident Waves', color='black', fontsize=12, ha='center', va='center')
+    # #text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'), path_effects.Normal()])
+    # plt.figure(figsize=(10, 8)) 
+    # plt.scatter(gauge_x,gauge_y, marker = 'o', color = 'red', s = 35)
+    # # x_offset = 0.05  # Adjust as needed
+    # y_offset = 0.05  # Adjust as needed
+    # #for i, (x, y) in enumerate(zip(gauge_x, gauge_y), start=1):
+    # #    plt.text(x, y - y_offset, f'{i}', fontsize=12, ha='center', va='top')
+    # # Add labels, alternating between above and below the points with specified offset
+    # # for i, (x, y) in enumerate(zip(gauge_x, gauge_y)):
+    # #     if i % 2 == 0:
+    # #         plt.text(x, y - y_offset, f'({x:.2f}, {y:.2f})', fontsize=10, ha='center', va='top')
+    # #     else:
+    # #         plt.text(x, y + y_offset, f'({x:.2f}, {y:.2f})', fontsize=10, ha='center', va='bottom')
+    # plt.xlabel('X [m]',fontsize='14')
+    # plt.ylabel('Y [m]',fontsize='14')
+    # plt.xticks(fontsize='12')
+    # plt.yticks(fontsize='12')
+    # plt.tight_layout()
+    # plt.savefig('validation_sensors.pdf')
+    # #plt.show()
 
-    points = np.column_stack((gauge_x, gauge_y))
-    # Interpolate 'total' onto the gauge points
-    elevation_at_gauges = griddata((X.ravel(), Y.ravel()), total.ravel(), points, method='linear')
-    print('wave elevation',np.abs(elevation_at_gauges))
-    print('wave amplitude',np.abs(elevation_at_gauges)/2)
-    # total_at_gauges now contains the values of 'total' at the gauge locations specified by gauge_x and gauge_y
+    # points = np.column_stack((gauge_x, gauge_y))
+    # # Interpolate 'total' onto the gauge points
+    # elevation_at_gauges = griddata((X.ravel(), Y.ravel()), total.ravel(), points, method='linear')
+    # print('wave elevation',np.abs(elevation_at_gauges))
+    # print('wave amplitude',np.abs(elevation_at_gauges)/2)
+    # # total_at_gauges now contains the values of 'total' at the gauge locations specified by gauge_x and gauge_y
 
     return total, incoming_fse, lam, elevation_at_gauges

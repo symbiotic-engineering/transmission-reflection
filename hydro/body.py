@@ -11,7 +11,7 @@ mesh_conv.py script. The "rel_dim" is the "relevant dimension," used
 in the wave_height.py script to ensure the Kt and Kr coefficients 
 are not calculated over a space the body occupies.'''
 
-def PA(xtrans,ytrans,farm,w):
+def PA(xtrans,ytrans,farm,w,nr,ntheta,nz):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -22,7 +22,7 @@ def PA(xtrans,ytrans,farm,w):
     r,l = 10, 5              # radius [m], length (5) [m]
     x, y, z = 0, 0, 0        # body center position           
     cog = -0.72         # center of mass as reported by WECSim
-    nr, ntheta, nz = 12, 19, 5      # panels in each direction
+    nr, ntheta, nz = 12, 19, 6      # panels in each direction
 
     # dimension relevant for computing Kt and Kr while avoiding
     # body location (orthogonal to wave)
@@ -61,6 +61,8 @@ def PA(xtrans,ytrans,farm,w):
 
     if farm == False:
         array = body
+        #array.show_matplotlib()
+        #plt.savefig('pa_panels.pdf')
 
     return array, rel_dim, char_dim, budal_limit
 
@@ -72,11 +74,11 @@ def OSWEC(xtrans, ytrans, farm, w):
     logging.getLogger('capytaine').setLevel(logging.ERROR)
 
     # initializing parameters
-    wi, th, h = 20, 1, 19         # width, thickness, and height of flap [m]
-    draft = 16                    # draft [m]
+    wi, th, h = 17, 1, 14         # width, thickness, and height of flap [m]
+    draft = 11                    # draft [m]
     x, y, z = 0, 0, 0.5*h-draft   # postion of body center
-    cog = -11.4                   # center of gravity [m]
-    nt, nh, nw = 3, 10, 25        # number of panels in each direction     
+    cog = -7.84                   # center of gravity [m] (71.25% of the draft)
+    nt, nh, nw = 1, 14, 17        # number of panels in each direction     
 
     # dimension relevant for computing Kt and Kr while avoiding
     # body location (orthogonal to wave)
@@ -158,21 +160,12 @@ def attenuator(xtrans,ytrans,farm,D,w):
     import logging
     logging.getLogger('capytaine').setLevel(logging.ERROR)
 
-    # # initializing parameters
-    # r, l = 1.75, 29                     # radius, length (of one cylinder) [m]
-    # x = -(3/2)*(1 + l)
-    # x, y, z = x, 0, 0                 # body center
-    # total_length = l*4 + 1*3
-    # nr, ntheta, nz = 1, 15, 41          # number of panels in each direction
-    # cog = -0.189                        # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
-    # D = l + 1                           # distance btwn cylinders (in the single attenuator)
-
-    # testing for maha
-    r, l = 2, 15                     # radius, length (of one cylinder) [m]
+    # initializing parameters
+    r, l = 2, 16                     # radius, length (of one cylinder) [m]
     total_length = l*2 + 1
     x = -(1/2)*(1 + l)                # formula for two body
     x, y, z = x, 0, 0                 # body center of first cylinder
-    nr, ntheta, nz = 3, 15, 24        # number of panels in each direction
+    nr, ntheta, nz = 2, 11, 12        # number of panels in each direction
     cog = -(r/2)*0.108                # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
     D = l + 1                         # distance btwn cylinder centers (in the single attenuator)
     
@@ -197,13 +190,13 @@ def attenuator(xtrans,ytrans,farm,D,w):
     body.inertia_matrix = body.compute_rigid_body_inertia()
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()
 
-    array = body + body.translated((D,0,0),name='1b') + body.translated((D*2,0,0),name='1c') + body.translated((D*3,0,0),name='1d') + body.translated((xtrans[0],ytrans[0],0),name='2a') + body.translated((D + xtrans[0],ytrans[0],0),name='2b') + body.translated((D*2+xtrans[0],ytrans[0],0),name='2c') + body.translated((D*3+xtrans[0],ytrans[0],0),name='2d')+ body.translated((xtrans[1],ytrans[1],0),name='3a') + body.translated((D+xtrans[1],ytrans[1],0),name='3b') + body.translated((D*2+xtrans[1],ytrans[1],0),name='3c') + body.translated((D*3+xtrans[1],ytrans[1],0),name='3d')
-    array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch','1c__Pitch','1d__Pitch','2a__Pitch','2b__Pitch',
-                                '2c__Pitch','2d__Pitch','3a__Pitch','3b__Pitch','3c__Pitch','3d__Pitch'])
+    array = body + body.translated((D,0,0),name='1b') + body.translated((xtrans[0],ytrans[0],0),name='2a') + body.translated((D + xtrans[0],ytrans[0],0),name='2b') + body.translated((xtrans[1],ytrans[1],0),name='3a') + body.translated((D+xtrans[1],ytrans[1],0),name='3b')
+    array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch','2a__Pitch','2b__Pitch','3a__Pitch','3b__Pitch'])
 
 
     if farm == False:
-        array = body + body.translated((D,0,0),name='1b')# + body.translated((D*2,0,0),name='1c')# + body.translated((D*3,0,0),name='1d')
-        array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch'])#,'1c__Pitch','1d__Pitch'])
+        array = body + body.translated((D,0,0),name='1b')
+        array.keep_only_dofs(dofs=['cyl__Pitch','1b__Pitch'])
         #array.show_matplotlib()
+        #plt.savefig('atten_body.pdf')
     return array, rel_dim, char_dim, budal_limit
