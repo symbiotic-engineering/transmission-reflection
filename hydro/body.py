@@ -11,7 +11,7 @@ mesh_conv.py script. The "rel_dim" is the "relevant dimension," used
 in the wave_height.py script to ensure the Kt and Kr coefficients 
 are not calculated over a space the body occupies.'''
 
-def PA(xtrans,ytrans,farm,w,nr,ntheta,nz):
+def PA(xtrans,ytrans,farm,w):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -19,10 +19,10 @@ def PA(xtrans,ytrans,farm,w,nr,ntheta,nz):
     logging.getLogger('capytaine').setLevel(logging.ERROR)
 
     # initializing parameters
-    r,l = 10, 5              # radius [m], length (5) [m]
+    r,l = 10.5, 6              # radius [m], length (5) [m]
     x, y, z = 0, 0, 0        # body center position           
-    cog = -0.72         # center of mass as reported by WECSim
-    nr, ntheta, nz = 12, 19, 6      # panels in each direction
+    cog = -0.3*(l/2)         # center of mass as reported by WECSim
+    nr, ntheta, nz = 14, 25, 9      # panels in each direction 19, 6
 
     # dimension relevant for computing Kt and Kr while avoiding
     # body location (orthogonal to wave)
@@ -61,8 +61,8 @@ def PA(xtrans,ytrans,farm,w,nr,ntheta,nz):
 
     if farm == False:
         array = body
-        #array.show_matplotlib()
-        #plt.savefig('pa_panels.pdf')
+        array.show_matplotlib()
+        plt.savefig('pa_panels.pdf')
 
     return array, rel_dim, char_dim, budal_limit
 
@@ -74,11 +74,11 @@ def OSWEC(xtrans, ytrans, farm, w):
     logging.getLogger('capytaine').setLevel(logging.ERROR)
 
     # initializing parameters
-    wi, th, h = 17, 1, 14         # width, thickness, and height of flap [m]
-    draft = 11                    # draft [m]
+    wi, th, h = 18, 1, 16         # width, thickness, and height of flap [m]
+    draft = h - 3                    # draft [m]
     x, y, z = 0, 0, 0.5*h-draft   # postion of body center
-    cog = -7.84                   # center of gravity [m] (71.25% of the draft)
-    nt, nh, nw = 1, 14, 17        # number of panels in each direction     
+    cog = -0.7125*draft                   # center of gravity [m] (71.25% of the draft)
+    nt, nh, nw = 2, 24, 27        # number of panels in each direction     
 
     # dimension relevant for computing Kt and Kr while avoiding
     # body location (orthogonal to wave)
@@ -153,7 +153,7 @@ def breakwater(xtrans,ytrans,farm):
 
     return array, rel_dim, char_dim
 
-def attenuator(xtrans,ytrans,farm,D,w):
+def attenuator(xtrans,ytrans,farm,D,w,nr, ntheta, nz):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -161,11 +161,11 @@ def attenuator(xtrans,ytrans,farm,D,w):
     logging.getLogger('capytaine').setLevel(logging.ERROR)
 
     # initializing parameters
-    r, l = 2, 16                     # radius, length (of one cylinder) [m]
+    r, l = 2, 14                     # radius, length (of one cylinder) [m]
     total_length = l*2 + 1
     x = -(1/2)*(1 + l)                # formula for two body
     x, y, z = x, 0, 0                 # body center of first cylinder
-    nr, ntheta, nz = 2, 11, 12        # number of panels in each direction
+    #nr, ntheta, nz = 4, 17, 16        # number of panels in each direction
     cog = -(r/2)*0.108                # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
     D = l + 1                         # distance btwn cylinder centers (in the single attenuator)
     
