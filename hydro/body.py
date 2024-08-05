@@ -61,8 +61,8 @@ def PA(xtrans,ytrans,farm,w):
 
     if farm == False:
         array = body
-        array.show_matplotlib()
-        plt.savefig('pa_panels.pdf')
+        #array.show_matplotlib()
+        #plt.savefig('pa_panels.pdf')
 
     return array, rel_dim, char_dim, budal_limit
 
@@ -153,7 +153,7 @@ def breakwater(xtrans,ytrans,farm):
 
     return array, rel_dim, char_dim
 
-def attenuator(xtrans,ytrans,farm,D,w,nr, ntheta, nz):
+def attenuator(xtrans,ytrans,farm,D,w):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -165,7 +165,7 @@ def attenuator(xtrans,ytrans,farm,D,w,nr, ntheta, nz):
     total_length = l*2 + 1
     x = -(1/2)*(1 + l)                # formula for two body
     x, y, z = x, 0, 0                 # body center of first cylinder
-    #nr, ntheta, nz = 4, 17, 16        # number of panels in each direction
+    nr, ntheta, nz = 4, 17, 16        # number of panels in each direction
     cog = -(r/2)*0.108                # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
     D = l + 1                         # distance btwn cylinder centers (in the single attenuator)
     

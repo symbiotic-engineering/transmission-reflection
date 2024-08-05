@@ -12,7 +12,6 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
     import body         # "body" contains functions for PA, OSWEC, attenuator, and breakwater initialization
     import solve        # this solves the hydrodynamics
     import wave_height  # this function finds Kt and Kr based on wave elevation
-    import energy_balance    # this function will reduce power extracted until energy balance is met
     import numpy as np
     import matplotlib.pyplot as plt 
 
@@ -82,12 +81,9 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         ref,trans,EB,KD,power_abs = wave_height.wave_height(total, incoming_fse,xtrans,ytrans,farm,rel_dim,w,nx,ny,x1,x2,y1,y2)
         if controls == False:
             power_abs = power_abs*0
-        if attenuator:
-            char_dim = char_dim*2
         print('Kt',trans)
         print('Kr',ref)
         print('dissipation',KD)
-        print('POWER',power_abs*char_dim)
 
         w_vals.append(w)
         for i in range(index):
@@ -108,15 +104,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-w = np.array([1.25])#0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
+w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
 # manually set False and True statements according to your goals
 # if you set breakwtr=True, you must set controls=False
-Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=True,
-                             attenuator=False,farm=False,controls=True)
+Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,
+                             attenuator=False,farm=True,controls=False)
 
 # this is to save the data to a .csv file
-file_path = 'test.csv'
+file_path = 'PA_reg_uncont.csv'
 with open(file_path, mode='w', newline='') as file:
     writer = csv.writer(file)
     header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))] + [f'power_{i+1}' for i in range(len(power))]

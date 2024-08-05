@@ -62,9 +62,9 @@ def plot_data(w_vals, Kt_H, Kr_H, cud_colors, linestyles, label_prefix, marker_o
 
 # File names (adjust these according to your actual file names)
 # you can keep adding files to your plots or plot them individually
-file_name1 = 'break.csv'
-file_name2 = 'OS_damp.csv'
-file_name3 = 'OS_reactive.csv'
+file_name1 = 'atten_uncont.csv'
+file_name2 = 'atten_damp.csv'
+file_name3 = 'atten_reactive.csv'
 
 # Read data from CSV files
 w_vals1, Kt_H1, Kr_H1, power1 = read_csv(file_name1)
@@ -77,16 +77,16 @@ linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
 
 # Plot data with different labels and ensure unique colors and markers for each dataset
 plot_data(w_vals1, Kt_H1, Kr_H1, cud_colors, linestyles, 'Uncontrolled', marker_offset=0, color_offset=0, linestyle_offset=0)
-#plot_data(w_vals2, Kt_H2, Kr_H2, cud_colors, linestyles, 'Damped', marker_offset=2, color_offset=2, linestyle_offset=2)
-#plot_data(w_vals3, Kt_H3, Kr_H3, cud_colors, linestyles, 'Reactive', marker_offset=4, color_offset=4, linestyle_offset=4)
+plot_data(w_vals2, Kt_H2, Kr_H2, cud_colors, linestyles, 'Damped', marker_offset=2, color_offset=2, linestyle_offset=2)
+plot_data(w_vals3, Kt_H3, Kr_H3, cud_colors, linestyles, 'Reactive', marker_offset=4, color_offset=4, linestyle_offset=4)
 
-#plt.legend(fontsize=15, markerscale=1)#, bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(fontsize=15, markerscale=1)  #, bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 plt.xlabel('$\omega$ [rad/s]', fontsize=20)
 plt.ylabel('Coefficient Value', fontsize=20)
 plt.tight_layout()
 print('tee')
-plt.savefig('break.pdf')
+plt.savefig('break_single.pdf')
 print('hee')
 
