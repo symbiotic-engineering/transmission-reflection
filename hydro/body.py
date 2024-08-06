@@ -153,7 +153,7 @@ def breakwater(xtrans,ytrans,farm):
 
     return array, rel_dim, char_dim
 
-def attenuator(xtrans,ytrans,farm,D,w):
+def attenuator(xtrans,ytrans,farm,w):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np

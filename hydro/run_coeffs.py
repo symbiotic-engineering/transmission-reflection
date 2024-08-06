@@ -15,6 +15,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
     import numpy as np
     import matplotlib.pyplot as plt 
 
+    N = 3
     # setting farm to "False" simulates an isolated body. if it is
     # set to "True", you will simulate three bodies
     if farm == False:
@@ -24,12 +25,8 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
     B = 0                                           # wave direction [rad]
     depth = 500                                     # keep deep water assumption for EB
-    xtrans = np.array([0,0])                        # x translation of bodies if farm
+    xtrans = np.array([0,0])                      # x translation of bodies if farm
     ytrans = np.array([50,-50])                     # y translation of bodies if farm
-
-    # attenuator properties (because it has to be modeled a little differently)
-    N = 3                           # number of attenuators
-    D = 30                          # distance btwn cylinders in a single attenuator
 
     Kr_H = [[] for _ in range(index)]       # initializing reflection coeff
     Kt_H = [[] for _ in range(index)]       # initializing transmission coeff
@@ -41,18 +38,6 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         # this is where you set the grid resolution based on wavelength.
         # shorter wavelengths require finer mesh resolution based on 
         # mesh convergence study.
-        # if w < 0.95:
-        #     res = 1
-        # elif w == 1.0:
-        #     res = 2.0
-        # elif w == 1.1:
-        #     res = 3.5
-        # elif w == 1.25:
-        #     res = 3.5
-        # elif w == 1.3:
-        #     res = 3.5
-        # else:
-        #     res = 2
         if w < 1.0:
             res = 2.0
         else:
@@ -69,7 +54,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         if oscillating_surge:
             array, rel_dim, char_dim, budal_limit = body.OSWEC(xtrans,ytrans,farm,w)
         if attenuator:
-            array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,D,w)
+            array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,w)
 
         # this is where the code solves hydrodynamics
         diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber)
@@ -96,9 +81,6 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 ### COMMENT THIS BIT OUT if you are going to run the big_run.py script ###
 # this is where i've been generating my Kt(omega)/Kr(omega) datasets
 # for post processing 
-'''if you are running the attenuator, you will likely run into the issue of 
-overlapping panels in Capytaine. Making slight tweaks to the grid resolution
-can mediate this issue.'''
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -108,11 +90,11 @@ w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
 # manually set False and True statements according to your goals
 # if you set breakwtr=True, you must set controls=False
-Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,
-                             attenuator=False,farm=True,controls=False)
+Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
+                             attenuator=True,farm=True,controls=True)
 
 # this is to save the data to a .csv file
-file_path = 'PA_reg_uncont.csv'
+file_path = 'atten_reg_reactive.csv'
 with open(file_path, mode='w', newline='') as file:
     writer = csv.writer(file)
     header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))] + [f'power_{i+1}' for i in range(len(power))]
