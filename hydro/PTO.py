@@ -10,8 +10,9 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
     import numpy as np
 
     # extract hydro coeffs
-    B = np.array([dataset['radiation_damping'].sel(radiating_dof=dofs,influenced_dof=dofs) for dofs in array.dofs])
-    A = np.array([dataset['added_mass'].sel(radiating_dof=dofs, influenced_dof=dofs) for dofs in array.dofs])
+    # to include off-diagonals
+    A = np.squeeze(np.array([[dataset['added_mass'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
+    B = np.squeeze(np.array([[dataset['radiation_damping'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
     K = array.hydrostatic_stiffness.values
     M = array.inertia_matrix.values
 
@@ -28,9 +29,15 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
     # for damping only:
     #B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
     #K_pto = 0 
-    
-    # WEC motion (complex) 
-    RAO_controlled = (np.diag(ex_force/((-1*w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))
+
+    # FOR INCLUDING OFF-DIAGONALS
+    inertia = M + A 
+    resistance = B + B_pto
+    reactance = K + K_pto
+    H = -(w**2)*inertia - 1j*w*resistance + reactance 
+
+    RAO_controlled = np.linalg.solve(H,ex_force).ravel()
+    print('RAO_controlled',RAO_controlled)
 
     amplitude = 1.000  # unit wave amplitude [m]
     if point_absorber:
@@ -126,3 +133,10 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
     #print('final capture width ratio',CWR)
     #print('final saturated power', power)
 
+
+### for not including off-diagonals
+    #B = np.array([dataset['radiation_damping'].sel(radiating_dof=dofs,influenced_dof=dofs) for dofs in array.dofs])
+    #A = np.array([dataset['added_mass'].sel(radiating_dof=dofs, influenced_dof=dofs) for dofs in array.dofs])
+
+    # WEC motion (complex) 
+    # RAO_controlled = (np.diag(ex_force/((-1*w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))

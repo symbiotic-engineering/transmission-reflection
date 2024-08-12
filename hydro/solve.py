@@ -69,7 +69,7 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
     solver = cpt.BEMSolver()
 
     # defining the computational grid and preparing post-process data
-    x1, x2, y1, y2 = -(lam + rel_dim), (lam + rel_dim), -100, 100
+    x1, x2, y1, y2 = -(lam + rel_dim + 50), (lam + rel_dim + 50), -100, 100
     ny = int(res*(abs(y1)+y2))
     nx = int(res*(abs(x1)+x2))
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))

@@ -11,7 +11,7 @@ mesh_conv.py script. The "rel_dim" is the "relevant dimension," used
 in the wave_height.py script to ensure the Kt and Kr coefficients 
 are not calculated over a space the body occupies.'''
 
-def PA(xtrans,ytrans,farm,w):
+def PA(xtrans,ytrans,farm,w,x_center):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -20,7 +20,7 @@ def PA(xtrans,ytrans,farm,w):
 
     # initializing parameters
     r,l = 10.5, 6              # radius [m], length (5) [m]
-    x, y, z = 0, 0, 0        # body center position           
+    x, y, z = x_center, 0, 0        # body center position           
     cog = -0.3*(l/2)         # center of mass as reported by WECSim
     nr, ntheta, nz = 14, 25, 9      # panels in each direction 19, 6
 
@@ -52,7 +52,7 @@ def PA(xtrans,ytrans,farm,w):
     body.inertia_matrix = body.compute_rigid_body_inertia()             # compute inertia matrix (required)
     body.hydrostatic_stiffness = body.compute_hydrostatic_stiffness()   # compute hydrostatic stiffness (required)
     body.keep_only_dofs(dofs='Heave')
-    # body.show_matplotlib()
+    #body.show_matplotlib()
 
     # create array
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
@@ -66,7 +66,7 @@ def PA(xtrans,ytrans,farm,w):
 
     return array, rel_dim, char_dim, budal_limit
 
-def OSWEC(xtrans, ytrans, farm, w):
+def OSWEC(xtrans, ytrans, farm, w,x_center):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -76,7 +76,7 @@ def OSWEC(xtrans, ytrans, farm, w):
     # initializing parameters
     wi, th, h = 18, 1, 16         # width, thickness, and height of flap [m]
     draft = h - 3                    # draft [m]
-    x, y, z = 0, 0, 0.5*h-draft   # postion of body center
+    x, y, z = x_center, 0, 0.5*h-draft   # postion of body center
     cog = -0.7125*draft                   # center of gravity [m] (71.25% of the draft)
     nt, nh, nw = 2, 24, 27        # number of panels in each direction     
 
@@ -114,7 +114,7 @@ def OSWEC(xtrans, ytrans, farm, w):
         array = body
     return array, rel_dim, char_dim, budal_limit
 
-def breakwater(xtrans,ytrans,farm):
+def breakwater(xtrans,ytrans,farm,x_center):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -122,7 +122,7 @@ def breakwater(xtrans,ytrans,farm):
     logging.getLogger('capytaine').setLevel(logging.ERROR)
     # initializing parameters
     wi, th, h = 20, 5, 2         # width, thickness, and height of box [m]
-    x, y, z = 0, 0, -0.5         # box center
+    x, y, z = x_center, 0, -0.5         # box center (x = -25 for staggered array, x = 0 otherwise))
     cog = -0.162                 # 10.8% of the draft, equivalent to PA cog
     nw, nt, nh = 12, 6, 5        # number of panels in each direction
 
@@ -147,13 +147,14 @@ def breakwater(xtrans,ytrans,farm):
     array = body + body.translated((xtrans[0],ytrans[0],0),name='2') + body.translated((xtrans[1],ytrans[1],0),name='3')
     array.add_all_rigid_body_dofs()
     #array.show_matplotlib()
+    #plt.savefig('break_arraystag.pdf')
 
     if farm == False:
         array = body
 
     return array, rel_dim, char_dim
 
-def attenuator(xtrans,ytrans,farm,w):
+def attenuator(xtrans,ytrans,farm,w,x_center):
     import capytaine as cpt
     import matplotlib.pyplot as plt
     import numpy as np
@@ -164,7 +165,7 @@ def attenuator(xtrans,ytrans,farm,w):
     r, l = 2, 14                     # radius, length (of one cylinder) [m]
     total_length = l*2 + 1
     x = -(1/2)*(1 + l)                # formula for two body
-    x, y, z = x, 0, 0                 # body center of first cylinder
+    x, y, z = x + x_center, 0, 0                 # body center of first cylinder
     nr, ntheta, nz = 4, 17, 16        # number of panels in each direction
     cog = -(r/2)*0.108                # 10.8% of the draft, equivalent to PA cog, tough to find for pelamis
     D = l + 1                         # distance btwn cylinder centers (in the single attenuator)

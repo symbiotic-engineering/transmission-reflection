@@ -6,7 +6,7 @@ power take-off function nested within)
 4. wave_height.wave_height() which solves for wave height ratios i.e.
 the transmission and reflection coefficients.'''
 
-def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls):
+def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered):
     ################ SCRIPT FOR CALCULATING AT COEFFS ############
     # run all Kt and Kr calcs for any body here
     import body         # "body" contains functions for PA, OSWEC, attenuator, and breakwater initialization
@@ -25,7 +25,14 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
     B = 0                                           # wave direction [rad]
     depth = 500                                     # keep deep water assumption for EB
-    xtrans = np.array([0,0])                      # x translation of bodies if farm
+    
+    if staggered:
+        xtrans = np.array([50,50])                      # x translation of bodies if farm
+        x_center = -25
+    else:
+        xtrans = np.array([0,0])
+        x_center = 0
+
     ytrans = np.array([50,-50])                     # y translation of bodies if farm
 
     Kr_H = [[] for _ in range(index)]       # initializing reflection coeff
@@ -45,16 +52,16 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
 
         # this where the code generates the body based on which you chose
         if breakwtr:
-            array, rel_dim, char_dim = body.breakwater(xtrans,ytrans,farm)
+            array, rel_dim, char_dim = body.breakwater(xtrans,ytrans,farm,x_center)
             rad = False               # rad only false for breakwater case
         else:
             rad = True
         if point_absorber:
-            array, rel_dim, char_dim, budal_limit = body.PA(xtrans,ytrans,farm,w)
+            array, rel_dim, char_dim, budal_limit = body.PA(xtrans,ytrans,farm,w,x_center)
         if oscillating_surge:
-            array, rel_dim, char_dim, budal_limit = body.OSWEC(xtrans,ytrans,farm,w)
+            array, rel_dim, char_dim, budal_limit = body.OSWEC(xtrans,ytrans,farm,w,x_center)
         if attenuator:
-            array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,w)
+            array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,w,x_center)
 
         # this is where the code solves hydrodynamics
         diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber)
@@ -63,7 +70,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
 
         # this is where the code calculates your reflection and transmission coefficients
-        ref,trans,EB,KD,power_abs = wave_height.wave_height(total, incoming_fse,xtrans,ytrans,farm,rel_dim,w,nx,ny,x1,x2,y1,y2)
+        ref,trans,EB,KD,power_abs = wave_height.wave_height(total, incoming_fse,xtrans,ytrans,farm,rel_dim,w,nx,ny,x1,x2,y1,y2,x_center)
         if controls == False:
             power_abs = power_abs*0
         print('Kt',trans)
@@ -90,11 +97,11 @@ w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
 # manually set False and True statements according to your goals
 # if you set breakwtr=True, you must set controls=False
-Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=False,
-                             attenuator=True,farm=True,controls=True)
+Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=True,
+                             attenuator=False,farm=True,controls=True,staggered=True)
 
 # this is to save the data to a .csv file
-file_path = 'atten_reg_reactive.csv'
+file_path = 'OS_stag_react.csv'
 with open(file_path, mode='w', newline='') as file:
     writer = csv.writer(file)
     header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))] + [f'power_{i+1}' for i in range(len(power))]

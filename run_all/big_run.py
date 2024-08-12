@@ -49,7 +49,7 @@ x=[1490, 1590, 1690, 1420, 1520, 1620]
 ya=4500 
 yb=4400
                                   
-H = 0.8                                     # avg significant wave height [m] (i had 1.3832  for some reason?)
+H = 0.8                                     # avg significant wave height [m]
 T = 5                                       # avg wave period [s] from buoy 44097
 w = np.array([2*np.pi/T])   # wave frequency
 
@@ -72,8 +72,15 @@ KT = [Kt_H[0][0], Kt_H[i][0], Kt_H[2*i][0], Kt_H[0][0], Kt_H[i][0], Kt_H[2*i][0]
 print(KR)
 print(KT)
 
-d = 30          # "diameter" of the bodies, approximate for PA, OS, and breakwater.
-                # set to ensure crossing grid boundary without a nested grid.
-                # attenuator defined differently in script.
+# diameter of the bodies
+if point_absorber:
+    d = 21
+if oscillating_surge:
+    d = 18
+if breakwtr:
+    d = 20
+if attenuator:
+    d = 4
+
 sfgrid_dat, sfgrid_tbl = run_swan.generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc,attenuator)
 waveHeight = post_process.postpro(sfgrid_dat,xgrid,ygrid,mxc,myc)

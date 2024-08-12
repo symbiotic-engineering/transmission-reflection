@@ -10,7 +10,7 @@ y_conversion = ygrid / (myc + 1)
 x_positions = [1490, 1590, 1690, 1420, 1520, 1620]
 ya = 4500
 yb = 4400
-H = 1.3832
+H = 0.8
 x_investigated = int(1550 / x_conversion)
 y_investigated = int(4385 / y_conversion)
 
@@ -36,7 +36,6 @@ lambda_wave = 0
 # Morrison equation
 def morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_wave, z, h, x, t):
     omega = (2 * np.pi) / wave_period
-    
     # Calculate wave number (k)
     #k = (2 * np.pi) / lambda_wave
     k = omega**2/g
