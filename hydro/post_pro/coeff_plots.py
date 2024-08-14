@@ -18,7 +18,7 @@ def read_csv(file_name):
     power = []
     
     script_dir = os.path.dirname(__file__)
-    data_folder = os.path.join(script_dir, 'data')
+    data_folder = os.path.join(script_dir, '..', 'data')
     file_path = os.path.join(data_folder, file_name)
     
     with open(file_path, mode='r') as file:
@@ -89,4 +89,3 @@ plt.tight_layout()
 print('tee')
 plt.savefig('PA_reg_damp.pdf')
 print('hee')
-

@@ -4,7 +4,7 @@ diffraction force from the diffraction problem and uses them to compute:
 2. the optimal damping and stiffness PTO terms (to resonate)
 3. the controlled response amplitude operator (RAO)'''
 
-def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
+def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,reactive):
 
     from capytaine.bem.airy_waves import froude_krylov_force
     import numpy as np
@@ -23,12 +23,13 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber):
     
     # Define simple optimal PTO damping and stiffness
     # for reactive control:
-    B_pto = B
-    K_pto = w**2*(M+A)-K  
-
-    # for damping only:
-    #B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
-    #K_pto = 0 
+    if reactive:
+        B_pto = B
+        K_pto = w**2*(M+A)-K  
+    else:
+        # for damping only:
+        B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
+        K_pto = 0 
 
     # FOR INCLUDING OFF-DIAGONALS
     inertia = M + A 

@@ -6,7 +6,7 @@ power take-off function nested within)
 4. wave_height.wave_height() which solves for wave height ratios i.e.
 the transmission and reflection coefficients.'''
 
-def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered):
+def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive):
     ################ SCRIPT FOR CALCULATING AT COEFFS ############
     # run all Kt and Kr calcs for any body here
     import body         # "body" contains functions for PA, OSWEC, attenuator, and breakwater initialization
@@ -64,7 +64,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
             array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,w,x_center)
 
         # this is where the code solves hydrodynamics
-        diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber)
+        diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber,reactive)
 
         # this is where the code solves for wave elevation
         total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
@@ -85,49 +85,49 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
         
     return Kt_H, Kr_H, w_vals, power
 
-### COMMENT THIS BIT OUT if you are going to run the big_run.py script ###
-# this is where i've been generating my Kt(omega)/Kr(omega) datasets
-# for post processing 
+# ### COMMENT THIS BIT OUT if you are going to run the big_run.py script ###
+# # this is where i've been generating my Kt(omega)/Kr(omega) datasets
+# # for post processing 
 
-import numpy as np
-import matplotlib.pyplot as plt
-import csv
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import csv
 
-w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
+# w = np.array([0.7,0.8,0.9,1.0,1.1,1.25,1.3])   # wave frequency
 
-# manually set False and True statements according to your goals
-# if you set breakwtr=True, you must set controls=False
-Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=False,oscillating_surge=True,
-                             attenuator=False,farm=True,controls=True,staggered=True)
+# # manually set False and True statements according to your goals
+# # if you set breakwtr=True, you must set controls=False
+# Kt_H, Kr_H, w_vals, power = wec_run(w,breakwtr=False,point_absorber=True,oscillating_surge=False,
+#                              attenuator=False,farm=True,controls=False,staggered=False,reactive=False)
 
-# this is to save the data to a .csv file
-file_path = 'OS_stag_react.csv'
-with open(file_path, mode='w', newline='') as file:
-    writer = csv.writer(file)
-    header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))] + [f'power_{i+1}' for i in range(len(power))]
-    writer.writerow(header)
-    for i in range(len(w_vals)):
-        row = [w_vals[i]] + [Kt_H[j][i] for j in range(len(Kt_H))] + [Kr_H[j][i] for j in range(len(Kr_H))] + [power[j][i] for j in range(len(power))]
-        writer.writerow(row)
+# # this is to save the data to a .csv file
+# file_path = 'PA_reg_uncont.csv'
+# with open(file_path, mode='w', newline='') as file:
+#     writer = csv.writer(file)
+#     header = ['Omega'] + [f'Kt_H_{i+1}' for i in range(len(Kt_H))] + [f'Kr_H_{i+1}' for i in range(len(Kr_H))] + [f'power_{i+1}' for i in range(len(power))]
+#     writer.writerow(header)
+#     for i in range(len(w_vals)):
+#         row = [w_vals[i]] + [Kt_H[j][i] for j in range(len(Kt_H))] + [Kr_H[j][i] for j in range(len(Kr_H))] + [power[j][i] for j in range(len(power))]
+#         writer.writerow(row)
 
-# you can plot directly here or use the .csv files in the coeff_plots.py script
-# color blind friendly plotting color palette
-cud_colors = ['#009E73','#D55E00','#E69F00', '#56B4E9','#0072B2', '#CC79A7', '#000000','#F0E442']
-linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
+# # you can plot directly here or use the .csv files in the coeff_plots.py script
+# # color blind friendly plotting color palette
+# cud_colors = ['#009E73','#D55E00','#E69F00', '#56B4E9','#0072B2', '#CC79A7', '#000000','#F0E442']
+# linestyles = ['-', '--', ':', '-.', '-', '--', ':', '-.']
 
-for i, kt_h_values in enumerate(Kt_H):
-    plt.plot(w_vals, kt_h_values, marker='s', markersize='10',label=f'$K_t$ body {i+1}',
-             color=cud_colors[i % len(cud_colors)], linestyle=linestyles[i % len(linestyles)],linewidth=3)
-for i, kr_h_values in enumerate(Kr_H):
-    plt.plot(w_vals, kr_h_values, marker='d', markersize='10', label=f'$K_r$ body {i+1}', 
-             color=cud_colors[i+1 % len(cud_colors)], linestyle=linestyles[i % len(linestyles)],linewidth=3)
+# for i, kt_h_values in enumerate(Kt_H):
+#     plt.plot(w_vals, kt_h_values, marker='s', markersize='10',label=f'$K_t$ body {i+1}',
+#              color=cud_colors[i % len(cud_colors)], linestyle=linestyles[i % len(linestyles)],linewidth=3)
+# for i, kr_h_values in enumerate(Kr_H):
+#     plt.plot(w_vals, kr_h_values, marker='d', markersize='10', label=f'$K_r$ body {i+1}', 
+#              color=cud_colors[i+1 % len(cud_colors)], linestyle=linestyles[i % len(linestyles)],linewidth=3)
 
-plt.xticks(fontsize=20)
-plt.yticks(fontsize=20)
-plt.xlabel('$\omega$ [rad/s]', fontsize=20)
-plt.ylabel('Coefficient Value', fontsize=20)
-plt.tight_layout()
-print('beep')
-plt.savefig('tests.pdf')
-print('boop')
-#plt.show()
+# plt.xticks(fontsize=20)
+# plt.yticks(fontsize=20)
+# plt.xlabel('$\omega$ [rad/s]', fontsize=20)
+# plt.ylabel('Coefficient Value', fontsize=20)
+# plt.tight_layout()
+# print('beep')
+# plt.savefig('tests.pdf')
+# print('boop')
+# #plt.show()

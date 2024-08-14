@@ -10,7 +10,7 @@ def read_csv(file_name, header_adjustment):
     power = []
     
     script_dir = os.path.dirname(__file__)
-    data_folder = os.path.join(script_dir, 'data','data_indiv')
+    data_folder = os.path.join(script_dir, '..','data','data_indiv')
     file_path = os.path.join(data_folder, file_name)
     
     with open(file_path, mode='r') as file:

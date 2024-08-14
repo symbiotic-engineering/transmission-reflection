@@ -8,7 +8,7 @@ def read_csv(file_name):
     Kr_H = []
     
     script_dir = os.path.dirname(__file__)
-    data_folder = os.path.join(script_dir, 'data')
+    data_folder = os.path.join(script_dir, '..', 'data')
     file_path = os.path.join(data_folder, file_name)
     
     with open(file_path, mode='r') as file:
@@ -28,7 +28,7 @@ def read_single_file(file_name):
     Kr_H = []
     
     script_dir = os.path.dirname(__file__)
-    data_folder = os.path.join(script_dir, 'data')
+    data_folder = os.path.join(script_dir, '..', 'data')
     file_path = os.path.join(data_folder, file_name)
     
     with open(file_path, mode='r') as file:

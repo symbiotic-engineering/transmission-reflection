@@ -4,16 +4,11 @@ import SWELLPA
 import numpy as np
 
 # modeling WECs 1, 2, and 3 in SWELL dataset in RSS5 sea state
-froude_number = 1   #1/20
-T = 1.5/np.sqrt(froude_number)                 # period in seconds
-w = np.array([2*np.pi/T])                      # wave frequency
-xtrans = np.array([-0.39,-0.78])/froude_number
-ytrans = np.array([0,0])
-depth = 50 #0.9/froude_number
+T = 1.5                                        # period [s]
+w = np.array([2*np.pi/T])                      # wave frequency [rad/s]
+xtrans = np.array([-0.39,-0.78])               # x-locs of WECs 1 and 3
+ytrans = np.array([0,0])                       # y-locs of WECs 1 and 3
+depth = 50                                     # water depth [m] 0.9
 
 for w in w:
-    if w < 0.8:
-        res = 2
-    else: 
-        res = 4                                   # resolution factor of grid wrt lambda
-    total, incoming_fse, lam, elevation_at_gauges = SWELLPA.lpf(w,res,xtrans,ytrans,depth,froude_number,farm=False)
+    total, incoming_fse, lam, elevation_at_gauges = SWELLPA.lpf(w,xtrans,ytrans,depth,farm=False)
