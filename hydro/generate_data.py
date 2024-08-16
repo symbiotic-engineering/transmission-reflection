@@ -12,23 +12,23 @@ w = np.array([0.7, 0.8, 0.9, 1.0, 1.1, 1.25, 1.3])  # wave frequency
 
 # Define the combinations of True and False for your parameters
 combinations = [
-    {'breakwtr': False, 'point_absorber': False, 'oscillating_surge': False, 'attenuator': True, 'farm': True, 'controls': False, 'staggered': False, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': False, 'oscillating_surge': False, 'attenuator': True, 'farm': True, 'controls': True, 'staggered': False, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': False, 'oscillating_surge': False, 'attenuator': True, 'farm': True, 'controls': True, 'staggered': False, 'reactive': True},
-    {'breakwtr': False, 'point_absorber': False, 'oscillating_surge': False, 'attenuator': True, 'farm': True, 'controls': False, 'staggered': True, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': False, 'oscillating_surge': False, 'attenuator': True, 'farm': True, 'controls': True, 'staggered': True, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': False, 'oscillating_surge': False, 'attenuator': True, 'farm': True, 'controls': True, 'staggered': True, 'reactive': True}
+    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': False, 'staggered': False, 'reactive': False},
+    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': False, 'reactive': False},
+    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': False, 'reactive': True},
+    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': False, 'staggered': True, 'reactive': False},
+    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': True, 'reactive': False},
+    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': True, 'reactive': True}
 ]
 
 # Map combinations to their corresponding file names
 # breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive
 file_names = {
-    (False, False, False, True, True, False, False, False): 'atten_reg_uncont.csv',
-    (False, False, False, True, True, True, False, False): 'atten_reg_damp.csv',
-    (False, False, False, True, True, True, False, True): 'atten_reg_react.csv',
-    (False, False, False, True, True, False, True, False): 'atten_stag_uncont.csv',
-    (False, False, False, True, True, True, True, False): 'atten_stag_damp.csv',
-    (False, False, False, True, True, True, True, True): 'atten_stag_react.csv'
+    (False, True, False, False, True, False, False, False): 'PA_reg_uncont.csv',
+    (False, True, False, False, True, True, False, False): 'PA_reg_damp.csv',
+    (False, True, False, False, True, True, False, True): 'PA_reg_react.csv',
+    (False, True, False, False, True, False, True, False): 'PA_stag_uncont.csv',
+    (False, True, False, False, True, True, True, False): 'PA_stag_damp.csv',
+    (False, True, False, False, True, True, True, True): 'PA_stag_react.csv'
 }
 
 # Loop through each combination

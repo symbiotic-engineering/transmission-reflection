@@ -37,7 +37,10 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
     reactance = K + K_pto
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
 
-    RAO_controlled = np.linalg.solve(H,ex_force).ravel()
+    if farm:
+        RAO_controlled = np.linalg.solve(H,ex_force).ravel()
+    else:
+        RAO_controlled = ex_force/H
     print('RAO_controlled',RAO_controlled)
 
     amplitude = 1.000  # unit wave amplitude [m]
@@ -56,7 +59,10 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
             mask = np.abs(body_velocity) > amplitude * w
 
     # power produced by WEC, used to find CWR
-    power = 0.5*np.diag(B_pto)*(abs(RAO_controlled*w*1j))**2        # [kW]
+    if farm:
+        power = 0.5*np.diag(B_pto)*(abs(RAO_controlled*w*1j))**2        # [kW]
+    else:
+        power = 0.5*B_pto*(abs(RAO_controlled*w*1j))**2        # [kW]
 
     # power available in wave
     rho = 1025                  # [kg/m^3] density of sea water
