@@ -1,10 +1,10 @@
 ''' TO RUN THIS SCRIPT (read the README too): 
     1. You need to define your xgrid and ygrid size and resolution.
     2. You need to check the xtrans and ytrans WEC positions in the
-    sheep.wec_run() function. This will determine if you will run a 
+    run_coeffs.wec_run() function. This will determine if you will run a 
     staggered or regular array.
     3. You need to define the positions of your bodies in the SWAN grid
-    according to the sheep.wec_run() function.
+    according to the run_coeffs.wec_run() function.
     4. You need to define the significant wave height and peak wave
     period of your sea state. ATTN: you will also need to adjust the
     run_swan.py file for wind speed and direction.
@@ -12,16 +12,13 @@
     Set all others to False.
     6. If you want to include array interactions, set farm equal to
     True. If you want to include controls, set controls equal to True.
-    ATTN: whether you use pure damping or reactive controls is determined
-    by the PTO.py script in the hydro folder.'''
+    If you want reactive controls, set reactive equal to True; otherwise,
+    if controls == True and reactive == False, it will do damped control.'''
 
 import sys
 import os
-import run_coeffs
-import post_process
-import run_swan
 import numpy as np
-
+import pandas as pd
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -29,58 +26,76 @@ hydro_dir = os.path.join(parent_dir, 'hydro')
 swan_dir = os.path.join(parent_dir, 'swan')
 sys.path.append(hydro_dir)
 sys.path.append(swan_dir)
+import run_coeffs
+import gen_data
+import run_swan
 
-xgrid = 3000                                # size of grid in x-direction
-ygrid = 5000                                # size of grid in y-direction
-mxc = 300                                   # number of grid points in x (-1) (10 m res in x)
-myc = 500                                   # number of grid points in y (-1) (10 m res in y)
+def farfield(six,swan_stag,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive,H,T,xgrid,ygrid,csv_file):
+    mxc = int(xgrid/10)                                   # number of grid points in x (-1) (10 m res in x)
+    myc = int(ygrid/10)                                   # number of grid points in y (-1) (10 m res in y)
 
-# six-body reg: 
-# x = [1290,1390,1490,1590,1690,1790] # x-position of bodies
-# ya=4500         # y-position of row 1
-# yb=4500         # y-position of row 2
+    if six:
+        if swan_stag:
+            # six body stag: 
+            x = [1490,1550,1610, 1440, 1500, 1560]
+            ya, yb = 4500, 4450
+        else:
+            # six-body reg: 
+            x = [1290,1350,1410,1470,1530,1590]    # x-position of bodies
+            ya, yb = 4500,4500                     # y-position of rows 1 and 2
+    else:
+        if swan_stag:
+            # three-body stag: 
+            x = [1490,1550,1610] 
+            ya, yb = 4500, 4450         # change i==1 in run_swan
+        else:
+            # three-body reg: 
+            x = [1490,1550,1610] 
+            ya, yb = 4500, 4450
 
-# three-body stag: x = [1490,1590,1690]ya=4500 yb=4450 # change i==1 in run_swan
+    ## to obtain Kt and Kr coefficients for your body and case
+    ## note: won't run on my personal laptop, but SWAN won't run on lab computer
+    # Kt_H, Kr_H, w_vals, power = run_coeffs.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive)
 
-# three-body reg: x=[1490,1590,1690] ya=4500 yb=4400
+    def configure_coefficients(csv_file, farm):
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(csv_file)
+        if farm:
+            i = 1
+        else:
+            i = 0
 
-# six body stag: 
-x=[1490, 1590, 1690, 1420, 1520, 1620]
-ya=4500 
-yb=4400
-                                  
-H = 0.8                                     # avg significant wave height [m]
-T = 5                                       # avg wave period [s] from buoy 44097
-w = np.array([2*np.pi/T])   # wave frequency
+        if farm:
+            Kt_H = [df.iloc[5, 1], df.iloc[5, 2], df.iloc[5, 3]]
+            Kr_H = [df.iloc[5, 4], df.iloc[5, 5], df.iloc[5, 6]]
+        else:
+            Kt_H = [df.iloc[5, 1]]
+            Kr_H = [df.iloc[5, 2]]
 
-breakwtr=False
-point_absorber=False
-oscillating_surge=True
-attenuator=False
+        # Configure the KR and KT arrays
+        KR = [Kr_H[0], Kr_H[i], Kr_H[2*i], Kr_H[0], Kr_H[i], Kr_H[2*i]]
+        KT = [Kt_H[0], Kt_H[i], Kt_H[2*i], Kt_H[0], Kt_H[i], Kt_H[2*i]]
 
-farm=True
-controls=True
+        # Print results
+        print("KR:", KR)
+        print("KT:", KT)
 
-Kt_H, Kr_H, w_vals = run_coeffs.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls)
-if farm == True:
-    i = 1
-else:
-    i = 0
+        # Return the KR and KT arrays
+        return KR, KT
 
-KR = [Kr_H[0][0], Kr_H[i][0], Kr_H[2*i][0], Kr_H[0][0], Kr_H[i][0], Kr_H[2*i][0]]
-KT = [Kt_H[0][0], Kt_H[i][0], Kt_H[2*i][0], Kt_H[0][0], Kt_H[i][0], Kt_H[2*i][0]]
-print(KR)
-print(KT)
+    KR, KT = configure_coefficients(csv_file, farm)
 
-# diameter of the bodies
-if point_absorber:
-    d = 21
-if oscillating_surge:
-    d = 18
-if breakwtr:
-    d = 20
-if attenuator:
-    d = 4
+    # diameter of the bodies
+    if point_absorber:
+        d = 21
+    if oscillating_surge:
+        d = 18
+    if breakwtr:
+        d = 20
+    if attenuator:
+        d = 4
 
-sfgrid_dat, sfgrid_tbl = run_swan.generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc,attenuator)
-waveHeight = post_process.postpro(sfgrid_dat,xgrid,ygrid,mxc,myc)
+    # run SWAN and generate wave height data
+    sfgrid_dat, sfgrid_tbl = run_swan.generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc,attenuator,six,swan_stag)
+
+    return sfgrid_dat
