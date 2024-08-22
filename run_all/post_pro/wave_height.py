@@ -1,88 +1,137 @@
-'''this file is how I generated figures to compare the wave height as a
-function of distance for different cases. It loads .csv files and finds the 
-midline heights of the datasets. .csv files are used because SWAN is
-computationally expensive. It is more straightforward to generate good figures
-to work with saved datasets rather than conducting 9 consecutive Capytaine
-and SWAN runs. You will need to change the file path in line 39 to run.'''
-
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import pandas as pd
 
 # Constants
-xgrid = 3000
-ygrid = 5000
 mxc = 300
 myc = 500
-x_conversion = xgrid / (mxc + 1)
-y_conversion = ygrid / (myc + 1)
-x_investigated = int(1550 / x_conversion)       # dead x-center of array
-y_investigated = int(4385 / y_conversion)       # y = 0 m from array
+xgrid = 3000  # Total width in meters
+ygrid = 5000  # Total height in meters
 
 # Load and reshape data
 def load_and_reshape(file_path):
     data = np.loadtxt(file_path, delimiter=',')
-    return data.reshape(mxc + 1, myc + 1)
+    return data.reshape(myc + 1, mxc + 1)
 
+# Set the correct data folder path
+data_folder = '../../data/'
+
+# Define file paths
 file_paths = [
-    'blank_elevation.csv',
-    #'atten_1a.csv','atten_1b.csv','atten_1c.csv','atten_2a.csv','atten_3b.csv'
-    #'break_1a.csv','break_1b.csv','break_1c.csv','break_2a.csv','break_3b.csv' 
-    #'OS_1a.csv','OS_1b.csv','OS_1c.csv','OS_2a.csv','OS_3b.csv' 
-    'PA_1a.csv','PA_1b.csv','PA_1c.csv','PA_2a.csv','PA_3b.csv'
-    #'atten_1d.csv',
-    #'break_1d.csv',
-    #'OS_1d.csv',
-    #'PA_1d.csv'
+    'blank.csv',
+    'OS_1a.csv', 'OS_2a.csv',
+    'OS_1b.csv', 'OS_3b.csv',
+    'OS_1c.csv',
+    'OS_1d.csv',
+    'atten_1a.csv','atten_2a.csv',
+    'atten_1b.csv','atten_3b.csv',
+    'atten_1c.csv',
+    'atten_1d.csv',
+    'break_1a.csv','break_2a.csv',
+    'break_1b.csv','break_3b.csv', 
+    'break_1c.csv',
+    'break_1d.csv',
+    'PA_1a.csv','PA_2a.csv',
+    'PA_1b.csv','PA_3b.csv',
+    'PA_1c.csv',
+    'PA_1d.csv'
 ]
 
-# you will need to change the file path to run
-data_arrays = [load_and_reshape(f'/mnt/c/Users/ov162/transmission-reflection/data/{fp}') for fp in file_paths]
+# Load data arrays
+data_arrays = {fp: load_and_reshape(os.path.join(data_folder, fp)) for fp in file_paths}
 
-# Extract midline heights
-midline_heights = [data[:y_investigated, x_investigated] for data in data_arrays]
+# Calculate percent difference compared to blank.csv
+blank_data = data_arrays['blank.csv']
+percent_differences = {}
 
-# Calculate percent decrease
-midline_height_blank = midline_heights[0]
-percent_decrease = 100 * (midline_height_blank - np.array(midline_heights[1:])) / midline_height_blank
+for fp in file_paths[1:]:  # Skip the 'blank.csv'
+    percent_differences[fp] = abs(100 * (data_arrays[fp] - blank_data) / blank_data)
 
-# Calculate distance from array
-distance_from_array = abs(np.linspace(0, y_investigated * y_conversion, len(midline_heights[1])))# - ygrid)
-#print(distance_from_array)
-# Find the indices for the specified x-distances
-x_distance_1nm = 5000 - 1852
-x_distance_half_nm = 5000-(1852*2)
-x_index_1nm = np.argmin(np.abs(distance_from_array - x_distance_1nm))
-x_index_half_nm = np.argmin(np.abs(distance_from_array - x_distance_half_nm))
+# Prepare data for saving
+results_list = []
 
-# Extract values at the specified x-distances for each file
-percent_decrease_1nm_values = percent_decrease[:, x_index_1nm]
-percent_decrease_half_nm_values = percent_decrease[:, x_index_half_nm]
+# Define the nautical miles of interest and corresponding indices
+nautical_miles = [0.5, 1, 2]
+nautical_miles_conversion = 1852  # Conversion factor from meters to nautical miles
 
-# Print the extracted values for each file
-for i, file_path in enumerate(file_paths[1:]):  # Skipping the blank file
-    print(f"{file_path} - Percent decrease at 1852 meters: {percent_decrease_1nm_values[i]:.2f}%")
-    #print(f"{file_path} - Percent decrease at 926 meters: {percent_decrease_half_nm_values[i]:.2f}%")
+for file_path in file_paths[1:]:  # Skip the 'blank.csv'
+    if file_path.endswith('a.csv'):
+        x_center = int(1550 * (mxc / xgrid))
+        y_start = int(4490 * (myc / ygrid))
+    elif file_path.endswith('b.csv'):
+        x_center = int(1550 * (mxc / xgrid))
+        y_start = int(4440 * (myc / ygrid))
+    elif file_path.endswith('c.csv'):
+        x_center = int(1440 * (mxc / xgrid))
+        y_start = int(4490 * (myc / ygrid))
+    elif file_path.endswith('d.csv'):
+        x_center = int(1525 * (mxc / xgrid))
+        y_start = int(4440 * (myc / ygrid))
+    
+    # Extract percent difference at x_center from y_start to y = 0
+    y_range = np.linspace(y_start * (ygrid / myc), 0, y_start + 1)
+    percent_diff_at_x_center = percent_differences[file_path][0:y_start + 1, x_center]
+    
+       # Reverse the order for correct alignment
+    y_range = y_range[::-1] / nautical_miles_conversion  # Convert to nautical miles
+    percent_diff_at_x_center = percent_diff_at_x_center[::-1]
 
+    # Find the indices for the specified nautical miles and store results
+    results = {'File': file_path}
+    for nm in nautical_miles:
+        idx = np.abs(y_range - nm).argmin()
+        results[f'{nm} nautical miles'] = percent_diff_at_x_center[idx]
+    
+    results_list.append(results)
 
-# # Define color-blind friendly colors
-# cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000', '#8B4513']
+# Create a DataFrame and save to CSV
+results_df = pd.DataFrame(results_list)
+output_file = 'percent_diff.csv'
+results_df.to_csv(output_file, index=False)
 
-# # Plot function
-# def plot_data(x, y_data, ylabel, filename):
-#     plt.figure()
-#     for y, label, color, linestyle in zip(y_data, plot_labels, cud_colors, ['-', '--', '-.', ':','-','--','-.',':']):
-#         plt.plot(x, y, label=label, color=color, linestyle=linestyle)
-#     #plt.axvline(x=1852, color='black', linestyle=':', label='1 nm')
-#     #plt.axvline(x=(1852)/2, color='black', linestyle='-')
-#     plt.xlabel('Distance from Array [m]')
-#     plt.ylabel(ylabel)
-#     plt.legend()
-#     plt.savefig(f'/mnt/c/Users/ov162/transmission-reflection/run_all/post_pro/{filename}.pdf')
-#     plt.show()
+# # for plotting only
+# # Define colorblind-friendly colors and linestyles
+# cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000','#F5C200']
+# linestyles = ['-', '--', '-.', ':', '-', '--', '-.', ':']  # Make sure we have enough linestyles
 
-# # Plot wave heights
-# plot_labels = ['Attenuator', 'Breakwater', 'OSWEC','PA']
-# #plot_data(distance_from_array, midline_heights[1:], 'Wave Height [m]', 'compare_bodies')
+# # Plot percent difference at x_center location from y_start to y=0 for all files
+# plt.figure()        #figsize=(8, 8))
+# for i, file_path in enumerate(file_paths[1:]):  # Skip the 'blank.csv'
+#     if file_path.endswith('a.csv'):
+#         x_center = int(1550 * (mxc / xgrid))
+#         y_start = int(4490 * (myc / ygrid))
+#     elif file_path.endswith('b.csv'):
+#         x_center = int(1550 * (mxc / xgrid))
+#         y_start = int(4440 * (myc / ygrid))
+#     elif file_path.endswith('c.csv'):
+#         x_center = int(1440 * (mxc / xgrid))
+#         y_start = int(4490 * (myc / ygrid))
+#     elif file_path.endswith('d.csv'):
+#         x_center = int(1525 * (mxc / xgrid))
+#         y_start = int(4440 * (myc / ygrid))
+    
+#     # Extract percent difference at x_center from y_start to y = 0
+#     y_range = np.linspace(y_start * (ygrid / myc), 0, y_start + 1)
+#     percent_diff_at_x_center = percent_differences[file_path][0:y_start + 1, x_center]
+    
+#     # Reverse the order for the plot
+#     y_range = y_range[::-1] / 1852  # Convert to nautical miles
+#     percent_diff_at_x_center = percent_diff_at_x_center[::-1]
 
-# # Plot percent decrease
-# plot_data(distance_from_array, percent_decrease, 'Decrease in Wave Height [%]', '1d_percent_decrease')
+#     parts = file_path.split('_')
+#     label = f"{parts[0]} {parts[1].replace('.csv', '')}"
+    
+#     # Plot the percent difference with colorblind-friendly colors and different linestyles
+#     plt.plot(y_range, percent_diff_at_x_center, label=label,
+#              color=cud_colors[i % len(cud_colors)])             #, linestyle=linestyles[i % len(linestyles)])
+
+# # Customize the plot
+# plt.xlabel('Distance from Array [nm]',fontsize=20)
+# plt.ylabel('Wave Height Reduction [%]',fontsize=20)
+# plt.legend(fontsize=20)
+# plt.xticks(fontsize=20)
+# plt.yticks(fontsize=20)
+# plt.tight_layout()
+# plt.show()
+# plt.savefig('compare_hreduction.pdf')

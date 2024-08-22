@@ -36,22 +36,22 @@ def farfield(six,swan_stag,breakwtr,point_absorber,oscillating_surge,attenuator,
 
     if six:
         if swan_stag:
-            # six body stag: 
+            # six body stag: (d)
             x = [1490,1550,1610, 1440, 1500, 1560]
             ya, yb = 4500, 4450
         else:
-            # six-body reg: 
+            # six-body reg: (c)
             x = [1290,1350,1410,1470,1530,1590]    # x-position of bodies
             ya, yb = 4500,4500                     # y-position of rows 1 and 2
     else:
         if swan_stag:
-            # three-body stag: 
+            # three-body stag: (b)
             x = [1490,1550,1610] 
             ya, yb = 4500, 4450         # change i==1 in run_swan
         else:
-            # three-body reg: 
+            # three-body reg: (a)
             x = [1490,1550,1610] 
-            ya, yb = 4500, 4450
+            ya, yb = 4500, 4500
 
     ## to obtain Kt and Kr coefficients for your body and case
     ## note: won't run on my personal laptop, but SWAN won't run on lab computer

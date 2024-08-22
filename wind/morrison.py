@@ -1,52 +1,57 @@
 import numpy as np
-from scipy.integrate import dblquad
 
-# Define the integrand for numerical integration
-def integrand(t, z, w, x):
-    H = 0.8
-    rho = 1025
-    g = 9.81  # gravitational constant
-    k = w**2 / g
-    h = -50
-    u = ((H*w)/2) * (np.cosh(k*(z + h)) / np.sinh(k*h)) * np.cos(k*x - w*t)
-    u_dot = -((H*w**2)/2) * (np.cosh(k*(z + h)) / np.sinh(k*h)) * np.sin(k*x - w*t)
-    C_d = 1.0
-    C_m = 2.0
-    d = 10.97
-    f = C_m*rho*(np.pi/4)*d**2 * u_dot + C_d*d*0.5*rho*u*np.abs(u)
-    return f
+# Define constants
+z = 0               # evaluating at z=0 [m]
+d = 10.97           # diameter of turbine
+x = -d / 2          # edge of turbine setting x=0 to turbine center [m]
+w = 1.25            # dominant frequency [rad/s]
+H = 0.8             # wave height [m]
+rho = 1025          # density of seawater [kg/m^3]
+g = 9.81            # gravitational constant [m/s^2]
+k = w**2 / g        # wave number
+h = -40             # water depth
+L = -h              # length
+C_d = 1.0           # drag coeff
+C_m = 2.0           # inertia coeff
+R = d / 2           # outer radius [m]
+thickness = 0.125   # monopile wall thickness [m]
+r = R - thickness   # inner radius [m]
+rho_steel = 7980    # density of 316 stainless steel [kg/m^3]
 
-# Define the limits for z and t
-def z_limits(t):
-    return [-50, 0.4]
+# Calculate properties
+volume = np.pi * (R**2 - r**2) * L         # volume of submerged monopile [m^3]
+mass = rho_steel * volume         # mass of submerged monopile [kg]
+I = ((mass * (R**2 + r**2)) / 4) + ((mass * L**2) / 12)  # moment of inertia about the y-axis (pitch) [kg-m^2]
+y = R                             # distance to centroidal axis
 
-def t_limits(w):
-    return [0, 2*np.pi/w]  # T value for each w
+# Time period T
+T = 2 * np.pi / w
 
-# Sweep through a range of w values
-w_values = np.array([0.7, 0.8, 0.9, 1.0, 1.1, 1.25, 1.3])  # Example range of w values
-x_value = 10.97
-results = []
+# Define the bending stress calculation function
+def calculate_bending_stress(t):
+    u = ((H*w)/2) * (np.cosh(k*(z + h)) / np.sinh(k*h)) * np.cos(k*x - w*t)         # flow velocity
+    u_dot = -((H*w**2)/2) * (np.cosh(k*(z + h)) / np.sinh(k*h)) * np.sin(k*x - w*t) # flow acceleration
+    f = C_m*rho*(np.pi/4)*d**2 * u_dot + C_d*d*0.5*rho*u*np.abs(u)   # force of wave per unit length [N/m]
+    bending_moment = f * (L + H/2)                                   # L + H/2 is the moment arm [N-m] or [kg-m^2/s^2]
+    sigma = (y / I) * bending_moment  # bending stress (Pa) [m/s^2]
+    return sigma
 
-for w_value in w_values:
-    T_value = (2*np.pi) / w_value
-    result, error = dblquad(lambda t, z: integrand(t, z, w_value, x_value), 
-                           *t_limits(w_value), lambda t: z_limits(t)[0], lambda t: z_limits(t)[1],
-                           epsabs=1e-5, epsrel=1e-5)
-    result_divided = result / T_value
-    results.append((w_value, result_divided))
+# Evaluate bending stress over the time range t = [0, T]
+t_values = np.linspace(0, T, 100)
+sigma_values = np.array([calculate_bending_stress(t) for t in t_values])
 
-# Print or plot the results
-for w_value, result_divided in results:
-    print(f"w = {w_value:.2f}, Time-averaged force / T = {result_divided:.4f}")
+# Find maximum and minimum sigma
+sigma_max = np.max(sigma_values)
+sigma_min = np.min(sigma_values)
+sigma_range = sigma_max - sigma_min
+#print(f"Bending Stress Range: {sigma_range:.4f} Pa")
 
-# Optional: Plotting the results
-import matplotlib.pyplot as plt
+# a_bar value taken from experiments
+# for N > 10^6, m = 5
+m = 5
+a_bar = np.exp(13.617) 
+N_f = a_bar*(sigma_range**(-m))
 
-w_vals, forces = zip(*results)
-plt.plot(w_vals, forces, marker='o')
-plt.xlabel('Wave Frequency (w)')
-plt.ylabel('Time-Averaged Force / T')
-plt.title('Time-Averaged Force Divided by T vs. Wave Frequency')
-plt.grid(True)
-plt.show()
+n_cycle = (25 * 8760 * 60 * 60) / T     # number of cycles in turbine lifetime (25 yrs)
+D = n_cycle/N_f
+print('total damage',D)
