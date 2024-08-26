@@ -126,12 +126,22 @@ for i in range(3):  # Loop over the three bodies
                     label=f'{key}' if i == 0 else "")
 
 # Customize the plot
-plt.xticks([1, 2, 3], bodies, fontsize=20)
+#plt.xticks([1, 2, 3], bodies, fontsize=20)
 plt.yticks(fontsize=20)
-plt.ylabel('$K_t$ Change [%]',fontsize=20)
+#plt.ylabel('$K_t$ Change [%]',fontsize=20)
 plt.ylim([0,80])
-plt.legend(loc='center',fontsize=20)
+ax = plt.gca()
+#ax.spines['top'].set_visible(False)
+#ax.spines['right'].set_visible(False)
+#ax.spines['left'].set_visible(False)
+#ax.spines['bottom'].set_visible(False)
+
+ax.xaxis.set_major_locator(plt.MultipleLocator(0.25))
+
+ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+#plt.legend(loc='center',fontsize=20)
 plt.grid(True)
+plt.text(1.025, 1.05, 'b', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
 
 # Show and save the plot
 plt.savefig('percent_difference_plot.pdf')
