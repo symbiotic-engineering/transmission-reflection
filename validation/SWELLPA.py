@@ -1,4 +1,4 @@
-def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
+def lpf(w,xtrans,ytrans,depth,farm):
     # hydro
     import capytaine as cpt
     from scipy.linalg import block_diag
@@ -12,11 +12,11 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     import xarray as xr
 
     # initializing parameters
-    r = (0.256/2)/froude_number     # radius [m]
-    l = (0.2)/froude_number
-    draft = 0.110/froude_number
-    x = 6.79/froude_number
-    y = -1*4.2/froude_number
+    r = (0.256/2)     # radius [m]
+    l = (0.2)
+    draft = 0.110
+    x = 6.79
+    y = -1*4.2
     nr = 20         # number of panels along radius
     ntheta = 20     # number of panels in theta direction
     nz = 10         # number of panels in z-direction
@@ -25,14 +25,14 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     g = 9.81        # gravitational constant (m/s^2)
     k = w**2/g      # wave number infinite depth (rad^2/m)
     lam = int(2*np.pi/k)
-    cob = -0.021/froude_number
-    CGz = 0.094/froude_number
-    CGy = 0.022/froude_number
+    cob = -0.021
+    CGz = 0.094
+    CGy = 0.022
 
     gauge_x = np.array([6.79, 6.79, 6.79, 6.985, 6.595, 6.205, 5.815, 5.425, 6.79, 6.4, 
-                        6.01, 5.62, 6.4, 10.335])/froude_number
+                        6.01, 5.62, 6.4, 10.335])
     gauge_y = -1*np.array([2.845, 3.095, 3.295, 4.2, 4.2, 4.2, 4.2, 4.2, 4.608, 4.608, 4.608, 
-                        4.608, 5.87, 4.2])/froude_number
+                        4.608, 5.87, 4.2])
     # defining mesh
     body = cpt.FloatingBody(mesh=cpt.mesh_vertical_cylinder(length=l, radius=r,center=(x,y,z),
                                                             resolution=(nr,ntheta,nz),name='cyl'),
@@ -41,8 +41,8 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     body.center_of_mass=(0,CGy,CGz)
     body.add_all_rigid_body_dofs()
 
-    m_arm = 1.157/froude_number**3                   # mass of arm
-    m_float = 4/froude_number**3                     # mass of float
+    m_arm = 1.157                  # mass of arm
+    m_float = 4                    # mass of float
     m = m_arm + m_float
     def mass_matrix(m,r,x=0.,y=0.):
         M = np.eye(6)*m
@@ -78,70 +78,70 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     ]
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
-    RAO = cpt.post_pro.rao(dataset, wave_direction=B, dissipation=None, stiffness=None)
-    RAO = np.array(np.abs(RAO.values))            # this is essentially the true Heave amplitude
-    print('rao',RAO)
 
-    # hydro coeffs
-    damp = np.array([dataset['radiation_damping'].sel(radiating_dof=dof,
-                                            influenced_dof=dof) for dof in array.dofs])
-    add = np.array([dataset['added_mass'].sel(radiating_dof=dof,
-                                            influenced_dof=dof) for dof in array.dofs])
-    stiff = body.hydrostatic_stiffness.values
-    mass = body.inertia_matrix.values
-    inertial_term = [-w**2*(int(mass) + A) for A in add]
-    mech_term = [-1j*w*B + int(stiff) for B in damp]
-    transfer_matrix = [inertial + mech for inertial, mech in zip(inertial_term, mech_term)]
+    # extract hydro coeffs
+    # to include off-diagonals
+    A = np.squeeze(np.array([[dataset['added_mass'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
+    B = np.squeeze(np.array([[dataset['radiation_damping'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
+    K = array.hydrostatic_stiffness.values
+    M = array.inertia_matrix.values
+
+    # extract forces and compute exciting force
+    FK = np.array([froude_krylov_force(diff_prob)[dof] for dof in array.dofs])
+    dif = np.array([diff_result.forces[dof] for dof in array.dofs])
+    ex_force = FK + dif
+    #print('scaled ex_force',abs(0.05*ex_force))
+
+    inertia = M + A 
+    resistance = B 
+    reactance = K 
+    H = -(w**2)*inertia - 1j*w*resistance + reactance 
+
+    if farm:
+        RAO_controlled = np.linalg.solve(H,ex_force).ravel()
+    else:
+        RAO_controlled = ex_force/H
+    print('RAO_controlled',RAO_controlled)
 
     if farm==False:
-        excitationForce_SWELL = np.array([17.3403])/(froude_number**3)
-        FK = froude_krylov_force(diff_prob)['Heave']
-        diff_force = diff_result.forces['Heave']
+        excitationForce_SWELL = np.array([17.0876])             # pulled from their data on MATLAB
+    else:                                                       # pulled from their data on MATLAB
+        excitationForce_SWELL = np.array([16.7575566115100,15.2911835464861,17.2644688499461])
+
+    # ex_force multiplied by 0.05 to match SWELL incident wave height
+    FexError = (abs(0.05*ex_force) - excitationForce_SWELL)/excitationForce_SWELL
+    print('F_ex error',100*FexError)
+
+    # generating wave height and disturbance datasets (5, 11, 2.5, 6)
+    x1, x2, nx, y1, y2, ny = 5, 12, 100, -1*2, -1*7, 100
+    grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
+    diffraction = solver.compute_free_surface_elevation(grid, diff_result)
+    multiplications = []
+    if farm == False:
+        for i in range(1):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * RAO_controlled[i]
+            multiplications.append(mult_result)
+        radiation = sum(multiplications)
     else:
-        excitationForce_SWELL = np.array([17.0947148425932, 15.7179554013022, 17.5956099088629])/(froude_number**3)
-        FK1 = froude_krylov_force(diff_prob)['cyl__Heave']
-        FK2 = froude_krylov_force(diff_prob)['2__Heave']
-        FK3 = froude_krylov_force(diff_prob)['3__Heave']
-        FK = np.array([FK1,FK2,FK3])
-        diff_force = np.array([diff_result.forces['cyl__Heave'],diff_result.forces['2__Heave'],
-                                diff_result.forces['3__Heave']])
-    
-    F_ex = (FK + diff_force)*0.05
-    FexError = (abs(F_ex) - excitationForce_SWELL)/excitationForce_SWELL
-
-    experimental_RAO = np.abs([force / term for force, term in zip(excitationForce_SWELL*froude_number**3, transfer_matrix)])
-    print('RAO',experimental_RAO)
-
-    # # generating wave height and disturbance datasets (5, 11, 2.5, 6)
-    # x1, x2, nx, y1, y2, ny = 5/froude_number, 12/froude_number, 100, -1*2/froude_number, -1*7/froude_number, 100
-    # grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
-    # diffraction = solver.compute_free_surface_elevation(grid, diff_result)
-    # multiplications = []
-    # if farm == False:
-    #     for i in range(1):
-    #         mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]
-    #         multiplications.append(mult_result)
-    #     radiation = sum(multiplications)
-    # else:
-    #     for i in range(3):
-    #         mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * experimental_RAO[i,0]
-    #         multiplications.append(mult_result)
-    #     radiation = sum(multiplications)
-    # incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
-    # total = (diffraction + radiation + incoming_fse)*0.02/(froude_number)
+        for i in range(3):
+            mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * RAO_controlled[i]
+            multiplications.append(mult_result)
+        radiation = sum(multiplications)
+    incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)
+    total = (incoming_fse + diffraction + radiation)*0.05       # *0.05 to match SWELL incident wave height
 
     import matplotlib.patheffects as path_effects
     # plots
-    # Z = np.real(incoming_fse)
-    # X = grid[0]
-    # Y = grid[1]
-    # plt.pcolormesh(X, Y, Z) 
-    # plt.xlabel("x")
-    # plt.ylabel("y")
-    # colorbar = plt.colorbar()
-    # colorbar.set_label(r'Wave Elevation')
-    #plt.scatter(xtrans + x,ytrans + y, marker = 'o', color = 'black', s = 100)
-    #plt.scatter(x,y, marker = 'o', color = 'black', s = 100)
+    Z = np.real(total)
+    X = grid[0]
+    Y = grid[1]
+    plt.pcolormesh(X, Y, Z) 
+    plt.xlabel("x")
+    plt.ylabel("y")
+    colorbar = plt.colorbar()
+    colorbar.set_label(r'Wave Elevation')
+    plt.scatter(xtrans + x,ytrans + y, marker = 'o', color = 'black', s = 100)
+    plt.scatter(x,y, marker = 'o', color = 'black', s = 100)
     #plt.arrow(-50, 50, 20, 0, color='black', width=0.2, head_width=5, head_length=5)
     #text = plt.text(-60, 40, 'Incident Waves', color='black', fontsize=12, ha='center', va='center')
     #text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'), path_effects.Normal()])
@@ -149,8 +149,8 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     plt.scatter(gauge_x,gauge_y, marker = 'o', color = 'red', s = 35)
     # x_offset = 0.05  # Adjust as needed
     y_offset = 0.05  # Adjust as needed
-    for i, (x, y) in enumerate(zip(gauge_x, gauge_y), start=1):
-        plt.text(x, y - y_offset, f'{i}', fontsize=12, ha='center', va='top')
+    #for i, (x, y) in enumerate(zip(gauge_x, gauge_y), start=1):
+    #    plt.text(x, y - y_offset, f'{i}', fontsize=12, ha='center', va='top')
     # Add labels, alternating between above and below the points with specified offset
     # for i, (x, y) in enumerate(zip(gauge_x, gauge_y)):
     #     if i % 2 == 0:
@@ -163,12 +163,13 @@ def lpf(w,res,xtrans,ytrans,depth,froude_number,farm):
     plt.yticks(fontsize='12')
     plt.tight_layout()
     plt.savefig('validation_sensors.pdf')
-    plt.show()
+    #plt.show()
 
     points = np.column_stack((gauge_x, gauge_y))
     # Interpolate 'total' onto the gauge points
     elevation_at_gauges = griddata((X.ravel(), Y.ravel()), total.ravel(), points, method='linear')
-    print(np.abs(elevation_at_gauges))
+    print('wave elevation',np.abs(elevation_at_gauges))
+    print('wave amplitude',np.abs(elevation_at_gauges)/2)
     # total_at_gauges now contains the values of 'total' at the gauge locations specified by gauge_x and gauge_y
 
     return total, incoming_fse, lam, elevation_at_gauges
