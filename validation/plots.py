@@ -14,6 +14,14 @@ WECy = -1*np.array([4.2, 4.2, 4.2])
 plt.figure(figsize=(12, 8))
 plt.scatter(gauge_x, gauge_y, c='#009E73', marker='o', edgecolor='black', label='Gauges',s=400)
 plt.scatter(WECx, WECy, c='#D55E00', marker='*', edgecolor='black', label='WECs', s=750)
+for i, (x, y) in enumerate(zip(gauge_x, gauge_y), 1):
+    if i <= 3:
+        plt.text(x + 0.075, y, str(i), fontsize=25, ha='left', va='center', fontweight='bold')  # Right of the first three markers
+    elif i == 13:
+        plt.text(x + 0.075, y, str(i), fontsize=25, ha='left', va='center',fontweight='bold')
+    else:
+        plt.text(x, y - 0.075, str(i), fontsize=25, ha='center', va='top',fontweight='bold')   # Beneath the rest of the markers
+
 plt.xlabel('X',fontsize=35)
 plt.ylabel('Y',fontsize=35)
 plt.xticks(fontsize=30)
