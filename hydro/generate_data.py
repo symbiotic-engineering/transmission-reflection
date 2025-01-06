@@ -34,7 +34,7 @@ file_names = {
 # Loop through each combination
 for combination in combinations:
     # Unpack the dictionary to pass the parameters to your function
-    Kt_H, Kr_H, w_vals, power = run_coeffs.wec_run(w, **combination)
+    Kt_H, Kr_H, w_vals, power, RAO_vals = run_coeffs.wec_run(w, **combination)
 
     # Create a tuple of the current combination to use as a key for the file name
     combination_key = tuple(combination.values())

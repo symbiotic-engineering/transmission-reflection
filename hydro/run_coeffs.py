@@ -27,7 +27,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
     depth = 500                                     # keep deep water assumption for EB
     
     if staggered:
-        xtrans = np.array([50,50])                      # x translation of bodies if farm
+        xtrans = np.array([50,50])                  # x translation of bodies if staggered farm
         x_center = -25
     else:
         xtrans = np.array([0,0])
@@ -83,7 +83,7 @@ def wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls
             Kt_H[i].append(trans[i])
             power[i].append(power_abs[i])
         
-    return Kt_H, Kr_H, w_vals, power
+    return Kt_H, Kr_H, w_vals, power, RAO_vals
 
 # ### COMMENT THIS BIT OUT if you are going to run the big_run.py script ###
 # # this is where i've been generating my Kt(omega)/Kr(omega) datasets
