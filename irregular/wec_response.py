@@ -3,6 +3,7 @@ import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.integrate import simps
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 hydro_dir = os.path.join(parent_dir, 'hydro')
@@ -17,6 +18,7 @@ w = np.linspace(0.2,4,30)
 S_j = jonswap.get_spectra(w)
 RAO = []
 omega = []
+freq = []
 
 # copy and pasted from "run_coeffs.py" in order to save time by not computing the free
 # surface mesh. will be condensed in future iterations
@@ -51,8 +53,10 @@ for w in w:
     if attenuator:
         array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,w,x_center)
     diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber,reactive)
+    f = w / (np.pi * 2)
     RAO.append(RAO_vals[0][0])
     omega.append(w)
+    freq.append(f)
 
 irr_response = []
 
@@ -60,10 +64,15 @@ for i in range(np.size(S_j)):
     S_R = (RAO[i])**2 * S_j[i]
     irr_response.append(S_R)
 
+# expected amplitude
+xi = np.sqrt(simps(irr_response, omega))
+print('expected body amplitude', np.abs(xi))
+
 #plt.plot(omega,RAO)
 plt.figure()
-plt.plot(omega, np.abs(irr_response), label='Irregular Response')
+plt.plot(freq,S_j,label='JONSWAP')
+plt.plot(freq, np.abs(irr_response), label='Body Response')
 plt.legend()
-plt.xlabel('w [rad/s]')
-plt.ylabel('Response Magnitude')
+plt.xlabel('f [Hz]')
+plt.ylabel('Magnitude [m^2/Hz]')
 plt.savefig('irr_resp.pdf')
