@@ -10,7 +10,7 @@ def get_spectra(w):
     w_p = (2*np.pi)/5                           # peak frequency [rad/s]
     gamma = 1.54                                # enhancement factor
 
-    if w <= w_p:
+    if w.any() <= w_p:
         sigma = 0.07
     else:
         sigma = 0.09

@@ -78,6 +78,10 @@ for w in w:
     z_up = total[mid_y, (mid_x - int(rel_dim*convx) + int(x_center*convx)) - int(lam*convx):mid_x - int(rel_dim*convx) + int(x_center*convx)]                # total wave height upstream
     z_down = total[mid_y, mid_x + int(rel_dim*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(x_center*convx)) + int(lam*convx)]              # transmitted wave height
 
+    ''' this needs to somehow be a probability distribution function so i can get 
+    the probability of a sea state occurring. since the JONSWAP spectra has
+    units attached [m^2/Hz] idk how that works '''
+
     # S_j = jonswap.get_spectra(w)
     # S_H_ref = (z_up - zinc_up) * np.sqrt(S_j)
     # S_H_up = (zinc_up) * np.sqrt(S_j)
