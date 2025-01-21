@@ -1,4 +1,4 @@
-def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, attenuator):
+def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, attenuator, six, swan_stag):
     import subprocess
     # Calculate xe values
     xe = [xi + d for xi in x]
@@ -25,21 +25,28 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, atte
 
     # Add obstacle lines with varying KT and KR values
     for i in range(len(x)):
+        # ensuring energy balance
         if KR[i] < 0:
             KR[i] = 0
         EB = (KT[i])**2 + (KR[i])**2
         if EB > 1:
             KT[i] = 1
             KR[i] = 0
-        if attenuator == True:
-            d = 15
-            xe = [xi + d for xi in x]
-            # i == 1 for 3bod staggered, i < 3 for all other cases
-            #line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i == 1 else yb} {xe[i]} {ya+100 if i == 1 else yb-100}"
-            line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya+100 if i < 3 else yb-100}"
+        # indexing due to how problem was formulating
+        if six:
+            use_condition = i < 3
         else:
-            #line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i ==1 else yb} {xe[i]} {ya if i == 1 else yb}"
-            line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {ya if i < 3 else yb} {xe[i]} {ya if i < 3 else yb}"
+            use_condition = i == 1 if swan_stag else i < 3
+        # attenuator has more length than other devices
+        if attenuator:
+            length = 29
+            y_start = ya if use_condition else yb
+            y_end = ya + length if use_condition else yb - length
+        else:
+            y_start = ya if use_condition else yb
+            y_end = ya if use_condition else yb
+ 
+        line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {y_start} {xe[i]} {y_end}"
         commands.append(line)
 
     # Add the remaining commands

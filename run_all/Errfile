@@ -1,1 +1,43 @@
-Severe error     : Kt^2 + Kr^2 > 1 
+Error            : Wrong type of data for variable MXC                                     
+Error            : Wrong type of data for variable MYC                                     
+Severe error     : No valid grid points found
+Severe error     :  command READ BOT or READ UNSTRUC must precede this command
+Error            : Illegal keyword: SIDE    
+Error            : Illegal keyword: N       
+Error            : Illegal keyword: CONSTANT
+Error            : Illegal keyword: PAR     
+Error            : Data field skipped:0.8                                                                                                                                                                                 
+Error            : Data field skipped:5                                                                                                                                                                                   
+Error            : Data field skipped:270                                                                                                                                                                                 
+Error            : Data field skipped:15                                                                                                                                                                                  
+Severe error     :  command READ BOT or READ UNSTRUC must precede this command
+Error            : Illegal keyword: SIDE    
+Error            : Illegal keyword: S       
+Error            : Illegal keyword: CONSTANT
+Error            : Illegal keyword: PAR     
+Error            : Data field skipped:0.8                                                                                                                                                                                 
+Error            : Data field skipped:5                                                                                                                                                                                   
+Error            : Data field skipped:270                                                                                                                                                                                 
+Error            : Data field skipped:15                                                                                                                                                                                  
+Severe error     :  command READ BOT or READ UNSTRUC must precede this command
+Error            : Illegal keyword: SIDE    
+Error            : Illegal keyword: W       
+Error            : Illegal keyword: CONSTANT
+Error            : Illegal keyword: PAR     
+Error            : Data field skipped:0.8                                                                                                                                                                                 
+Error            : Data field skipped:5                                                                                                                                                                                   
+Error            : Data field skipped:270                                                                                                                                                                                 
+Error            : Data field skipped:15                                                                                                                                                                                  
+Severe error     :  command READ BOT or READ UNSTRUC must precede this command
+Error            : Illegal keyword: SIDE    
+Error            : Illegal keyword: E       
+Error            : Illegal keyword: CONSTANT
+Error            : Illegal keyword: PAR     
+Error            : Data field skipped:0.8                                                                                                                                                                                 
+Error            : Data field skipped:5                                                                                                                                                                                   
+Error            : Data field skipped:270                                                                                                                                                                                 
+Error            : Data field skipped:15                                                                                                                                                                                  
+Error            : Wrong type of data for variable MXFR                                    
+Error            : Wrong type of data for variable MYFR                                    
+Error            : Wrong type of data for variable LEN                                     
+Severe error     : no valid comp. grid; check command READ BOT or READ UNSTRU

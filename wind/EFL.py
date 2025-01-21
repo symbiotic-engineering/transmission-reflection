@@ -23,10 +23,10 @@ D = 10.97               # monopile diameter (m)
 A_projected = np.pi * (D/2)**2                  # Projected area (m^2)
 submerge_depth = 40                             # Assume 6 m below the water surface
 V_submerged = A_projected * submerge_depth      # Submerged volume (m^3)
-Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/OS_1d.csv', delimiter=',')
-Hs = Hs[:y_investigated, x_investigated]
-H_inc = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/blank_elevation.csv',delimiter=',')
-H_inc = H_inc[:y_investigated, x_investigated]
+#Hs = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/OS_1d.csv', delimiter=',')
+#Hs = Hs[:y_investigated, x_investigated]
+#H_inc = np.loadtxt('/mnt/c/Users/ov162/transmission-reflection/data/blank_elevation.csv',delimiter=',')
+#H_inc = H_inc[:y_investigated, x_investigated]
 
 wave_period = 5             # Wave period (s)
 h = 40                      # Water depth (m)
@@ -49,7 +49,7 @@ def morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_
     
     # Morrison equation to calculate wave force
     F_wave = (0.5 * rho_water * C_d * np.abs(u) * u * A_projected) + (rho_water * C_m * V_submerged * du_dt)
-
+    print('F_wave',F_wave)
     return F_wave
 
 # Function to calculate stress from wave force
@@ -63,7 +63,7 @@ N = 10**6
 max_stresses = []
 EFL_values = []
 
-h_dummy = np.linspace(1,500,500)
+h_dummy = np.linspace(1,10,500)
 wave_force_dummy =[]
 for H in h_dummy:
     wave_forces_dummy = np.array([morison_equation(C_d, C_m, A_projected, V_submerged, H, wave_period, lambda_wave, z, h, x, t) for t in time_points])
