@@ -2,8 +2,10 @@
     1. You need to define your xgrid and ygrid size and resolution.
     2. You need to check the xtrans and ytrans WEC positions in the
     run_coeffs.wec_run() function. This will determine if you will run a 
+    run_coeffs.wec_run() function. This will determine if you will run a 
     staggered or regular array.
     3. You need to define the positions of your bodies in the SWAN grid
+    according to the run_coeffs.wec_run() function.
     according to the run_coeffs.wec_run() function.
     4. You need to define the significant wave height and peak wave
     period of your sea state. ATTN: you will also need to adjust the
@@ -14,10 +16,13 @@
     True. If you want to include controls, set controls equal to True.
     If you want reactive controls, set reactive equal to True; otherwise,
     if controls == True and reactive == False, it will do damped control.'''
+    If you want reactive controls, set reactive equal to True; otherwise,
+    if controls == True and reactive == False, it will do damped control.'''
 
 import sys
 import os
 import numpy as np
+import pandas as pd
 import pandas as pd
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -65,6 +70,40 @@ def farfield(six,swan_stag,breakwtr,point_absorber,oscillating_surge,attenuator,
         else:
             i = 0
 
+        if farm:
+            Kt_H = [df.iloc[5, 1], df.iloc[5, 2], df.iloc[5, 3]]
+            Kr_H = [df.iloc[5, 4], df.iloc[5, 5], df.iloc[5, 6]]
+        else:
+            Kt_H = [df.iloc[5, 1]]
+            Kr_H = [df.iloc[5, 2]]
+
+        # Configure the KR and KT arrays
+        KR = [Kr_H[0], Kr_H[i], Kr_H[2*i], Kr_H[0], Kr_H[i], Kr_H[2*i]]
+        KT = [Kt_H[0], Kt_H[i], Kt_H[2*i], Kt_H[0], Kt_H[i], Kt_H[2*i]]
+
+        # Print results
+        print("KR:", KR)
+        print("KT:", KT)
+
+        # Return the KR and KT arrays
+        return KR, KT
+
+    KR, KT = configure_coefficients(csv_file, farm)
+
+    # diameter of the bodies
+    if point_absorber:
+        d = 21
+    if oscillating_surge:
+        d = 18
+    if breakwtr:
+        d = 20
+    if attenuator:
+        d = 4
+
+    # run SWAN and generate wave height data
+    sfgrid_dat, sfgrid_tbl = run_swan.generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc,attenuator,six,swan_stag)
+
+    return sfgrid_dat
         if farm:
             Kt_H = [df.iloc[5, 1], df.iloc[5, 2], df.iloc[5, 3]]
             Kr_H = [df.iloc[5, 4], df.iloc[5, 5], df.iloc[5, 6]]

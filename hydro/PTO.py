@@ -5,11 +5,15 @@ diffraction force from the diffraction problem and uses them to compute:
 3. the controlled response amplitude operator (RAO)'''
 
 def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,reactive):
+def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,reactive):
 
     from capytaine.bem.airy_waves import froude_krylov_force
     import numpy as np
 
     # extract hydro coeffs
+    # to include off-diagonals
+    A = np.squeeze(np.array([[dataset['added_mass'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
+    B = np.squeeze(np.array([[dataset['radiation_damping'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
     # to include off-diagonals
     A = np.squeeze(np.array([[dataset['added_mass'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
     B = np.squeeze(np.array([[dataset['radiation_damping'].sel(radiating_dof=effecting, influenced_dof=effected) for effecting in array.dofs] for effected in array.dofs]))
@@ -23,6 +27,25 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
     
     # Define simple optimal PTO damping and stiffness
     # for reactive control:
+    if reactive:
+        B_pto = B
+        K_pto = w**2*(M+A)-K  
+    else:
+        # for damping only:
+        B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
+        K_pto = 0 
+
+    # FOR INCLUDING OFF-DIAGONALS
+    inertia = M + A 
+    resistance = B + B_pto
+    reactance = K + K_pto
+    H = -(w**2)*inertia - 1j*w*resistance + reactance 
+
+    if farm:
+        RAO_controlled = np.linalg.solve(H,ex_force).ravel()
+    else:
+        RAO_controlled = ex_force/H
+    print('RAO_controlled',RAO_controlled)
     if reactive:
         B_pto = B
         K_pto = w**2*(M+A)-K  
@@ -63,6 +86,10 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
         power = 0.5*np.diag(B_pto)*(abs(RAO_controlled*w*1j))**2        # [kW]
     else:
         power = 0.5*B_pto*(abs(RAO_controlled*w*1j))**2        # [kW]
+    if farm:
+        power = 0.5*np.diag(B_pto)*(abs(RAO_controlled*w*1j))**2        # [kW]
+    else:
+        power = 0.5*B_pto*(abs(RAO_controlled*w*1j))**2        # [kW]
 
     # power available in wave
     rho = 1025                  # [kg/m^3] density of sea water
@@ -74,3 +101,76 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
     print('capture width ratio',CWR)
 
     return RAO_controlled, CWR
+
+    # while np.any(power > budal_limit):
+    #     # Create a mask for elements that exceed the budal_limit
+    #     mask = power > budal_limit
+    #     RAO_controlled = RAO_controlled.copy()
+    #     # Update RAO_controlled for those specific elements
+    #     RAO_controlled = 0.99 * RAO_controlled
+    #     # Recalculate power for those specific elements
+    #     new_power = 0.5 * B_pto * (abs(RAO_controlled * w * 1j))**2
+    #     # Use the mask to update only the relevant elements
+    #     power = np.where(mask, new_power, power)
+
+    # if point_absorber:
+    #     eps = 1             # factor for heave
+    # else:
+    #     eps = 2             # factor for pitch and surge
+
+    # k = w**2/g                      # wave number infinite depth (rad^2/m)
+    # lam = int(2*np.pi/k)            # wavelength infinite depth (m)
+    # CW_max = eps*(lam/(2*np.pi))    # theoretical maximum CW (from Babarit)
+    # #print('maximum CW', CW_max/char_dim)
+
+    # while np.any(CW > CW_max):
+    #     # Create a mask for elements that exceed the budal_limit
+    #     mask = CW > CW_max
+    #     RAO_controlled = RAO_controlled.copy()
+    #     # Update RAO_controlled for those specific elements
+    #     RAO_controlled = 0.99 * RAO_controlled
+    #     # Recalculate power for those specific elements
+    #     new_power = 0.5 * B_pto * (abs(RAO_controlled * w * 1j))**2
+        
+    #     # Use the mask to update only the relevant elements
+    #     power = np.where(mask, new_power, power)
+        
+    #     # Update CW and CWR for those specific elements
+    #     CW = np.where(mask, power / power_avail, CW)
+    #     CWR = np.where(mask, CW / char_dim, CWR)
+    
+    # # experimental best fit for expected CWR (from Babarit), none given for attenuator
+    # if point_absorber:
+    #     CWR_exp = (1.3*char_dim + 5.6)/100
+    #     CI_95 = 21*np.sqrt(1.1 + ((char_dim-15)**2 / 1090))/100
+    #     CWR_exp = CWR_exp - CI_95/1.25       # tuning CWR to obtain EB (/4 for reactive, /1.25 for damp)
+
+    # else:
+    #     # for OSWEC, Babarit found char dim did not matter as much
+    #     # using similar formula for attenuator bc it pitches, and there's
+    #     # no available data otherwise
+    #     CWR_exp = 8.5/100
+    #     CI_95 = 12*np.sqrt(1.1+ ((char_dim-15)**2 / 1090))/100
+    #     CWR_exp = CWR_exp + CI_95       # tuning CWR to obtain EB (OS: /4 for reactive, /2 for damp)
+    #                                     # atten: 1 for reactive
+
+    # while np.any(CWR > CWR_exp):
+    #     mask = CWR > CWR_exp
+    #     RAO_controlled = RAO_controlled.copy()
+    #     RAO_controlled = 0.99 * RAO_controlled
+    #     new_power = 0.5 * B_pto * (abs(RAO_controlled * w * 1j))**2
+    #     power = np.where(mask, new_power, power)
+    #     # Update CW and CWR for those specific elements
+    #     CW = np.where(mask, power / power_avail, CW)
+    #     CWR = np.where(mask, CW / char_dim, CWR)
+
+    #print('final capture width ratio',CWR)
+    #print('final saturated power', power)
+
+
+### for not including off-diagonals
+    #B = np.array([dataset['radiation_damping'].sel(radiating_dof=dofs,influenced_dof=dofs) for dofs in array.dofs])
+    #A = np.array([dataset['added_mass'].sel(radiating_dof=dofs, influenced_dof=dofs) for dofs in array.dofs])
+
+    # WEC motion (complex) 
+    # RAO_controlled = (np.diag(ex_force/((-1*w**2)*(M+A) - (B + B_pto)*w*1j + K + K_pto)))
