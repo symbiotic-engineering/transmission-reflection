@@ -23,7 +23,7 @@ for i in range(np.size(kt)):
     kr_pdf.append(k_r_pdf)
 
 expected_kt = np.sqrt(simps(kt,kt_pdf))
-expected_kr = np.sqrt(simps(kr_pdf,kr))
+expected_kr = np.sqrt(simps(kr,kr_pdf))
 print('expected Kt = ',expected_kt)
 print('expected Kr = ',expected_kr)
 
