@@ -7,10 +7,10 @@ FURTHER WORK WITH THIS MODEL DEEMED IT WRONG. THE FRICTION DAMPING COEFF
 MUST BE LARGER WITH FASTER FREQUENCIES, AND THAT IS NOT THE OBSERVED
 RELATIONSHIP FROM THIS MODEL
 '''
-def slidefriction(B,M,K,A,w):
+def slidefriction(B,M,K,A,w,surge_force):
     import numpy as np
 
-    F_f = 50           # initial friction force estimation
+    F_f = surge_force           # initial friction force estimation
     n = np.array([1,3]) # fourier series term number
     x_0 = 1             # excitation amplitude --> set to 1 for capy unit amplitude convention
 

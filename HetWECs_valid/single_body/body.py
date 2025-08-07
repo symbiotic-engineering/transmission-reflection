@@ -23,7 +23,7 @@ def initialize(point_abs):
     COB = m_PA/(2*np.pi*r**2*rho_w)         # center of buoyancy based on mass and radius
     Pdraft = 2*COB
     z = 0.5 * l - Pdraft                    # body center position           
-    nr, ntheta, nz = 22, 40, 20             # panels in each direction
+    nr, ntheta, nz = 22, 40, 15             # panels in each direction
     PA_cog = (3.23469/scale) - Pdraft       # center of gravity (from top of rack)
     PA_com = np.array([0,0,PA_cog])         # center of mass
 
@@ -62,12 +62,13 @@ def initialize(point_abs):
     PA_position = (0, 0, z)
     OS_name = 'rect'
     PA_name = 'cyl'
-    dofs = 'Pitch'
+    OS_dofs = 'Pitch'
+    PA_dofs = 'Heave'
 
     # generate meshed bodies
-    PA = create_floating_body(cpt.mesh_vertical_cylinder, {**pa_mesh_args, 'center': PA_position}, PA_com, 'Heave', PA_name)
+    PA = create_floating_body(cpt.mesh_vertical_cylinder, {**pa_mesh_args, 'center': PA_position}, PA_com, PA_dofs, PA_name)
 
-    OS = create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': OS_position}, OS_com, dofs, OS_name)
+    OS = create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': OS_position}, OS_com, OS_dofs, OS_name)
 
     if point_abs == True:
         body = PA
