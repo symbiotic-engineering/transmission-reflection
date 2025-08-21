@@ -16,12 +16,17 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
 
     # correcting capytaine hydro coeffs
     if PA == False:
-        #K = 1.82      # [kg-m^2/s^2]
-        M = 0.0441     # [kg-m^2]
-        A = A*3.75
+        K = 1.153               # [kg-m^2/s^2]
+        M = 0.0405              # [kg-m^2]
+        A = A*2.95              # gets natural period of 3.0426 s
     else:
         A = A*1.0725
-    #nat_per = (2*np.pi)/(np.sqrt(K/(A+M)))
+    nat_per = (2*np.pi)/(np.sqrt(K/(A+M)))
+    # print('nat per',nat_per)
+    # print('input per',np.pi*2/w)
+    # print('diff', (np.pi*2/w) - nat_per)
+    # if np.abs((np.pi*2/w) - nat_per) < 0.0001:
+    #     print('YAAAAAAAAAAHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
 
     # extract forces and compute exciting force
     FK = np.array([froude_krylov_force(diff_prob)[dof] for dof in body.dofs])
@@ -42,7 +47,7 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
     if PA:
         resistance = B + B_pto + B_difference
     else:
-        resistance = B + B_pto
+        resistance = B + B_pto + B_difference
     reactance = K + K_pto
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
     #RAO_controlled = np.linalg.solve(H,ex_force).ravel()
@@ -65,7 +70,7 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
             print('Budal limit violated at w = ',w)
 
     else:
-        gam_nl = 0.005
+        gam_nl = 0.00
         B_viscous = (((8 * np.abs(RAO_controlled) * w) / (3 * np.pi)) * gam_nl)
         B_friction = 0
         resistance = B + B_pto + B_viscous + B_friction
