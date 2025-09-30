@@ -18,13 +18,14 @@ def initialize(point_abs):
 
     # point absorber dimensions
     r,l = (14.6/2)/scale, 4.445/scale       # radius [m], length [m]
+    #l = (14.6/2)/scale
     rho_w = 1000            
-    m_PA = 3.462                            # actual device mass [kg] predicted mass = 4.4680 [kg]      
+    m_PA = 3.448                            # actual device mass [kg] predicted mass = 4.4680 [kg] (3/4)*l*rho_w*np.pi*(r**2)  
     COB = m_PA/(2*np.pi*r**2*rho_w)         # center of buoyancy based on mass and radius
     Pdraft = 2*COB
     z = 0.5 * l - Pdraft                    # body center position           
     nr, ntheta, nz = 22, 40, 15             # panels in each direction
-    PA_cog = (3.23469/scale) - Pdraft       # center of gravity (from top of rack)
+    PA_cog = (3.23469/scale) - Pdraft       # center of gravity 
     PA_com = np.array([0,0,PA_cog])         # center of mass
 
     # OSWEC dimensions

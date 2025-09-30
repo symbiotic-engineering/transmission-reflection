@@ -19,7 +19,7 @@ def initialize():
     # point absorber dimensions
     r,l = (14.6/2)/scale, 4.445/scale       # radius [m], length [m]
     rho_w = 1000            
-    m_PA = 676750/(scale**3)
+    m_PA = 3.448
     COB = m_PA/(2*np.pi*r**2*rho_w)         # center of buoyancy based on mass and radius
     Pdraft = 2*COB
     z = 0.5 * l - Pdraft                    # body center position           
@@ -29,9 +29,9 @@ def initialize():
 
     # OSWEC dimensions
     wi,th,h = 18/scale, 1.905/scale, 10.8/scale   # width, thickness, and height of flap [m]
-    draft = 8.9/scale                             # m
+    draft = 0.184                                 # m
     z_flap = 0.5 * h - draft                      # box center [m]
-    OS_cog = -3.05/scale                          # center of gravity [m] from aisha's calculations
+    OS_cog = -0.152                               # center of gravity [m] from aisha's calculations
     OS_com = np.array([0,0,OS_cog])
     nw,nt,nh = 30, 10, 18                         # number of panels along width (x), thickness (y), and height (z)
     ####### ACTUAL OSWEC MASS = 1.625 KG
@@ -81,8 +81,9 @@ def initialize():
 
     # create meshed array
     array = OS + OS2 + PA3 + PA4
-    #array.show_matplotlib()
-    #plt.savefig('array.pdf')
+    # array.show_matplotlib()
+    # plt.savefig('array.pdf')
+    # plt.clf
 
 
     return array

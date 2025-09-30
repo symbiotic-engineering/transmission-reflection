@@ -14,9 +14,9 @@ def hydro(body,B,depth,w,reactive,PA,B_difference):
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
 
-    RAO, ex_force, added_mass, damp, viscous_damp = PTO.RAO(diff_prob,diff_result,dataset,body,w,reactive,B,PA,B_difference)
+    RAO, ex_force, added_mass, damp, viscous_damp, nat_per = PTO.RAO(diff_prob,diff_result,dataset,body,w,reactive,B,PA,B_difference)
 
-    return RAO, diff_result, rad_result, ex_force, added_mass, damp, viscous_damp
+    return RAO, diff_result, rad_result, ex_force, added_mass, damp, viscous_damp, nat_per
 
 def elevation(res,diff_result,rad_result,RAO_vals):
     import numpy as np

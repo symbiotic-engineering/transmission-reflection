@@ -18,11 +18,13 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
     if PA == False:
         K = 1.153               # [kg-m^2/s^2]
         M = 0.0405              # [kg-m^2]
-        A = A*2.95              # gets natural period of 3.0426 s
+        #A = A*2.95              # gets natural period of 3.0426 s
     else:
-        A = A*1.0725
+        M = 3.448
+        A = A   #*1.0725
+
     nat_per = (2*np.pi)/(np.sqrt(K/(A+M)))
-    # print('nat per',nat_per)
+    #print('nat per',nat_per)
     # print('input per',np.pi*2/w)
     # print('diff', (np.pi*2/w) - nat_per)
     # if np.abs((np.pi*2/w) - nat_per) < 0.0001:
@@ -44,10 +46,7 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
         K_pto = 0
     
     inertia = M + A 
-    if PA:
-        resistance = B + B_pto + B_difference
-    else:
-        resistance = B + B_pto + B_difference
+    resistance = B + B_pto + B_difference
     reactance = K + K_pto
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
     #RAO_controlled = np.linalg.solve(H,ex_force).ravel()
@@ -70,15 +69,16 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
             print('Budal limit violated at w = ',w)
 
     else:
-        gam_nl = 0.00
-        B_viscous = (((8 * np.abs(RAO_controlled) * w) / (3 * np.pi)) * gam_nl)
-        B_friction = 0
-        resistance = B + B_pto + B_viscous + B_friction
-        H = -(w**2)*inertia - 1j*w*resistance + reactance 
-        RAO_controlled = ex_force/H
+        B_viscous = 0
+        # gam_nl = 0.00
+        # B_viscous = (((8 * np.abs(RAO_controlled) * w) / (3 * np.pi)) * gam_nl)
+        # B_friction = 0
+        # resistance = B + B_pto + B_viscous + B_friction + B_difference
+        # H = -(w**2)*inertia - 1j*w*resistance + reactance 
+        # RAO_controlled = ex_force/H
 
 
-    return RAO_controlled, ex_force, A, B, B_viscous
+    return RAO_controlled, ex_force, A, B, B_viscous, nat_per
 
 
     # # using coloumb friction term from Mi et al. 2024 (almost exactly the same as the one in my

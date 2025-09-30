@@ -1,7 +1,9 @@
 ''' This script is adapted from the TEAMER HetWECs project by VITALE.
 Edits made for validation purposes by VITALE 07/10/2025
 '''
-def RAO(diff_prob,diff_result,dataset,array,w,reactive,b):
+def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
+                megRAOexp,joRAOexp,virRAOexp,franRAOexp,
+                Bd_vir,Bd_fran,Bd_meg,Bd_jo):
     # optimal controls model to obtain controlled RAO for radiation elevation based on Falnes theory
 
     from capytaine.bem.airy_waves import froude_krylov_force
@@ -15,15 +17,18 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b):
     K = array.hydrostatic_stiffness.values
     M = array.inertia_matrix.values
 
-    # for i, dof in enumerate(array.dofs):
-    #     if dof.startswith(('rect', 'rect2')):
-    #         K = 1.82       # [kg-m^2/s^2]
-    #         M = 0.0461     # [kg-m^2]
+    # fix hydrostatic values based on physical prototype values
+    idx = [2,3]              # index for PAs
+    for i in range(2):
+        K[i][i] = 1.82       # [kg-m^2/s^2]
+        M[i][i] = 0.0461     # [kg-m^2]
+    for i in idx:
+        M[i][i] = 3.448      # [kg]
 
     # extract forces and compute exciting force
     FK = np.array([froude_krylov_force(diff_prob)[dof] for dof in array.dofs])
     dif = np.array([diff_result.forces[dof] for dof in array.dofs])
-    ex_force = dif #FK + dif
+    ex_force = dif + FK
     
     # Define simple optimal PTO damping and stiffness for reactive control:
     if reactive:
@@ -33,12 +38,38 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b):
         B_pto = 0
         K_pto = 0
 
-    # FOR INCLUDING OFF-DIAGONALS
+    '''for validation purposes, we first need to find the "B_difference" between the 
+    device RAOs without the PTO engaged and then find the B_PTO based on the 
+    difference between the RAOs of the PTO engaged vs disengaged tests
+    '''
+    B_difference = [[B_diffOS,0,0,0],[0,B_diffOS,0,0],[0,0,B_diffPA,0],[0,0,0,B_diffPA]]
+    B_d_arr = [[Bd_vir,0,0,0],[0,Bd_fran,0,0],[0,0,Bd_meg,0],[0,0,0,Bd_jo]]
+
+    RAO = np.array([virRAOexp,franRAOexp,megRAOexp,joRAOexp])
+    print('RAO exp',RAO)
+
     inertia = M + A 
-    resistance = B + B_pto
+    resistance = B + B_difference + B_d_arr
     reactance = K + K_pto
+
+    ### solving for the B_PTO empirical
+    num = reactance.dot(RAO) - (w**2*inertia.dot(RAO)) - (1j*w*resistance.dot(RAO)) - ex_force
+    denom = 1j*w*RAO
+
+    B_PTOemp = num/denom
+    B_PTOmatrix = [[B_PTOemp[0],0,0,0],[0,B_PTOemp[1],0,0],[0,0,B_PTOemp[2],0],[0,0,0,B_PTOemp[3]]]
+
+    resistance = B + B_difference + B_d_arr + B_PTOmatrix
+
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
-    RAO_controlled = np.linalg.solve(H,ex_force).ravel()
+
+    RAO_controlled = np.abs(np.linalg.solve(H,ex_force).ravel())
+    print('RAO',RAO_controlled)
+
+    mech_power = 0.5*np.abs(B_PTOemp)*(abs(RAO_controlled*w*1j))**2
+    print('mechanical power',np.real(mech_power))
+
+    return RAO_controlled, ex_force, A, B, B_PTOemp, mech_power
 
     # B_original = B
     
@@ -96,6 +127,3 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b):
 
     #         print('in loop',RAO_controlled)
     #   print('post loop',RAO_controlled)
-
-
-    return RAO_controlled, ex_force

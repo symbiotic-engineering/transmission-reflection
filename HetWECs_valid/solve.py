@@ -1,4 +1,4 @@
-def hydro(array,B,depth,w,reactive):
+def hydro(array,B,depth,w,reactive,B_diffPA,B_diffOS,megRAOexp,joRAOexp,virRAOexp,franRAOexp,Bd_vir,Bd_fran,Bd_meg,Bd_jo):
     import capytaine as cpt
     import numpy as np
     import PTO
@@ -14,9 +14,10 @@ def hydro(array,B,depth,w,reactive):
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
 
-    RAO, ex_force = PTO.RAO(diff_prob,diff_result,dataset,array,w,reactive,B)
+    RAO, ex_force, added_mass, damping, B_PTOemp, mech_power = PTO.RAO(diff_prob,diff_result,dataset,array,w,reactive,B,B_diffPA,B_diffOS,
+                                                    megRAOexp,joRAOexp,virRAOexp,franRAOexp,Bd_vir,Bd_fran,Bd_meg,Bd_jo)
 
-    return RAO, diff_result, rad_result, ex_force
+    return RAO, diff_result, rad_result, ex_force, added_mass, damping, B_PTOemp, mech_power
 
 def elevation(res,diff_result,rad_result,RAO_vals):
     import numpy as np
