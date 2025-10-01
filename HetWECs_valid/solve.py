@@ -19,17 +19,18 @@ def hydro(array,B,depth,w,reactive,B_diffPA,B_diffOS,megRAOexp,joRAOexp,virRAOex
 
     return RAO, diff_result, rad_result, ex_force, added_mass, damping, B_PTOemp, mech_power
 
-def elevation(res,diff_result,rad_result,RAO_vals):
+def elevation(res,diff_result,rad_result,RAO_vals,xlocs,ylocs):
     import numpy as np
     from capytaine.bem.airy_waves import airy_waves_free_surface_elevation
     import capytaine as cpt
     import matplotlib.pyplot as plt
+    from scipy.interpolate import griddata
 
     solver = cpt.BEMSolver()
 
     # defining the computational grid and preparing post-process data
-    x1, x2, y1, y2 = -200, 200, -75, 125
-    ny = int(res*(abs(y1)+y2))
+    x1, x2, y1, y2 = 5, 25, -2.5, 4
+    ny = int(res*2*(abs(y1)+y2))
     nx = int(res*(abs(x1)+x2))
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)  # wave elevation due to diffraction
@@ -43,4 +44,13 @@ def elevation(res,diff_result,rad_result,RAO_vals):
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)     # incident wave elevation
     total = diffraction + incoming_fse + radiation                          # total wave elevation
 
-    return total, incoming_fse, grid, radiation, diffraction
+    # Interpolate 'total' onto the gauge points
+    X = grid[0]
+    Y = grid[1]
+    points = np.column_stack((xlocs, ylocs))
+    elevation_at_gauges = griddata((X.ravel(), Y.ravel()), total.ravel(), points, method='linear')
+    print('wave elevation',np.real(elevation_at_gauges))
+    print('wave amplitude',np.abs(np.real(elevation_at_gauges))/2)
+    # total_at_gauges now contains the values of 'total' at the gauge locations specified by gauge_x and gauge_y
+
+    return total, incoming_fse, grid, radiation, diffraction,elevation_at_gauges

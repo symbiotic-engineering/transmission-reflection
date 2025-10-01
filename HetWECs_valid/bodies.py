@@ -59,8 +59,8 @@ def initialize():
     }
 
     # Create point absorbers and oscillating surges
-    OS_positions = [(0, 0, z_flap), (0, Dy, z_flap)]
-    PA_positions = [(Dx, 1/2*Dy, z), (Dx, 3/2*Dy, z)]
+    OS_positions = [(14.9900 - 0.25, -0.1410 - 0.25, z_flap), (14.9900 - 0.25, -0.1410+Dy - 0.25, z_flap)]
+    PA_positions = [(14.9900 + Dx - 0.25, -0.1410 + (1/2)*Dy - 0.25, z), (14.9900 + Dx - 0.25, -0.1410 + (3/2)*Dy - 0.25, z)]
     OS_names = ['rect', 'rect2']
     PA_names = ['cyl3', 'cyl4']
 

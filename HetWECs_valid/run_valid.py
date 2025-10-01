@@ -5,44 +5,21 @@ import solve
 
 B = 0                                   # wave heading [rad]
 depth = 1.37                            # water depth at basin [m]
-T = np.array([1.0,1.25,1.33]) # wave period from exp [s]
+T = np.array([1.0,1.25,1.33])           # wave period from exp [s] (only 1.0,1.25,1.33 for PTO engaged tests. 1.0,1.2,1.25,1.33,1.39 for PTO disengaged)
 w = (2*np.pi)/T                         # wave frequency [rad/s]
 g = 9.81
 k = w**2/g
 reactive = False                        # whether controls are engaged
-res = 1                                 # grid resolution multiplier
+res = 6                                 # grid resolution multiplier
 
 array = bodies.initialize()             # create meshed array
 
-RAO_OS1 = []
-RAO_OS2 = []
-RAO_PA3 = []
-RAO_PA4 = []
-
-add_OS1 = []
-add_OS2 = []
-add_PA3 = []
-add_PA4 = []
-
-damp_OS1 = []
-damp_OS2 = []
-damp_PA3 = []
-damp_PA4 = []
-
-ex_OS1 = []
-ex_OS2 = []
-ex_PA3 = []
-ex_PA4 = []
-
-BPTO_OS1 = []
-BPTO_OS2 = []
-BPTO_PA3 = []
-BPTO_PA4 = []
-
-power_OS1 = []
-power_OS2 = []
-power_PA3 = []
-power_PA4 = []
+RAO_OS1, RAO_OS2, RAO_PA3, RAO_PA4 = [], [], [], []
+add_OS1, add_OS2, add_PA3, add_PA4 = [], [], [], []
+damp_OS1, damp_OS2, damp_PA3, damp_PA4 = [], [], [], []
+ex_OS1, ex_OS2, ex_PA3, ex_PA4 = [], [], [], []
+BPTO_OS1, BPTO_OS2, BPTO_PA3, BPTO_PA4 = [], [], [], []
+power_OS1, power_OS2, power_PA3, power_PA4 = [], [], [], []
 
 # empirically derived damping coeffs from isolated device tests
 B_diffPA = np.array([2.601353059523+11.0361509650696*1j,0.1571712306061+1.39353317578805*1j,0.4569846084097+4.06849014436796*1j])
@@ -71,6 +48,13 @@ megRAOexp = np.array([0.773495530727839,0.770132236212850,0.700512165810569])
 joRAOexp = np.array([0.258407324729989,0.106376997648463,0.0307451184177340])
 virRAOexp = np.array([184.572145311627,195.391623861709,165.997190210489])*(np.pi/180)/k
 franRAOexp = np.array([131.852630012738,153.262515441623,241.872472048376])*(np.pi/180)/k
+
+## wave gauge locations from experiments:
+xlocs = np.array([7.093,7.101,8.168,8.173,8.697,8.974,8.967,9.926,13.086,13.072,
+                    13.086,15.08,14.946,16.783,16.78,16.779,19.205,19.2,19.201,21.66])
+
+ylocs = np.array([-1.185,1.172,-0.456,0.434,-0.008,-0.726,0.719,-0.005,-0.866,-0.047,
+                    0.738,-0.011,3.795,-0.801,0.006,0.778,-2.018,-0.018,1.987,-0.003])
    
 for i in range(np.size(w)):    
     print('running wave period: ',T[i])                                   
@@ -78,6 +62,9 @@ for i in range(np.size(w)):
                                                                             B_diffPA[i],B_diffOS[i],megRAOexp[i],
                                                                             joRAOexp[i],virRAOexp[i],franRAOexp[i],
                                                                             Bd_vir[i],Bd_fran[i],Bd_meg[i],Bd_jo[i])   # compute RAOs, excitation force
+
+    ## time to compute the wave elevationnnnnnnnnn
+    total, incoming_fse, grid, radiation, diffraction, elevation_at_gauges = solve.elevation(res,diff_result,rad_result,RAO,xlocs,ylocs)
     
     RAO_OS1.append(np.abs(RAO[0])*k[i]*180/np.pi/1000)
     RAO_OS2.append(np.abs(RAO[1])*k[i]*180/np.pi/1000)
@@ -109,22 +96,41 @@ for i in range(np.size(w)):
     power_PA3.append(mech_power[2])
     power_PA4.append(mech_power[3])
 
-# plot RAO wrt wave frequency
-plt.plot(T,power_OS1,label='Virginia',color='#CC79A7',marker='*',markersize=14,linewidth=3)
-plt.plot(T,power_OS2,label='Frances',color='#009E73',marker='s',markersize=8,linewidth=2,linestyle=(0, (3, 1, 1, 1, 1, 1)))
-plt.plot(T,power_PA3,label='Meg',color='#F0E442',marker='>',markersize=12,linewidth=2)
-plt.plot(T,power_PA4,label='Jo',color='#56B4E9',marker='o',markersize=12,linewidth=2)
+    # plot wave elevation
+    Z = np.abs(np.real(total))
+    X = grid[0]
+    Y = grid[1]
+    pcm = plt.pcolormesh(X, Y, Z)
+    plt.xlabel("x")
+    plt.ylabel("y")
+    colorbar = plt.colorbar()
+    #colorbar.set_label(r"Total Wave Elevation, $\eta$")
+    plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 35)
+    colorbar.set_label(r"Distrubance Coefficient, $K_d$")
+    #pcm.set_clim([0, 2])
+    plt.tight_layout()
+    print('tip')
+    names = ['1.0Kd','1.25Kd','1.33Kd']
+    plt.savefig(names[i] + '.pdf')
+    print('top')
+    plt.clf()
 
-plt.xticks(ticks=T,fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel('Period [s]',fontsize=20)
-plt.ylabel('Power [W]',fontsize=18)
-plt.grid()
-plt.legend(fontsize=15, markerscale=1,loc='center')
-plt.tight_layout()
-plt.savefig('array_power.pdf')
-plt.clf()
+# # plot RAO wrt wave frequency
+# plt.plot(T,power_OS1,label='Virginia',color='#CC79A7',marker='*',markersize=14,linewidth=3)
+# plt.plot(T,power_OS2,label='Frances',color='#009E73',marker='s',markersize=8,linewidth=2,linestyle=(0, (3, 1, 1, 1, 1, 1)))
+# plt.plot(T,power_PA3,label='Meg',color='#F0E442',marker='>',markersize=12,linewidth=2)
+# plt.plot(T,power_PA4,label='Jo',color='#56B4E9',marker='o',markersize=12,linewidth=2)
+
+# plt.xticks(ticks=T,fontsize=15)
+# plt.xticks(fontsize=15)
+# plt.yticks(fontsize=15)
+# plt.xlabel('Period [s]',fontsize=20)
+# plt.ylabel('Power [W]',fontsize=18)
+# plt.grid()
+# plt.legend(fontsize=15, markerscale=1,loc='center')
+# plt.tight_layout()
+# plt.savefig('array_power.pdf')
+# plt.clf()
 
 # # plot the PAs
 # plt.plot(T,RAO_PA3,label='Meg: Model',color='#F0E442',marker='>',markersize=12,linewidth=2)
@@ -141,41 +147,6 @@ plt.clf()
 # plt.savefig('PA_RAOs.pdf')
 # plt.clf()
 
-# # compute wave elevation
-# total, incoming_fse, grid, radiation, diffraction = solve.elevation(res,diff_result,rad_result,RAO)
-
-# # plot wave elevation
-# Z = np.abs(np.real(total)/np.real(incoming_fse))
-# X = grid[0]
-# Y = grid[1]
-# pcm = plt.pcolormesh(X, Y, Z)
-# plt.xlabel("x")
-# plt.ylabel("y")
-# colorbar = plt.colorbar()
-# colorbar.set_label(r"Total Wave Elevation, $\eta$")
-# #pcm.set_clim([-2, 2])
-# plt.tight_layout()
-# print('tip')
-# plt.savefig('abstotalfield.pdf')
-# print('top')
-
 # note TO OLIVIA: (np.abs(total)/np.abs(incoming_fse)) - np.abs(total/incoming_fse) = numerically zero
 # note TO OLIVIA: when modeling scaled up vs scaled down verisons, the PAs produce the same RAO, 
 # but the OSWEC RAO changes VERY SIGNIFICANTLY, from around 4 to aroun 0.08
-
-# print('Virginia:')
-# print('added mass',add_OS1)
-# print('damping',damp_OS1)
-# print('ex force',ex_OS1)
-# print('Frances:')
-# print('added mass',add_OS2)
-# print('damping',damp_OS2)
-# print('ex force',ex_OS2)
-# print('Meg:')
-# print('added mass',add_PA3)
-# print('damping',damp_PA3)
-# print('ex force',ex_PA3)
-# print('Jo:')
-# print('added mass',add_PA4)
-# print('damping',damp_PA4)
-# print('ex force',ex_PA4)
