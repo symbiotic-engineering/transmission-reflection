@@ -3,7 +3,7 @@ correspond to physical prototypes that were tested in the O.H. Hinsdale Driectio
 Validation of the model will be conducted against experimental data gathered from that campaign.
 The physical devices were built at a 1:50 scale, so the meshes will be scaled as well.
 '''
-def initialize():
+def initialize(het,PA):
     # hydro
     import capytaine as cpt
     import numpy as np
@@ -23,7 +23,7 @@ def initialize():
     COB = m_PA/(2*np.pi*r**2*rho_w)         # center of buoyancy based on mass and radius
     Pdraft = 2*COB
     z = 0.5 * l - Pdraft                    # body center position           
-    nr, ntheta, nz = 16, 22, 12             # panels in each direction
+    nr, ntheta, nz = 26,30,18   #16, 22, 12             # panels in each direction
     PA_cog = (3.23469/scale) - Pdraft       # center of gravity (from top of rack)
     PA_com = np.array([0,0,PA_cog])         # center of mass
 
@@ -33,7 +33,7 @@ def initialize():
     z_flap = 0.5 * h - draft                      # box center [m]
     OS_cog = -0.152                               # center of gravity [m] from aisha's calculations
     OS_com = np.array([0,0,OS_cog])
-    nw,nt,nh = 30, 10, 18                         # number of panels along width (x), thickness (y), and height (z)
+    nw,nt,nh = 34, 16, 24   #30, 10, 18                         # number of panels along width (x), thickness (y), and height (z)
     ####### ACTUAL OSWEC MASS = 1.625 KG
 
     def create_floating_body(mesh_func, mesh_args, center_of_mass, dofs, name):
@@ -59,31 +59,58 @@ def initialize():
     }
 
     # Create point absorbers and oscillating surges
-    OS_positions = [(14.9900 - 0.25, -0.1410 - 0.25, z_flap), (14.9900 - 0.25, -0.1410+Dy - 0.25, z_flap)]
-    PA_positions = [(14.9900 + Dx - 0.25, -0.1410 + (1/2)*Dy - 0.25, z), (14.9900 + Dx - 0.25, -0.1410 + (3/2)*Dy - 0.25, z)]
-    OS_names = ['rect', 'rect2']
-    PA_names = ['cyl3', 'cyl4']
+    x_start = 0                                 #13.086 + 1.55
+    y_start = 0                                 #-0.1410 - 0.50
 
-    # generate meshed bodies
-    PA_bodies = [
-        create_floating_body(cpt.mesh_vertical_cylinder, {**pa_mesh_args, 'center': pos}, PA_com, 'Heave', name) 
-        for pos, name in zip(PA_positions, PA_names)
-    ]
+    if het:
+        OS_positions = [(x_start, y_start, z_flap), (x_start, y_start + Dy, z_flap)]        #[(14.9900 - 0.25, -0.1410 - 0.25, z_flap), (14.9900 - 0.25, -0.1410+Dy - 0.25, z_flap)]
+        PA_positions = [(x_start + Dx, y_start + (1/2)*Dy, z), (x_start + Dx, y_start + (3/2)*Dy, z)]
+        OS_names = ['rect', 'rect2']
+        PA_names = ['cyl3', 'cyl4']
 
-    OS_bodies = [
-        create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': pos}, OS_com, 'Surge', name)
-        for pos, name in zip(OS_positions, OS_names)
-    ]
+        # generate meshed bodies
+        PA_bodies = [
+            create_floating_body(cpt.mesh_vertical_cylinder, {**pa_mesh_args, 'center': pos}, PA_com, 'Heave', name) 
+            for pos, name in zip(PA_positions, PA_names)
+        ]
 
-    # Assign PA and OS variables for het4b configuration
-    OS, OS2 = OS_bodies
-    PA3, PA4 = PA_bodies
+        OS_bodies = [
+            create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': pos}, OS_com, 'Surge', name)
+            for pos, name in zip(OS_positions, OS_names)
+        ]
 
-    # create meshed array
-    array = OS + OS2 + PA3 + PA4
-    # array.show_matplotlib()
-    # plt.savefig('array.pdf')
-    # plt.clf
+        # Assign PA and OS variables for het4b configuration
+        OS, OS2 = OS_bodies
+        PA3, PA4 = PA_bodies
+
+        # create meshed array
+        array = OS + OS2 + PA3 + PA4
+        # array.show_matplotlib()
+        # plt.savefig('array.pdf')
+        # plt.clf
+    else:
+        if PA:
+            PA_positions = [(x_start, y_start, z), (x_start, y_start + Dy, z),(x_start + Dx, y_start + (1/2)*Dy, z), (x_start + Dx, y_start + (3/2)*Dy, z)]
+            PA_names = ['cyl1','cyl2','cyl3', 'cyl4']
+            PA_bodies = [
+                create_floating_body(cpt.mesh_vertical_cylinder, {**pa_mesh_args, 'center': pos}, PA_com, 'Heave', name) 
+                for pos, name in zip(PA_positions, PA_names)
+            ]
+            PA, PA2, PA3, PA4 = PA_bodies
+            array = PA + PA2 + PA3 + PA4
+        else:
+            OS_positions = [(x_start, y_start, z_flap), (x_start, y_start + Dy, z_flap), (x_start + Dx, y_start + (1/2)*Dy, z_flap), (x_start + Dx, y_start + (3/2)*Dy, z_flap)]
+            OS_names = ['rect', 'rect2','rect3','rect4']
+            OS_bodies = [
+                create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': pos}, OS_com, 'Surge', name)
+                for pos, name in zip(OS_positions, OS_names)
+            ]
+            OS, OS2, OS3, OS4 = OS_bodies
+            array = OS + OS2 + OS3 + OS4
+            # array.show_matplotlib()
+            # plt.savefig('OSarray.pdf')
+            # plt.clf
+
 
 
     return array

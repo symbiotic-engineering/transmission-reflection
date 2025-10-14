@@ -9,7 +9,7 @@ amp = 0.03                              # amplitude from experiments [m]
 T = np.array([1.0,1.20,1.25,1.33,1.39]) # wave period from exp [s] np.linspace(1.0,1.33,30)
 w = (2*np.pi)/T                         # wave frequency [rad/s]
 reactive = False                        # whether controls are engaged
-point_abs = True                       # device being modeled (True = PA, False = OS)
+point_abs = False                       # device being modeled (True = PA, False = OS)
 res = 1                                 # grid resolution multiplier
 g = 9.81
 

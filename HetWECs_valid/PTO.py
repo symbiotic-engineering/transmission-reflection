@@ -46,7 +46,6 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
     B_d_arr = [[Bd_vir,0,0,0],[0,Bd_fran,0,0],[0,0,Bd_meg,0],[0,0,0,Bd_jo]]
 
     RAO = np.array([virRAOexp,franRAOexp,megRAOexp,joRAOexp])
-    print('RAO exp',RAO)
 
     inertia = M + A 
     resistance = B + B_difference + B_d_arr
@@ -57,6 +56,7 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
     denom = 1j*w*RAO
 
     B_PTOemp = num/denom
+    print('b pto empirical',B_PTOemp)
     B_PTOmatrix = [[B_PTOemp[0],0,0,0],[0,B_PTOemp[1],0,0],[0,0,B_PTOemp[2],0],[0,0,0,B_PTOemp[3]]]
 
     resistance = B + B_difference + B_d_arr + B_PTOmatrix
@@ -64,12 +64,14 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
 
     RAO_controlled = np.abs(np.linalg.solve(H,ex_force).ravel())
-    print('RAO',RAO_controlled)
 
     mech_power = 0.5*np.abs(B_PTOemp)*(abs(RAO_controlled*w*1j))**2
-    print('mechanical power',np.real(mech_power))
+    #print('mechanical power',np.real(mech_power))
 
-    return RAO_controlled, ex_force, A, B, B_PTOemp, mech_power
+    dissipative_power = 0.5*np.abs(np.diag(B + B_difference + B_d_arr))*(abs(RAO*w*1j))**2
+    print('total dissipative_power',np.sum(dissipative_power))
+
+    return RAO_controlled, ex_force, A, B, B_PTOemp, mech_power, dissipative_power
 
     # B_original = B
     

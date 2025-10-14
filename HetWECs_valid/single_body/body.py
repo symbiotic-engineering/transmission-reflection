@@ -59,8 +59,11 @@ def initialize(point_abs):
     }
 
     # Create point absorbers and oscillating surges
-    OS_position = (0, 0, z_flap)
-    PA_position = (0, 0, z)
+    x_start = 0 #13.086 + 1.55
+    y_start = 0 #-0.1410 - 0.50
+
+    OS_position = (x_start, y_start, z_flap)
+    PA_position = (x_start, y_start, z)
     OS_name = 'rect'
     PA_name = 'cyl'
     OS_dofs = 'Pitch'
