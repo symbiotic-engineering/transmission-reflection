@@ -3,7 +3,7 @@ Edits made for validation purposes by VITALE 07/10/2025
 '''
 def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
                 megRAOexp,joRAOexp,virRAOexp,franRAOexp,
-                Bd_vir,Bd_fran,Bd_meg,Bd_jo):
+                Bd_vir,Bd_fran,Bd_meg,Bd_jo,PA,wg_amp_exp,het):
     # optimal controls model to obtain controlled RAO for radiation elevation based on Falnes theory
 
     from capytaine.bem.airy_waves import froude_krylov_force
@@ -65,11 +65,23 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
 
     RAO_controlled = np.abs(np.linalg.solve(H,ex_force).ravel())
 
-    mech_power = 0.5*np.abs(B_PTOemp)*(abs(RAO_controlled*w*1j))**2
-    #print('mechanical power',np.real(mech_power))
-
-    dissipative_power = 0.5*np.abs(np.diag(B + B_difference + B_d_arr))*(abs(RAO*w*1j))**2
-    print('total dissipative_power',np.sum(dissipative_power))
+    if PA:
+        k = 1
+    else:
+        g = 9.81
+        k = w**2/g
+    mech_power = 0.5*np.abs(B_PTOemp)*(abs(k*wg_amp_exp*RAO_controlled*w*1j))**2
+    dissipative_power = 0.5*np.abs(np.diag(B))*(abs(k*wg_amp_exp*RAO*w*1j))**2
+    if het:
+        g = 9.81
+        k = w**2/g
+        dissipative_power = 0.5*np.abs(np.diag(B))*(abs(wg_amp_exp*RAO*w*1j))**2
+        mech_power = 0.5*np.abs(B_PTOemp)*(abs(wg_amp_exp*RAO_controlled*w*1j))**2
+        for i in range(2):
+            dissipative_power[i] = 0.5*np.abs(np.diag(B)[i])*(abs(k*wg_amp_exp*RAO[i]*w*1j))**2
+            mech_power[i] = 0.5*np.abs(B_PTOemp[i])*(abs(k*wg_amp_exp*RAO_controlled[i]*w*1j))**2
+    print('dissipative_power',dissipative_power)
+    print('mech power',mech_power)
 
     return RAO_controlled, ex_force, A, B, B_PTOemp, mech_power, dissipative_power
 

@@ -1,4 +1,5 @@
-def hydro(array,B,depth,w,reactive,B_diffPA,B_diffOS,megRAOexp,joRAOexp,virRAOexp,franRAOexp,Bd_vir,Bd_fran,Bd_meg,Bd_jo):
+def hydro(array,B,depth,w,reactive,B_diffPA,B_diffOS,megRAOexp,joRAOexp,virRAOexp,franRAOexp,
+            Bd_vir,Bd_fran,Bd_meg,Bd_jo,PA,wg_amp_exp,het):
     import capytaine as cpt
     import numpy as np
     import PTO
@@ -17,7 +18,7 @@ def hydro(array,B,depth,w,reactive,B_diffPA,B_diffOS,megRAOexp,joRAOexp,virRAOex
     RAO, ex_force, added_mass, damping, B_PTOemp, mech_power, dissipative_power = PTO.RAO(diff_prob,diff_result,dataset,
                                                                                     array,w,reactive,B,B_diffPA,B_diffOS,
                                                                                     megRAOexp,joRAOexp,virRAOexp,franRAOexp,
-                                                                                    Bd_vir,Bd_fran,Bd_meg,Bd_jo)
+                                                                                    Bd_vir,Bd_fran,Bd_meg,Bd_jo,PA,wg_amp_exp,het)
 
     return RAO, diff_result, rad_result, ex_force, added_mass, damping, B_PTOemp, mech_power, dissipative_power
 
