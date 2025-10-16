@@ -5,7 +5,7 @@ in front of and behind each body. This is how the reflection and transmission
 coefficients are found, respectively. The energy blance, energy dissipation,
 and power per unit width are also computed.'''
 
-def wave_height(total, incoming_fse, xtrans, ytrans, farm, rel_dim, w, nx, ny, x1, x2, y1, y2,x_center):
+def wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w,nx,ny,x1,x2,y1,y2,x_center):
     import numpy as np
     import matplotlib.pyplot as plt
     import warnings
@@ -29,11 +29,6 @@ def wave_height(total, incoming_fse, xtrans, ytrans, farm, rel_dim, w, nx, ny, x
     zinc_down = incoming_fse[mid_y, mid_x + int(rel_dim*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(x_center*convx)) + int(lam*convx)]    # incident wave height downstream
     z_up = total[mid_y, (mid_x - int(rel_dim*convx) + int(x_center*convx)) - int(lam*convx):mid_x - int(rel_dim*convx) + int(x_center*convx)]                # total wave height upstream
     z_down = total[mid_y, mid_x + int(rel_dim*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(x_center*convx)) + int(lam*convx)]              # transmitted wave height
-
-    avg_H_zup = np.array([np.mean(abs(z_up - zinc_up))])
-    avg_H_zincup = np.array([np.mean(abs(zinc_up))])
-    avg_H_zdown = np.array([np.mean(abs(z_down))])
-    avg_H_zincdown = np.array([np.mean(abs(zinc_down))])
     
     if farm:
         zinc_upWEC1 = incoming_fse[mid_y + int(ytrans[0]*convy), (mid_x - int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)) - int(lam*convx) :mid_x - int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)]

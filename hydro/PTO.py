@@ -4,6 +4,8 @@ diffraction force from the diffraction problem and uses them to compute:
 2. the optimal damping and stiffness PTO terms (to resonate)
 3. the controlled response amplitude operator (RAO)'''
 
+'''LAST UPDATE" OCT 16TH 2025'''
+
 def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,reactive):
 
     from capytaine.bem.airy_waves import froude_krylov_force
@@ -21,15 +23,15 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
     dif = np.array([diff_result.forces[dof] for dof in array.dofs])
     ex_force = FK + dif
     
-    # Define simple optimal PTO damping and stiffness
-    # for reactive control:
-    if reactive:
-        B_pto = B
-        K_pto = w**2*(M+A)-K  
-    else:
-        # for damping only:
-        B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
-        K_pto = 0 
+    # # Define simple optimal PTO damping and stiffness
+    # # for reactive control:
+    # if reactive:
+    #     B_pto = B
+    #     K_pto = w**2*(M+A)-K  
+    # else:
+    #     # for damping only:
+    #     B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
+    #     K_pto = 0 
 
     # FOR INCLUDING OFF-DIAGONALS
     inertia = M + A 
@@ -43,26 +45,11 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
         RAO_controlled = ex_force/H
     print('RAO_controlled',RAO_controlled)
 
-    amplitude = 1.000  # unit wave amplitude [m]
-    if point_absorber:
-        body_velocity = RAO_controlled * 1j * w
-        RAO_controlled = RAO_controlled.copy()
-        # Create a mask for elements where body velocity exceeds the limit
-        mask = np.abs(body_velocity) > amplitude * w
-        
-        while np.any(np.abs(body_velocity[mask]) > amplitude * w):
-            # Update RAO_controlled for those specific elements
-            RAO_controlled[mask] = 0.95 * (np.real(RAO_controlled[mask]) + 1j * np.imag(RAO_controlled[mask]))
-            # Recalculate body velocity for those specific elements
-            body_velocity[mask] = RAO_controlled[mask] * 1j * w
-            # Update the mask for the next iteration
-            mask = np.abs(body_velocity) > amplitude * w
-
     # power produced by WEC, used to find CWR
     if farm:
-        power = 0.5*np.diag(B_pto)*(abs(RAO_controlled*w*1j))**2        # [kW]
+        power = 0.5*np.diag(B_pto)*(abs(RAO_controlled*w*1j))**2        # [W]
     else:
-        power = 0.5*B_pto*(abs(RAO_controlled*w*1j))**2        # [kW]
+        power = 0.5*B_pto*(abs(RAO_controlled*w*1j))**2        # [W]
 
     # power available in wave
     rho = 1025                  # [kg/m^3] density of sea water
@@ -74,6 +61,22 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
     print('capture width ratio',CWR)
 
     return RAO_controlled, CWR
+
+    # amplitude = 1.000  # unit wave amplitude [m]
+    # if point_absorber:
+    #     body_velocity = RAO_controlled * 1j * w
+    #     RAO_controlled = RAO_controlled.copy()
+    #     # Create a mask for elements where body velocity exceeds the limit
+    #     mask = np.abs(body_velocity) > amplitude * w
+        
+    #     while np.any(np.abs(body_velocity[mask]) > amplitude * w):
+    #         # Update RAO_controlled for those specific elements
+    #         RAO_controlled[mask] = 0.95 * (np.real(RAO_controlled[mask]) + 1j * np.imag(RAO_controlled[mask]))
+    #         # Recalculate body velocity for those specific elements
+    #         body_velocity[mask] = RAO_controlled[mask] * 1j * w
+    #         # Update the mask for the next iteration
+    #         mask = np.abs(body_velocity) > amplitude * w
+
 
     # while np.any(power > budal_limit):
     #     # Create a mask for elements that exceed the budal_limit

@@ -2,6 +2,8 @@
 and save the .csv files in the "data" folder. This data can then 
 be easily used for post processing in the "post_pro" folder'''
 
+'''LAST UPDATE" OCT 16TH 2025'''
+
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
@@ -12,23 +14,15 @@ w = np.array([0.7, 0.8, 0.9, 1.0, 1.1, 1.25, 1.3])  # wave frequency
 
 # Define the combinations of True and False for your parameters
 combinations = [
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': False, 'staggered': False, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': False, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': False, 'reactive': True},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': False, 'staggered': True, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': True, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': True, 'reactive': True}
+    {'point_absorber': True, 'oscillating_surge': False,'controls': False},
+    {'point_absorber': True, 'oscillating_surge': False,'controls': True}
 ]
 
 # Map combinations to their corresponding file names
 # breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive
 file_names = {
-    (False, True, False, False, True, False, False, False): 'PA_reg_uncont.csv',
-    (False, True, False, False, True, True, False, False): 'PA_reg_damp.csv',
-    (False, True, False, False, True, True, False, True): 'PA_reg_react.csv',
-    (False, True, False, False, True, False, True, False): 'PA_stag_uncont.csv',
-    (False, True, False, False, True, True, True, False): 'PA_stag_damp.csv',
-    (False, True, False, False, True, True, True, True): 'PA_stag_react.csv'
+    (True, False, False): 'PA_reg_uncont.csv',
+    (True, False, True): 'PA_reg_damp.csv'
 }
 
 # Loop through each combination
