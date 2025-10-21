@@ -11,26 +11,21 @@ the transmission and reflection coefficients.'''
 def wec_run(w,point_absorber,oscillating_surge,controls):
     ################ SCRIPT FOR CALCULATING AT COEFFS ############
     # run all Kt and Kr calcs for any body here
-    import body         # "body" contains functions for PA, OSWEC, attenuator, and breakwater initialization
+    import body         # "body" contains functions for PA and OSWEC
     import solve        # this solves the hydrodynamics
     import wave_height  # this function finds Kt and Kr based on wave elevation
     import numpy as np
     import matplotlib.pyplot as plt 
 
     N = 3
-    index = 3
+    index = 4
 
     B = 0                                           # wave direction [rad]
     depth = 500                                     # keep deep water assumption for EB
-    
-    if staggered:
-        xtrans = np.array([50,50])                  # x translation of bodies if staggered farm
-        x_center = -25
-    else:
-        xtrans = np.array([0,0])
-        x_center = 0
 
-    ytrans = np.array([50,-50])                     # y translation of bodies if farm
+    xtrans = 40
+    ytrans = 40                     # y translation of bodies
+    x_center = 300                  # arbitrary x_center position to make indexing easier later
 
     Kr_H = [[] for _ in range(index)]       # initializing reflection coeff
     Kt_H = [[] for _ in range(index)]       # initializing transmission coeff
@@ -39,28 +34,12 @@ def wec_run(w,point_absorber,oscillating_surge,controls):
     w_vals = []                             # for storing omega values
 
     for w in w:
-        # this is where you set the grid resolution based on wavelength.
-        # shorter wavelengths require finer mesh resolution based on 
-        # mesh convergence study.
-        if w < 1.0:
-            res = 2.0
-        else:
-            res = 3.5
 
-        # this where the code generates the body based on which you chose
-        if point_absorber:
-            array, rel_dim, char_dim = body.PA(xtrans,ytrans,w,x_center)
-        if oscillating_surge:
-            array, rel_dim, char_dim = body.OSWEC(xtrans,ytrans,w,x_center)
-
-        # this is where the code solves hydrodynamics
-        diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,controls,point_absorber)
-
-        # this is where the code solves for wave elevation
-        total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,controls,N,rel_dim)
-
-        # this is where the code calculates your reflection and transmission coefficients
-        ref,trans,EB,KD,power_abs = wave_height.wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w,nx,ny,x1,x2,y1,y2,x_center)
+        res = 1                                                                                                  # set the grid resolution
+        array, rel_dim, char_dim = body.initialize(xtrans,ytrans,w,x_center,point_absorber)                                      # generate the meshed array
+        diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,controls,point_absorber)  # solve hydrodynamics
+        total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,controls,N,rel_dim) # solve for wave elevation
+        ref,trans,EB,KD,power_abs = wave_height.wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w,nx,ny,x1,x2,y1,y2,x_center) # calculate reflection and transmission coefficients
 
         print('Kt',trans)
         print('Kr',ref)

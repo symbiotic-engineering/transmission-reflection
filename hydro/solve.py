@@ -13,8 +13,8 @@ def hydro(array,B,depth,w,char_dim,controls,point_absorber):
     import numpy as np
     import PTO
 
-    g = 9.81            # gravitational constant (m/s^2)
-    k = w**2/g      # wave number infinite depth (rad^2/m)
+    g = 9.81                # gravitational constant (m/s^2)
+    k = w**2/g              # wave number infinite depth (rad^2/m)
     lam = int(2*np.pi/k)    # wavelength infinite depth (m)
     
     # solving hydrodynamics using Capytaine solver
@@ -28,17 +28,12 @@ def hydro(array,B,depth,w,char_dim,controls,point_absorber):
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
 
-    # Capytaine's built in RAO function
-    RAO = cpt.post_pro.rao(dataset, wave_direction=B)#, dissipation=None, stiffness=None)
-    RAO_vals = RAO.values
-
-    RAO_controlled, CWR = PTO.RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,controls)
-    RAO_vals = RAO_controlled
-    print('controlled rao',RAO_vals)
+    RAO_vals, CWR = PTO.RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls)
+    print('RAO',RAO_vals)
 
     return diff_result,rad_result,RAO_vals,lam,CWR
 
-def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim):
+def elevation(res,lam,diff_result,rad_result,RAO_vals,controls,N,rel_dim):
     import numpy as np
     from capytaine.bem.airy_waves import airy_waves_free_surface_elevation
     import capytaine as cpt
@@ -47,78 +42,60 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenu
     solver = cpt.BEMSolver()
 
     # defining the computational grid and preparing post-process data
-    x1, x2, y1, y2 = -(lam + rel_dim + 50), (lam + rel_dim + 50), -100, 100
+    x1, x2, y1, y2 = -(lam + rel_dim) + 300, (lam + rel_dim + 40 + 300), -25, 100
     ny = int(res*(abs(y1)+y2))
-    nx = int(res*(abs(x1)+x2))
+    nx = int(res*(abs(x1)+x2) + 1)
     grid = np.meshgrid(np.linspace(x1, x2, nx), np.linspace(y1, y2, ny))
     diffraction = solver.compute_free_surface_elevation(grid, diff_result)  # wave el due to diffraction
+    print('diffracted waves computed')
 
-    # these for-loops and if-statements handle the radiated wave field for
-    # different cases of arrays or single bodies 
-
+    # this loops handles the radiated wave field
     multiplications = []
-
-    for i in range(4):
+    for i in range(3):
         mult_result = solver.compute_free_surface_elevation(grid, rad_result[i]) * RAO_vals[i]
         multiplications.append(mult_result)
 
     radiation = sum(multiplications)
+    print('radiated waves computed')
+
     incoming_fse = airy_waves_free_surface_elevation(grid, diff_result)     # incident wave el
+    print('incident waves computed')
+
     total = diffraction + incoming_fse + radiation                          # total wave el
 
     #### here, you can plot the wave field if you would like. This is where ###
     #### I generate my wave field plots for the paper #########################
     
-    # import matplotlib.patheffects as path_effects
-    # xtrans = np.array([50,0,50])                        # x translation of bodies if farm
-    # ytrans = np.array([50,0,-50])
-    # # plots
-    # Z = np.real(total)
-    # X = grid[0]
-    # Y = grid[1]
-    # pcm = plt.pcolormesh(X, Y, Z)
-    # plt.xlabel("x")
-    # plt.ylabel("y")
-    # colorbar = plt.colorbar()
-    # colorbar.set_label(r"Total Wave Elevation, $\eta$")
-    # pcm.set_clim([-2, 2])
-    # # # Add markers with black outline
-    # # plt.scatter(xtrans, ytrans, marker='_', color='red', s=200, edgecolor='black', linewidth=3)
-    # # # Add arrow with black outline
-    # # plt.arrow(-100, 50, 50, 0, color='black', width=0.3, head_width=7, head_length=7)
-    # # plt.arrow(-100, 50, 50, 0, color='red', width=0.2, head_width=5, head_length=5)
-
-    # # Add text with black outline
-    # #text = plt.text(-75, 75, 'Incident Waves', color='red', fontsize=12, ha='center', va='center')
-    # #text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'), path_effects.Normal()])
-
-    # plt.tight_layout()
-    # print('tip')
-    # plt.savefig('test_field.pdf')
-    # print('top')
-    # #plt.show()
+    import matplotlib.patheffects as path_effects
+    # plots
+    Z = np.abs(total)
+    X = grid[0]
+    Y = grid[1]
+    pcm = plt.pcolormesh(X, Y, Z)
+    plt.xlabel("x")
+    plt.ylabel("y")
+    colorbar = plt.colorbar()
+    colorbar.set_label(r"Total Wave Elevation, $\eta$")
+    plt.tight_layout()
+    print('tip')
+    plt.savefig('test_field.pdf')
+    print('top')
+    plt.clf()
 
     return total, incoming_fse, x1, x2, nx, y1, y2, ny
 
 
-    # ## This loop applies Budal's upper bound specifically to the RAO of the ##
-    # ## point absorber (only problematic body). Equation can be found in     ##
-    # ## Falnes and Kurniawan (2020) Eq. (6.69). The real part of the RAO is  ##
-    # ## reduced until the condition is met.                                  ##
-    # print('uncontrolled rao',RAO_vals)
-    # if controls == False:
-    #     if point_absorber:
-    #         amplitude = 1.000  # unit wave amplitude [m]
-    #         body_velocity = RAO_vals * 1j * w
-    #         print('Initial body velocity:', np.abs(body_velocity))
-    #         # Create a mask for elements that satisfy the condition
-    #         mask = np.abs(body_velocity) > amplitude * w
-    #         while np.any(np.abs(body_velocity[mask]) > amplitude * w):
-    #             # Apply condition to modify the array elements
-    #             RAO_vals[mask] = 0.99*(np.real(RAO_vals[mask]) + 1j * (np.imag(RAO_vals[mask])))
-    #             body_velocity[mask] = RAO_vals[mask] * 1j * w
-    #             # Update the mask after modification
-    #             mask = np.abs(body_velocity) > amplitude * w
 
-    #         print('Updated body velocity:', np.abs(body_velocity))
-    #         print('Magnitude of RAO_vals:', np.abs(RAO_vals))
+
+
+
+        # pcm.set_clim([-2, 2])
+    # # Add markers with black outline
+    # plt.scatter(xtrans, ytrans, marker='_', color='red', s=200, edgecolor='black', linewidth=3)
+    # # Add arrow with black outline
+    # plt.arrow(-100, 50, 50, 0, color='black', width=0.3, head_width=7, head_length=7)
+    # plt.arrow(-100, 50, 50, 0, color='red', width=0.2, head_width=5, head_length=5)
+
+    # Add text with black outline
+    #text = plt.text(-75, 75, 'Incident Waves', color='red', fontsize=12, ha='center', va='center')
+    #text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'), path_effects.Normal()])

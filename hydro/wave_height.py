@@ -12,55 +12,74 @@ def wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w,nx,ny,x1,x2,y1,y2,x_c
     warnings.filterwarnings("ignore", category=np.ComplexWarning)
     
     ##################################################################
-    # Extract relevant columns
-    mid_y = int(ny / 2)
-    mid_x = int(nx / 2)
-    convx = int(nx/(abs(x1)+x2))      # to convert meters to grid points
-    convy = int(ny/(abs(y1)+y2))
-    
     # Extract z_up and z_down using rel_dim to determine the region
     #                               --> need to account for x-shift in body position
     #                               --> need to ensure still averaging over a wavelength
     g = 9.81                # gravitational constant (m/s^2)
     k = w**2/g              # wave number infinite depth (rad^2/m)
-    lam = int(2*np.pi/k)    # wavelength infinite depth (m)
+    rho = 1025                                  # [kg/m^3] density of sea water
+        
+    # x- and y-positions, converted to grid points
+    convx = int(nx/(np.abs(x1)+x2))      # to convert meters to grid points
+    convy = int(ny/(abs(y1)+y2))
 
-    zinc_up = incoming_fse[mid_y, (mid_x - int(rel_dim*convx) + int(x_center*convx)) - int(lam*convx):mid_x - int(rel_dim*convx) + int(x_center*convx)]      # incident wave height upstream
-    zinc_down = incoming_fse[mid_y, mid_x + int(rel_dim*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(x_center*convx)) + int(lam*convx)]    # incident wave height downstream
-    z_up = total[mid_y, (mid_x - int(rel_dim*convx) + int(x_center*convx)) - int(lam*convx):mid_x - int(rel_dim*convx) + int(x_center*convx)]                # total wave height upstream
-    z_down = total[mid_y, mid_x + int(rel_dim*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(x_center*convx)) + int(lam*convx)]              # transmitted wave height
+    x_start, y_start = x_center, 0
+    Dx, Dy = xtrans, ytrans
+
+    posx = np.array([x_start,x_start,x_start + Dx,x_start + Dx])*convx 
+    posy = np.array([y_start, y_start + Dy,y_start + (1/2)*Dy,y_start + (3/2)*Dy])*convy
+
+    # other misc conversions
+    rel_dim = rel_dim*convx
+    lam = int(2*np.pi/k)*convx    # wavelength infinite depth (m)
+
+    zinc_up, zinc_down, z_up, z_down = [],[],[],[]
+    ref, trans, EB, KD = [],[],[],[]
+    power_abs = []
+
+    for i in range(4):
+        zinc_up_loop = incoming_fse[int(posy[i]), int(posx[i] - rel_dim - lam) : int(posx[i] - rel_dim)]      # incident wave height upstream
+        zinc_down_loop = incoming_fse[int(posy[i]), int(posx[i] + rel_dim) : int(posx[i] + rel_dim + lam)]    # incident wave height downstream
+        z_up_loop = total[int(posy[i]), int(posx[i] - rel_dim - lam) : int(posx[i] - rel_dim)]                # total wave height upstream
+        z_down_loop = total[int(posy[i]), int(posx[i] + rel_dim) : int(posx[i] + rel_dim + lam)]              # transmitted wave height
+
+        zinc_up.append(zinc_up_loop)
+        zinc_down.append(zinc_down_loop)
+        z_up.append(z_up_loop)
+        z_down.append(z_down_loop)
+
+        avg_incUP = np.mean(np.abs(zinc_up_loop))
+        avg_incDOWN = np.mean(np.abs(zinc_down_loop))
+        avg_ref = np.mean((np.abs(z_up_loop) - np.abs(zinc_up_loop)))
+        avg_trans = np.mean(np.abs(z_down_loop))
+
+        ref_loop = (avg_ref / avg_incUP)                 # reflection coefficient
+        trans_loop = avg_trans / avg_incDOWN             # transmission coefficient
+        EB_loop = trans_loop**2 + ref_loop**2                      # energy balance
+        KD_loop = 1 - EB_loop                                 # dissipation coefficient
+
+        ref.append(ref_loop)
+        trans.append(trans_loop)
+        EB.append(EB_loop)
+        KD.append(KD_loop)
     
-    if farm:
-        zinc_upWEC1 = incoming_fse[mid_y + int(ytrans[0]*convy), (mid_x - int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)) - int(lam*convx) :mid_x - int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)]
-        zinc_upWEC3 = incoming_fse[mid_y + int(ytrans[1]*convy), (mid_x - int(rel_dim*convx) + int(xtrans[1]*convx) + int(x_center*convx)) - int(lam*convx) :mid_x - int(rel_dim*convx) + int(xtrans[1]*convx) + int(x_center*convx)]
-        z_upWEC1 = total[mid_y + int(ytrans[0]*convy), (mid_x - int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)) - int(lam*convx) :mid_x - int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)]
-        z_upWEC3 = total[mid_y + int(ytrans[1]*convy), (mid_x - int(rel_dim*convx) + int(xtrans[1]*convx) + int(x_center*convx)) - int(lam*convx) :mid_x - int(rel_dim*convx) + int(xtrans[1]*convx) + int(x_center*convx)]
+        # absorbed power per unit width
+        power_absloop = ((rho*g**2)/(4*w))*((avg_incUP/2)**2 - ((avg_ref)/2)**2 - (avg_trans/2)**2) # [W/m]
+        power_abs.append(power_absloop)
 
-        zinc_downWEC1 = incoming_fse[mid_y + int(ytrans[0]*convy), mid_x + int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)) + int(lam*convx)]
-        zinc_downWEC3 = incoming_fse[mid_y + int(ytrans[1]*convy), mid_x + int(rel_dim*convx) + int(xtrans[1]*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)) + int(lam*convx)]
-        z_downWEC1 = total[mid_y + int(ytrans[0]*convy), mid_x + int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)) + int(lam*convx)]
-        z_downWEC3 = total[mid_y + int(ytrans[1]*convy), mid_x + int(rel_dim*convx) + int(xtrans[1]*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(xtrans[0]*convx) + int(x_center*convx)) + int(lam*convx)]
+    print('absorbed power',power_abs)
 
-        avg_H_zincup = np.array([np.mean(abs(zinc_upWEC1)), np.mean(abs(zinc_up)), np.mean(abs(zinc_upWEC3))])
-        avg_H_zincdown = np.array([np.mean(abs(zinc_downWEC1)), np.mean(abs(zinc_down)), np.mean(abs(zinc_downWEC3))])
-        avg_H_zup = np.array([np.mean(abs(z_upWEC1 - zinc_upWEC1)), np.mean(abs(z_up - zinc_up)), np.mean(abs(z_upWEC3 - zinc_upWEC3))])
-        avg_H_zdown = np.array([np.mean(abs(z_downWEC1)), np.mean(abs(z_down)), np.mean(abs(z_downWEC3))])
+    upstreamx = np.linspace(int(posx[1] - rel_dim - lam)/convx,int(posx[1] - rel_dim)/convx,num = np.size(zinc_up[1]))
+    downstreamx = np.linspace(int(posx[1] + rel_dim)/convx,int(posx[1] + rel_dim + lam)/convx,num=np.size(zinc_down[1]))
 
-    ### reflection coeff note: you get the same value if you subtract complex incident
-    ### wave elevation from complex upstream wave, then dividing abs values of new
-    ### upstream wave by abs value of incident wave as when you
-    ### divide abs value of total upstream wave by abs value of incident wave
-    ### and then subtract one
-
-    ref = (avg_H_zup / avg_H_zincup) # - 1
-    trans = avg_H_zdown / avg_H_zincdown
-    EB = trans**2 + ref**2     # energy balance
-    KD = 1 - EB  
-
-    rho = 1025                  # [kg/m^3] density of sea water
-    g = 9.81  
-    # absorbed power per unit width
-    power_abs = ((rho*g**2)/(4*w))*((avg_H_zincup/2)**2 - ((avg_H_zup)/2)**2 - (avg_H_zdown/2)**2) # [W/m]
-    print('absorber power',power_abs)
+    plt.plot(upstreamx, np.abs(zinc_up[0]),label='zinc_up',marker='o')
+    plt.plot(downstreamx, np.abs(zinc_down[0]),label='zinc_down',marker='x')
+    plt.plot(upstreamx, np.abs(z_up[0]),label='z_up',marker='s')
+    plt.plot(downstreamx, np.abs(z_down[0]),label='z_down',marker='p')
+    plt.legend()
+    print('tic')
+    plt.savefig('wave_heights.pdf')
+    print('toc')
+    plt.clf()
 
     return ref, trans, EB, KD, power_abs

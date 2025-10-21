@@ -23,19 +23,19 @@ rho_steel = 7980    # density of 316 stainless steel [kg/m^3]
 volume = np.pi * (R**2 - r**2) * L      # volume of submerged monopile [m^3]
 mass = rho_steel * volume               # mass of submerged monopile [kg]
 I = ((mass * (R**2 + r**2)) / 4) + ((mass * L**2) / 12)  # moment of inertia about the y-axis (pitch) [kg-m^2]
-y = R                             # distance to centroidal axis
+y = R                                                    # distance to centroidal axis
 
-T = 2 * np.pi / w                 # period [s]
+T = 2 * np.pi / w                                        # wave period [s]
 H_values = np.linspace(0.94, 0.99, 100) * H_base
-percent_reduction_H = (1 - H_values / H_base) * 100  # percent reduction in H
+percent_reduction_H = (1 - H_values / H_base) * 100      # percent reduction in H
 
 def calculate_damage(H):
     def calculate_bending_stress(t):
         u = ((H * w) / 2) * (np.cosh(k * (z + h)) / np.sinh(k * h)) * np.cos(k * x - w * t)         # flow velocity
         u_dot = -((H * w**2) / 2) * (np.cosh(k * (z + h)) / np.sinh(k * h)) * np.sin(k * x - w * t) # flow acceleration
-        f = C_m * rho * (np.pi / 4) * d**2 * u_dot + C_d * d * 0.5 * rho * u * np.abs(u)   # force of wave per unit length [N/m]
-        bending_moment = f * (L + H / 2)                                   # L + H/2 is the moment arm [N-m] or [kg-m^2/s^2]
-        sigma = (y / I) * bending_moment  # bending stress (Pa) [m/s^2]
+        f = C_m * rho * (np.pi / 4) * d**2 * u_dot + C_d * d * 0.5 * rho * u * np.abs(u)            # force of wave per unit length [N/m]
+        bending_moment = f * (L + H / 2)                                                            # L + H/2 is the moment arm [N-m] or [kg-m^2/s^2]
+        sigma = (y / I) * bending_moment                                                            # bending stress (Pa) [m/s^2]
         return sigma
 
     # Evaluate bending stress over the time range t = [0, T]

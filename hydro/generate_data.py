@@ -10,25 +10,30 @@ import csv
 import run_coeffs
 import os
 
-w = np.array([0.7, 0.8, 0.9, 1.0, 1.1, 1.25, 1.3])  # wave frequency
+w = np.array([0.7, 1.0, 1.3])  # wave frequency 0.7, 0.8, 0.9, 
 
 # Define the combinations of True and False for your parameters
 combinations = [
     {'point_absorber': True, 'oscillating_surge': False,'controls': False},
-    {'point_absorber': True, 'oscillating_surge': False,'controls': True}
+    {'point_absorber': True, 'oscillating_surge': False,'controls': True},
+    {'point_absorber': False, 'oscillating_surge': True,'controls': False},
+    {'point_absorber': False, 'oscillating_surge': True,'controls': True}
 ]
 
 # Map combinations to their corresponding file names
 # breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive
 file_names = {
     (True, False, False): 'PA_reg_uncont.csv',
-    (True, False, True): 'PA_reg_damp.csv'
+    (True, False, True): 'PA_reg_damp.csv',
+    (False, True, False): 'OS_reg_uncont.csv',
+    (False, True, True): 'OS_reg_damp.csv'
 }
 
 # Loop through each combination
 for combination in combinations:
     # Unpack the dictionary to pass the parameters to your function
     Kt_H, Kr_H, w_vals, power, RAO_vals = run_coeffs.wec_run(w, **combination)
+    print('kth',Kt_H)
 
     # Create a tuple of the current combination to use as a key for the file name
     combination_key = tuple(combination.values())

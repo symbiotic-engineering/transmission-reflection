@@ -4,9 +4,9 @@ diffraction force from the diffraction problem and uses them to compute:
 2. the optimal damping and stiffness PTO terms (to resonate)
 3. the controlled response amplitude operator (RAO)'''
 
-'''LAST UPDATE" OCT 16TH 2025'''
+'''LAST UPDATED BY VITALE OCT 2025'''
 
-def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,reactive):
+def RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls):
 
     from capytaine.bem.airy_waves import froude_krylov_force
     import numpy as np
@@ -23,15 +23,12 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
     dif = np.array([diff_result.forces[dof] for dof in array.dofs])
     ex_force = FK + dif
     
-    # # Define simple optimal PTO damping and stiffness
-    # # for reactive control:
-    # if reactive:
-    #     B_pto = B
-    #     K_pto = w**2*(M+A)-K  
-    # else:
-    #     # for damping only:
-    #     B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
-    #     K_pto = 0 
+    if controls:
+        B_pto = (B**2 + ( w*(M+A) - (K/w) )**2)**0.5
+        K_pto = 0 
+    else:
+        B_pto = [0, 0, 0, 0]
+        K_pto = [0, 0, 0, 0]
 
     # FOR INCLUDING OFF-DIAGONALS
     inertia = M + A 
@@ -39,28 +36,21 @@ def RAO(diff_prob,diff_result,dataset,array,w,farm,char_dim,point_absorber,react
     reactance = K + K_pto
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
 
-    if farm:
-        RAO_controlled = np.linalg.solve(H,ex_force).ravel()
-    else:
-        RAO_controlled = ex_force/H
-    print('RAO_controlled',RAO_controlled)
+    RAO = np.linalg.solve(H,ex_force).ravel()
 
     # power produced by WEC, used to find CWR
-    if farm:
-        power = 0.5*np.diag(B_pto)*(abs(RAO_controlled*w*1j))**2        # [W]
-    else:
-        power = 0.5*B_pto*(abs(RAO_controlled*w*1j))**2        # [W]
+    power = 0.5*np.diag(B_pto)*(abs(RAO*w*1j))**2        # [W]
 
     # power available in wave
     rho = 1025                  # [kg/m^3] density of sea water
     g = 9.81                    # [m/s^2] gravitational constant
+    amplitude = 1
     power_avail = (rho * g**2 * amplitude**2) / (4 * w)      # [kW/m]
 
     CW = power/power_avail               # [m]
     CWR = CW / char_dim                  # unitless
-    print('capture width ratio',CWR)
 
-    return RAO_controlled, CWR
+    return RAO, CWR
 
     # amplitude = 1.000  # unit wave amplitude [m]
     # if point_absorber:
