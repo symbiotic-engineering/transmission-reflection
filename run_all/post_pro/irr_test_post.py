@@ -76,6 +76,13 @@ print(f"  Reg Percent difference: {reg_percent_difference_1:.2f}%")
 print(f"\nAt y = {y_specific_2} meters:")
 print(f"  Reg Percent difference: {reg_percent_difference_2:.2f}%")
 
+# Flip y_values to represent "distance from the array"
+array_location = 4850  # Array location in meters
+flipped_y_values = array_location - y_values  # Distance from the array
+
+# Convert flipped y-axis values to nautical miles
+flipped_y_values_nm = flipped_y_values / 1852
+
 plt.figure(figsize=(12, 8))  # Larger figure size for better visibility
 
 # Define colorblind-friendly colors
@@ -84,17 +91,21 @@ color_reg = '#D55E00'  # Orange
 color_1nm = '#CC79A7'  # Purple
 color_0_5nm = '#009E73'  # Green
 
-plt.plot(y_values / 1852, percent_difference, label='Irregular', color=color_irr, linewidth=10)
-plt.plot(y_values / 1852, reg_percent_difference, label='Regular', color=color_reg, linestyle=':', linewidth=14)
-plt.axvline(y_specific_1 / 1852, color=color_1nm, linestyle='--', linewidth=4, label='y = 1 nm')
-plt.axvline(y_specific_2 / 1852, color=color_0_5nm, linestyle='--', linewidth=4, label='y = 0.5 nm')
-plt.xlabel('Distance along y-axis [nm]', fontsize=24)
+# Plot data with flipped x-axis
+plt.plot(flipped_y_values_nm, percent_difference, label='Irregular', color=color_irr, linewidth=10)
+plt.plot(flipped_y_values_nm, reg_percent_difference, label='Regular', color=color_reg, linestyle=':', linewidth=14)
+
+# Mark specific distances
+plt.axvline((array_location - y_specific_1) / 1852, color=color_1nm, linestyle='--', linewidth=4, label='y = 1 nm')
+plt.axvline((array_location - y_specific_2) / 1852, color=color_0_5nm, linestyle='--', linewidth=4, label='y = 0.5 nm')
+
+# Update labels
+plt.xlabel('Distance from Array [nm]', fontsize=24)
 plt.ylabel('Wave Height Reduction [%]', fontsize=24)
 plt.grid(True, linewidth=1.5, linestyle=':')
 plt.legend(fontsize=22)
 plt.xticks(fontsize=22)
 plt.yticks(fontsize=22)
 plt.tight_layout()
-plt.savefig('compare_reg_irr.pdf', dpi=300)  # High resolution for better quality
+plt.savefig('compare_reg_irr_flipped.pdf', dpi=300)  # High resolution for better quality
 plt.show()
-
