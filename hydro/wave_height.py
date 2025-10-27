@@ -31,7 +31,8 @@ def wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w,nx,ny,x1,x2,y1,y2,x_c
 
     # other misc conversions
     rel_dim = rel_dim*convx
-    lam = int(2*np.pi/k)*convx    # wavelength infinite depth (m)
+    print('w',w)
+    lam = int((2*np.pi/k)*convx)    # wavelength infinite depth (m)
 
     zinc_up, zinc_down, z_up, z_down = [],[],[],[]
     ref, trans, EB, KD = [],[],[],[]
@@ -72,10 +73,10 @@ def wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w,nx,ny,x1,x2,y1,y2,x_c
     upstreamx = np.linspace(int(posx[1] - rel_dim - lam)/convx,int(posx[1] - rel_dim)/convx,num = np.size(zinc_up[1]))
     downstreamx = np.linspace(int(posx[1] + rel_dim)/convx,int(posx[1] + rel_dim + lam)/convx,num=np.size(zinc_down[1]))
 
-    plt.plot(upstreamx, np.abs(zinc_up[0]),label='zinc_up',marker='o')
-    plt.plot(downstreamx, np.abs(zinc_down[0]),label='zinc_down',marker='x')
-    plt.plot(upstreamx, np.abs(z_up[0]),label='z_up',marker='s')
-    plt.plot(downstreamx, np.abs(z_down[0]),label='z_down',marker='p')
+    plt.plot(upstreamx, np.abs(zinc_up[3]),label='zinc_up',marker='o')
+    plt.plot(downstreamx, np.abs(zinc_down[3]),label='zinc_down',marker='x')
+    plt.plot(upstreamx, np.abs(z_up[3]),label='z_up',marker='s')
+    plt.plot(downstreamx, np.abs(z_down[3]),label='z_down',marker='p')
     plt.legend()
     print('tic')
     plt.savefig('wave_heights.pdf')

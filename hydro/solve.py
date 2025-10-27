@@ -68,14 +68,14 @@ def elevation(res,lam,diff_result,rad_result,RAO_vals,controls,rel_dim):
     
     import matplotlib.patheffects as path_effects
     # plots
-    Z = np.abs(total)
+    Z = np.abs(total)/np.abs(incoming_fse)
     X = grid[0]
     Y = grid[1]
     pcm = plt.pcolormesh(X, Y, Z)
     plt.xlabel("x")
     plt.ylabel("y")
     colorbar = plt.colorbar()
-    colorbar.set_label(r"Total Wave Elevation, $\eta$")
+    colorbar.set_label(r"Disturbance, $K_d$")
     plt.tight_layout()
     print('tip')
     plt.savefig('test_field.pdf')

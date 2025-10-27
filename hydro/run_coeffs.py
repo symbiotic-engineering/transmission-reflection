@@ -32,33 +32,35 @@ def wec_run(w,point_absorber,oscillating_surge,controls):
 
     w_vals = []                             # for storing omega values
 
+    # used scaled wave frequency value in the empirical fit curve, then scale up
+    w_scale = w*np.sqrt(scale)
     if point_absorber:
-        BdPA_num = 13.2332*w**2 + 10.7815*w + 1.8630 
-        BdPA_den = w**2 + 1.0961*w + 0.3752
+        BdPA_num = 13.2332*w_scale**2 + 10.7815*w_scale + 1.8630 
+        BdPA_den = w_scale**2 + 1.0961*w_scale + 0.3752
         # empirical damping fit for isolated device
-        B_diff = (scale**(5/2))*(BdPA_num/BdPA_den) * np.exp(1j*(-0.0176*w**2 + 0.1140*w + 1.3173))
+        B_diff = (scale**(5/2))*(BdPA_num/BdPA_den) * np.exp(1j*(-0.0176*w_scale**2 + 0.1140*w_scale + 1.3173))
 
         # empirical damping fit for damping introduced to each device in the array
-        Bd1 = (scale**(5/2))*(270.8966 + (-15.7783 - 270.8966)/(1 + (w/5.3854)**38.6287)) + 1j * (634.7380 + (263.8006 - 634.7380)/(1 + (w/5.0931)**108.8870))
-        Bd2 = (scale**(5/2))*(25.0043 + (-16.6685 - 25.0043)/(1 + (w/5.4484)**71.1566)) + 1j * (91.9514 + 25.3225*np.cos(w*2.7611) + 9.7855*np.sin(w*2.7611))
-        Bd3 = (scale**(5/2))*(-70.2006 - 51.1202*np.cos(w*1.4738) - 22.1776*np.sin(w*1.4738)) + 1j * (-126.9010 - 6.5431*np.cos(w*3.0603) + 19.0480*np.cos(w*3.0603))
-        Bd4 = (scale**(5/2))*(811.5504*w**3 - 1.2703e+04*w**2 + 6.5620e+04*w - 1.1218e+05) + 1j * (-110.5101 + (-507.6379 + 110.5101)/(1 + (w/5.2618)**-57.2704))
+        Bd1 = (scale**(5/2))*(270.8966 + (-15.7783 - 270.8966)/(1 + (w_scale/5.3854)**38.6287)) + 1j * (634.7380 + (263.8006 - 634.7380)/(1 + (w_scale/5.0931)**108.8870))
+        Bd2 = (scale**(5/2))*(25.0043 + (-16.6685 - 25.0043)/(1 + (w_scale/5.4484)**71.1566)) + 1j * (91.9514 + 25.3225*np.cos(w_scale*2.7611) + 9.7855*np.sin(w_scale*2.7611))
+        Bd3 = (scale**(5/2))*(-70.2006 - 51.1202*np.cos(w_scale*1.4738) - 22.1776*np.sin(w_scale*1.4738)) + 1j * (-126.9010 - 6.5431*np.cos(w_scale*3.0603) + 19.0480*np.cos(w_scale*3.0603))
+        Bd4 = (scale**(5/2))*(811.5504*w_scale**3 - 1.2703e+04*w_scale**2 + 6.5620e+04*w_scale - 1.1218e+05) + 1j * (-110.5101 + (-507.6379 + 110.5101)/(1 + (w_scale/5.2618)**-57.2704))
     else:
         # empirical damping fit for isolated device
-        B_diff = (scale**(5/2))*(0.7731*w**2 - 6.1100*w + 13.3851) * np.exp(1j*(0.0219*w**2 - 0.19911*w + 0.6697))
+        B_diff = (scale**(5/2))*(0.7731*w_scale**2 - 6.1100*w_scale + 13.3851) * np.exp(1j*(0.0219*w_scale**2 - 0.19911*w_scale + 0.6697))
 
         # empirical damping fit for damping introduced to each device in the array
-        Bd1 = (scale**(5/2))*(22.3463*w**3 - 361.6316*w**2 + 1.9487e+03*w - 3.4691e+03) + 1j * (12.2825*w**2 - 95.4165*w + 245.6894)
-        Bd2 = (scale**(5/2))*(8.4637 + 57.0776*np.cos(w*3.9128) + 21.1357*np.sin(w*3.9128)) + 1j * (21.7659*w**2 - 193.2818*w + 491.0362)
-        Bd3 = (scale**(5/2))*(3.7682*w**2 - 69.7304*w + 229.6366) + 1j * (17.8272*w**3 - 309.0917*w**2 + 1.7637e+03*w - 3.2040e+03)
-        Bd4 = (scale**(5/2))*(-45.0017*w**3 + 719.5501*w**2 - 3.8389e+03*w + 6.7988e+03) + 1j * (95.3911*w**3 - 1.5521e+03*w**2 + 8.3492e+03*w - 1.4736e+04)
+        Bd1 = (scale**(5/2))*(22.3463*w_scale**3 - 361.6316*w_scale**2 + 1.9487e+03*w_scale - 3.4691e+03) + 1j * (12.2825*w_scale**2 - 95.4165*w_scale + 245.6894)
+        Bd2 = (scale**(5/2))*(8.4637 + 57.0776*np.cos(w_scale*3.9128) + 21.1357*np.sin(w_scale*3.9128)) + 1j * (21.7659*w_scale**2 - 193.2818*w_scale + 491.0362)
+        Bd3 = (scale**(5/2))*(3.7682*w_scale**2 - 69.7304*w_scale + 229.6366) + 1j * (17.8272*w_scale**3 - 309.0917*w_scale**2 + 1.7637e+03*w_scale - 3.2040e+03)
+        Bd4 = (scale**(5/2))*(-45.0017*w_scale**3 + 719.5501*w_scale**2 - 3.8389e+03*w_scale + 6.7988e+03) + 1j * (95.3911*w_scale**3 - 1.5521e+03*w_scale**2 + 8.3492e+03*w_scale - 1.4736e+04)
     
     for i in range(np.size(w)):
-        res = 1                                                                                                  # set the grid resolution
+        res = 1.0                                                                                                  # set the grid resolution
         array, rel_dim, char_dim = body.initialize(xtrans,ytrans,w[i],x_center,point_absorber)                                      # generate the meshed array
-        diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w[i],char_dim,controls,point_absorber,B_diff,Bd1[i],Bd2[i],Bd3[i],Bd4[i])  # solve hydrodynamics
+        diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w[i],char_dim,controls,point_absorber,B_diff[i],Bd1[i],Bd2[i],Bd3[i],Bd4[i])  # solve hydrodynamics
         total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,controls,rel_dim) # solve for wave elevation
-        ref,trans,EB,KD,power_abs = wave_height.wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w,nx,ny,x1,x2,y1,y2,x_center) # calculate reflection and transmission coefficients
+        ref,trans,EB,KD,power_abs = wave_height.wave_height(total,incoming_fse,xtrans,ytrans,rel_dim,w[i],nx,ny,x1,x2,y1,y2,x_center) # calculate reflection and transmission coefficients
 
         print('Kt',trans)
         print('Kr',ref)

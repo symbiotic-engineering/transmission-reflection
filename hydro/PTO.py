@@ -32,10 +32,12 @@ def RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls,B
 
     # FOR INCLUDING OFF-DIAGONALS
     inertia = M + A 
-    # B_dif is empircal damping found from isolated device testing
+
+    # B_diff is empircal damping found from isolated device testing
     # B_arr is additional empirical damping found from array testing
     B_diff = [[B_diff,0,0,0],[0,B_diff,0,0],[0,0,B_diff,0],[0,0,0,B_diff]]
     B_arr = [[Bd1,0,0,0],[0,Bd2,0,0],[0,0,Bd3,0],[0,0,0,Bd4]]
+
     resistance = B + B_pto + B_diff + B_arr
     reactance = K + K_pto
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
@@ -52,7 +54,9 @@ def RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls,B
     power_avail = (rho * g**2 * amplitude**2) / (4 * w)      # [kW/m]
 
     CW = power/power_avail               # [m]
+    print('CW',CW)
     CWR = CW / char_dim                  # unitless
+    print('CWR',CWR)
 
     return RAO, CWR
 
