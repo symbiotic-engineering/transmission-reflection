@@ -67,7 +67,7 @@ percent_diff_D = [(calculate_damage(H) - D_base) / D_base * 100 for H in H_value
 plt.figure(figsize=(8, 6))
 plt.plot(percent_reduction_H, percent_diff_D, marker='o',color='#D55E00')
 plt.xlabel('Reduction of Wave Height [%]',fontsize=20)
-plt.ylabel('Reduction in Fatigue Damage [%]',fontsize=20)
+plt.ylabel('Change in Fatigue Damage [%]',fontsize=20)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 plt.grid(True)
