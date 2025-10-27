@@ -6,7 +6,7 @@ diffraction force from the diffraction problem and uses them to compute:
 
 '''LAST UPDATED BY VITALE OCT 2025'''
 
-def RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls):
+def RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls,B_diff,Bd1,Bd2,Bd3,Bd4):
 
     from capytaine.bem.airy_waves import froude_krylov_force
     import numpy as np
@@ -32,7 +32,11 @@ def RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls):
 
     # FOR INCLUDING OFF-DIAGONALS
     inertia = M + A 
-    resistance = B + B_pto
+    # B_dif is empircal damping found from isolated device testing
+    # B_arr is additional empirical damping found from array testing
+    B_diff = [[B_diff,0,0,0],[0,B_diff,0,0],[0,0,B_diff,0],[0,0,0,B_diff]]
+    B_arr = [[Bd1,0,0,0],[0,Bd2,0,0],[0,0,Bd3,0],[0,0,0,Bd4]]
+    resistance = B + B_pto + B_diff + B_arr
     reactance = K + K_pto
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
 

@@ -8,7 +8,7 @@ and diffracted. The math is detailed in the paper.'''
 
 '''LAST UPDATE" OCT 16TH 2025'''
 
-def hydro(array,B,depth,w,char_dim,controls,point_absorber):
+def hydro(array,B,depth,w,char_dim,controls,point_absorber,B_diff,Bd1,Bd2,Bd3,Bd4):
     import capytaine as cpt
     import numpy as np
     import PTO
@@ -28,12 +28,12 @@ def hydro(array,B,depth,w,char_dim,controls,point_absorber):
     rad_result = solver.solve_all(rad_prob,keep_details=(True))
     dataset = cpt.assemble_dataset(rad_result + [diff_result])
 
-    RAO_vals, CWR = PTO.RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls)
+    RAO_vals, CWR = PTO.RAO(diff_prob,diff_result,dataset,array,w,char_dim,point_absorber,controls,B_diff,Bd1,Bd2,Bd3,Bd4)
     print('RAO',RAO_vals)
 
     return diff_result,rad_result,RAO_vals,lam,CWR
 
-def elevation(res,lam,diff_result,rad_result,RAO_vals,controls,N,rel_dim):
+def elevation(res,lam,diff_result,rad_result,RAO_vals,controls,rel_dim):
     import numpy as np
     from capytaine.bem.airy_waves import airy_waves_free_surface_elevation
     import capytaine as cpt

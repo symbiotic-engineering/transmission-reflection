@@ -56,14 +56,15 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
     denom = 1j*w*RAO
 
     B_PTOemp = num/denom
-    print('b pto empirical',B_PTOemp)
+    #print('test bpto',abs(B_PTOemp))
     B_PTOmatrix = [[B_PTOemp[0],0,0,0],[0,B_PTOemp[1],0,0],[0,0,B_PTOemp[2],0],[0,0,0,B_PTOemp[3]]]
 
-    resistance = B + B_difference + B_d_arr + B_PTOmatrix
+    resistance = B + B_difference + B_d_arr #+ B_PTOmatrix
 
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
 
     RAO_controlled = np.abs(np.linalg.solve(H,ex_force).ravel())
+    print('rao error',(RAO_controlled - RAO)/RAO)
 
     if PA:
         k = 1
@@ -80,8 +81,8 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
         for i in range(2):
             dissipative_power[i] = 0.5*np.abs(np.diag(B)[i])*(abs(k*wg_amp_exp*RAO[i]*w*1j))**2
             mech_power[i] = 0.5*np.abs(B_PTOemp[i])*(abs(k*wg_amp_exp*RAO_controlled[i]*w*1j))**2
-    print('dissipative_power',dissipative_power)
-    print('mech power',mech_power)
+    # print('dissipative_power',dissipative_power)
+    # print('mech power',mech_power)
 
     return RAO_controlled, ex_force, A, B, B_PTOemp, mech_power, dissipative_power
 
