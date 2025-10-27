@@ -59,7 +59,7 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
     #print('test bpto',abs(B_PTOemp))
     B_PTOmatrix = [[B_PTOemp[0],0,0,0],[0,B_PTOemp[1],0,0],[0,0,B_PTOemp[2],0],[0,0,0,B_PTOemp[3]]]
 
-    resistance = B + B_difference + B_d_arr #+ B_PTOmatrix
+    resistance = B + B_difference + B_d_arr + B_PTOmatrix
 
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
 

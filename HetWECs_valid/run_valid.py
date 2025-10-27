@@ -7,12 +7,12 @@ import solve
 
 B = 0                                    # wave heading [rad]
 depth = 1.37                                            # water depth at basin [m]
-T = np.array([1.0,1.2,1.25,1.33,1.39])  #1.003,1.254,1.3])        # wave period from exp [s] (only 1.0,1.25,1.33 for PTO engaged tests. 1.0,1.2,1.25,1.33,1.39 for PTO disengaged)
+T = np.array([1.003,1.254,1.3])        # wave period from exp [s] (only 1.0,1.25,1.33 for PTO engaged tests. 1.0,1.2,1.25,1.33,1.39 for PTO disengaged)
 w = (2*np.pi)/T                                         # wave frequency [rad/s]
 g = 9.81
 k = w**2/g
 reactive = False                         # whether controls are engaged
-het = False                              # decide if analyzing hetero or homogeneous array
+het = True                              # decide if analyzing hetero or homogeneous array
 PA = False                                # IF doing homogeneous array, this determines which architecture
 res = 10                                 # grid resolution multiplier
 
@@ -38,16 +38,16 @@ B_diffPA = (BdPA_num/BdPA_den) * np.exp(1j*(-0.0176*w**2 + 0.1140*w + 1.3173))
 
 if het:
     # wave heading = 0deg
-    pos1RAOexp = virRAOexp = np.array([323.381890238651,361.268452383110,346.366992147017,322.459657109623,385.006028894270])*(np.pi/180)/k
-    pos2RAOexp = franRAOexp = np.array([393.634896229757,384.644580468920,338.447782918374,316.329978665478,396.131175641520])*(np.pi/180)/k
-    pos3RAOexp = megRAOexp = np.array([0.819664657814324,0.916166493356739,0.887306516520389,0.863314218351526,0.992867758219807])
-    pos4RAOexp = joRAOexp = np.array([0.477702270828799,0.848824917334879,0.680824985210178,0.713990464053677,0.958269910240572])
+    # pos1RAOexp = virRAOexp = np.array([323.381890238651,361.268452383110,346.366992147017,322.459657109623,385.006028894270])*(np.pi/180)/k
+    # pos2RAOexp = franRAOexp = np.array([393.634896229757,384.644580468920,338.447782918374,316.329978665478,396.131175641520])*(np.pi/180)/k
+    # pos3RAOexp = megRAOexp = np.array([0.819664657814324,0.916166493356739,0.887306516520389,0.863314218351526,0.992867758219807])
+    # pos4RAOexp = joRAOexp = np.array([0.477702270828799,0.848824917334879,0.680824985210178,0.713990464053677,0.958269910240572])
 
     # ## RAOS for PTO engaged, het 4b, wave heading = 0 deg
-    # pos1RAOexp = virRAOexp = np.array([184.572145311627,195.391623861709,165.997190210489])*(np.pi/180)/k
-    # pos2RAOexp = franRAOexp = np.array([131.852630012738,153.262515441623,241.872472048376])*(np.pi/180)/k
-    # pos3RAOexp = megRAOexp = np.array([0.773495530727839,0.770132236212850,0.700512165810569])
-    # pos4RAOexp = joRAOexp = np.array([0.258407324729989,0.106376997648463,0.0307451184177340])
+    pos1RAOexp = virRAOexp = np.array([184.572145311627,195.391623861709,165.997190210489])*(np.pi/180)/k
+    pos2RAOexp = franRAOexp = np.array([131.852630012738,153.262515441623,241.872472048376])*(np.pi/180)/k
+    pos3RAOexp = megRAOexp = np.array([0.773495530727839,0.770132236212850,0.700512165810569])
+    pos4RAOexp = joRAOexp = np.array([0.258407324729989,0.106376997648463,0.0307451184177340])
     wg_amp_exp = [[0.0271001377023135,0.0271518594998106,0.0317101227436801,0.0305814292411126,0.0285243477321362,0.0309702026438246,0.0303419596990442,0.0283591018763499,0.0300412907912616,0.0281435905492679,0.0270730402739711,0.0338183752615616,0.0270370300381844,0.0295137086925206,0.0260453422202349,0.0287964013019899,0.0269037505545165,0.0282456811345229,0.0256869653285800,0.0293282597624868],
             [0.0289196478386149,0.0290085888801193,0.0293016927808884,0.0299330095377794,0.0274580384032014,0.0278862247252256,0.0293024788782696,0.0270892123511109,0.0296450247666850,0.0295105643398724,0.0294597712438405,0.0310798522784300,0.0375278068845319,0.0276542396724496,0.0274464094500479,0.0283311423453712,0.0280064439458710,0.0284816247895534,0.0268020520909686,0.0302121735079706],
             [0.0306355607721488,0.0308304127839021,0.0312193377291284,0.0309686925048478,0.0289144022925502,0.0314680987755509,0.0302383574314168,0.0304800508457759,0.0297975084239392,0.0289272418887703,0.0305087880032774,0.0325590913622133,0.0509598103045238,0.0287611322035312,0.0286706775629731,0.0285012221709443,0.0293273659641103,0.0311600192537584,0.0261310776528251,0.0314647557952294],
@@ -172,10 +172,10 @@ for i in range(np.size(w)):
     power3.append(dissipative_power[2])
     power4.append(dissipative_power[3])
 
-# print('barr1',BPTO_OS1)
-# print('barr2',BPTO_OS2)
-# print('barr3',BPTO_PA3)
-# print('barr4',BPTO_PA4)
+print('barr1',BPTO_OS1)
+print('barr2',BPTO_OS2)
+print('barr3',BPTO_PA3)
+print('barr4',BPTO_PA4)
 
 #     #emp_rad = wg_amp_exp[i] - (np.abs((elevation_at_gauges)))# + (emp_diffraction[i] / wg_diff_exp[i][0])*wg_amp_exp[i][0])
 #     #emp_correction = (np.abs((elevation_at_gauges)) + emp_rad) #+ (emp_diffraction[i] / wg_diff_exp[i][0])*wg_amp_exp[i][0])
