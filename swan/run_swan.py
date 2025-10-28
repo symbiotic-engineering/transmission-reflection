@@ -1,4 +1,4 @@
-def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, attenuator, six, swan_stag):
+def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
     import subprocess
     # Calculate xe values
     xe = [xi + d for xi in x]
@@ -20,7 +20,7 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, atte
         "GEN3 WESTH",
         "WCAP",
         "QUAD",
-        "OFF BREA",
+        "OFF BREA"
     ]
 
     # Add obstacle lines with varying KT and KR values
@@ -32,21 +32,15 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc, atte
         if EB > 1:
             KT[i] = 1
             KR[i] = 0
-        # indexing due to how problem was formulating
-        if six:
-            use_condition = i < 3
-        else:
-            use_condition = i == 1 if swan_stag else i < 3
+
         # attenuator has more length than other devices
-        if attenuator:
-            length = 29
-            y_start = ya if use_condition else yb
-            y_end = ya + length if use_condition else yb - length
-        else:
-            y_start = ya if use_condition else yb
-            y_end = ya if use_condition else yb
+        y_start = y_end = [ya,ya,yb,yb,
+                           ya,ya,yb,yb,
+                           ya,ya,yb,yb,
+                           ya,ya,yb,yb,
+                           ya,ya,yb,yb]
  
-        line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {y_start} {xe[i]} {y_end}"
+        line = f"OBSTACLE TRANS {KT[i]} REFL {KR[i]} RDIFF 1 LINE {x[i]} {y_start[i]} {xe[i]} {y_end[i]}"
         commands.append(line)
 
     # Add the remaining commands

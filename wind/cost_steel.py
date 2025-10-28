@@ -39,16 +39,19 @@ cost_in_kg = cost_of_steel/tons_to_kg   # cost of steel in [$/kg]
 cost_of_SF = mass_SF * cost_in_kg
 cost_of_XL = [mass * cost_in_kg for mass in mass_XL]
 
-percent_diff = [((cost_of_SF - cost)/cost_of_SF)*100 for cost in cost_of_XL]
+percent_diff = [((cost - cost_of_SF)/cost_of_SF)*100 for cost in cost_of_XL]
 print('monopile diameter',d_XLmin)
 print('monopile thickness', t_XLmin)
 print('percent reduction in cost', percent_diff)
 
-plt.figure(figsize=(8, 7))
-plt.plot(d_XLmin,percent_diff)
+plt.figure(figsize=(8, 6))
+plt.plot(d_SF,0,marker='*',markersize=25,linewidth=2,color='#E69F00',label='South Fork Monopile Diameter')
+plt.plot(d_XLmin,percent_diff,marker='o',markersize=12,linewidth=2,color='#56B4E9',label='Downsized Monopiles')
 plt.gca().invert_xaxis()
-plt.ylabel('Reduction in Cost [%]',fontsize=20)
+plt.ylabel('Reduction in Steel Cost [%]',fontsize=20)
 plt.xlabel('Monopile Diameter [m]',fontsize=20)
+plt.legend(fontsize=16)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
+plt.tight_layout()
 plt.savefig('cost_reduction.pdf')

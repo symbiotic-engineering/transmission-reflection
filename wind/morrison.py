@@ -26,7 +26,7 @@ I = ((mass * (R**2 + r**2)) / 4) + ((mass * L**2) / 12)  # moment of inertia abo
 y = R                                                    # distance to centroidal axis
 
 T = 2 * np.pi / w                                        # wave period [s]
-H_values = np.linspace(0.94, 0.99, 100) * H_base
+H_values = np.linspace(0.92, 0.98, 30) * H_base
 percent_reduction_H = (1 - H_values / H_base) * 100      # percent reduction in H
 
 def calculate_damage(H):
@@ -65,9 +65,9 @@ percent_diff_D = [(calculate_damage(H) - D_base) / D_base * 100 for H in H_value
 
 # Plotting
 plt.figure(figsize=(8, 6))
-plt.plot(percent_reduction_H, percent_diff_D, marker='o',color='#D55E00')
+plt.plot(percent_reduction_H, percent_diff_D, marker='o',color='#D55E00',markersize=10)
 plt.xlabel('Reduction of Wave Height [%]',fontsize=20)
-plt.ylabel('Change in Fatigue Damage [%]',fontsize=20)
+plt.ylabel('Reduction in Fatigue Damage [%]',fontsize=20)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 plt.grid(True)
