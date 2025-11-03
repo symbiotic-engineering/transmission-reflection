@@ -20,16 +20,16 @@ import big_run
 # Define the combinations and their corresponding file names
 file_map = {
     # point absorber
-    #(True,False,True): ('PA_1.csv', 'PA_damp.csv'),
+    (True,False,True): ('PA_SF.csv', 'PA_SF_damp.csv'),
     #(True,False,True): ('PA_large.csv','PA_damp.csv')
     # oscillating surge
-    (False, True, True): ('OS_large.csv', 'OS_damp.csv')
+    #(False, True, True): ('OS_large.csv', 'OS_damp.csv')
     #(False, False, False, False, True, False, True, True, False, False): ('OS_2.csv', 'OS_uncont.csv')
 }
 
 # input parameters from SouthFork Wind location                           
-H = 0.8                                     # avg significant wave height [m]
-T = 5                                       # avg wave period [s] from buoy 44097
+H = 2.19                                        # avg significant wave height [m]
+T = 11.0                                        # dominant wave period [s] from buoy 44097
 
 # define computational grid
 xgrid = 3000                                # size of grid in x-direction

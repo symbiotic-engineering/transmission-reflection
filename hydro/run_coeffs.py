@@ -56,7 +56,7 @@ def wec_run(w,point_absorber,oscillating_surge,controls):
         Bd4 = (scale**(5/2))*(-45.0017*w_scale**3 + 719.5501*w_scale**2 - 3.8389e+03*w_scale + 6.7988e+03) + 1j * (95.3911*w_scale**3 - 1.5521e+03*w_scale**2 + 8.3492e+03*w_scale - 1.4736e+04)
     
     for i in range(np.size(w)):
-        res = 1.0                                                                                                  # set the grid resolution
+        res = 2.0                                                                                                  # set the grid resolution
         array, rel_dim, char_dim = body.initialize(xtrans,ytrans,w[i],x_center,point_absorber)                                      # generate the meshed array
         diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w[i],char_dim,controls,point_absorber,B_diff[i],Bd1[i],Bd2[i],Bd3[i],Bd4[i])  # solve hydrodynamics
         total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,controls,rel_dim) # solve for wave elevation

@@ -21,7 +21,7 @@ data_folder = 'data/'
 file_paths = [
     #'blank.csv',
     #'OSr_1a.csv', 
-    'PA_large.csv'
+    'PA_1.csv'
 ]
 
 # Generate x and y coordinates

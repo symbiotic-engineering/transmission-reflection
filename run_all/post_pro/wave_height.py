@@ -22,7 +22,7 @@ file_paths = [
     'blank.csv',
     #'OSr_1a.csv', 
     #'OSr_2a.csv',
-    'PA_large.csv'
+    'PA_1.csv'
     #'PA_2.csv'
 ]
 
@@ -33,15 +33,15 @@ data_arrays = {fp: load_and_reshape(os.path.join(data_folder, fp)) for fp in fil
 blank_data = data_arrays['blank.csv']
 percent_differences = {}
 
-for fp in file_paths[1:]:  # Skip the 'blank.csv'
+for fp in file_paths[1:]:  # Skip the 'blank.csv'  
     percent_differences[fp] = abs(100 * (data_arrays[fp] - blank_data) / blank_data)
 
 # Prepare data for saving
 results_list = []
 
 # Define the nautical miles of interest and corresponding indices
-nautical_miles = np.array([0.25, 0.5, 1.0, 1.5, 2])
-nautical_miles_conversion = 1852  # Conversion factor from meters to nautical miles
+nautical_miles = np.array([1421,1521,1621])   #0.25, 0.5, 1.0, 1.5, 2])
+nautical_miles_conversion = 1   #1852  # Conversion factor from meters to nautical miles
 
 # for plotting only
 # Define colorblind-friendly colors and linestyles
@@ -63,7 +63,9 @@ for i, file_path in enumerate(file_paths[1:]):  # Skip the 'blank.csv'
     plt.figure(figsize=(8,6))
     for j in range(np.size(nautical_miles)):
         y_dists_nautical = int(nautical_miles[j] * nautical_miles_conversion * myc/ygrid)
-        percent_diff = percent_differences[file_path][y_dists_nautical, int(x_range[0]):int(np.size(x_range))]
+        percent_diff = percent_differences[file_path][int(4272 * (mxc / xgrid)),y_dists_nautical]
+        print('wave height',percent_diff)
+        #[y_dists_nautical, int(x_range[0]):int(np.size(x_range))]
         
         # Reverse the order for the plot
         # y_range = y_range[::-1] / 1852  # Convert to nautical miles
@@ -87,7 +89,7 @@ ax = plt.gca()
 ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 #plt.text(1.025, 1.05, 'a', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
 plt.tight_layout()
-plt.savefig('PAlarge_reduction.pdf')
+plt.savefig('PAtest.pdf')
 plt.show()
 
 #     # Extract percent difference at x_center from y_start to y = 0

@@ -35,6 +35,7 @@ def farfield(point_absorber,oscillating_surge,controls,H,T,xgrid,ygrid,csv_file)
     myc = int(ygrid/10)                                   # number of grid points in y (-1) (10 m res in y)
 
     x1, x2, x3, x4 = 1490,1550,1460,1520
+    #x = [x1,x2,x3,x4]
     x = [x1,x2,x3,x4,
          x1 + 200, x2 + 200, x3 + 200, x4 + 200,
          x1 - 200, x2 - 200, x3 - 200, x4 - 200,

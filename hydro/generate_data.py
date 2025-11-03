@@ -10,23 +10,23 @@ import csv
 import run_coeffs
 import os
 
-w = np.array([0.8, 1.0, 1.3])  # wave frequency 0.7, 0.8, 0.9, 
+w = np.array([(2*np.pi)/11])  # wave frequency 0.7, 0.8, 0.9, 
 
 # Define the combinations of True and False for your parameters
 combinations = [
-    {'point_absorber': True, 'oscillating_surge': False,'controls': False},
-    #{'point_absorber': True, 'oscillating_surge': False,'controls': True},
-    {'point_absorber': False, 'oscillating_surge': True,'controls': False},
-    #{'point_absorber': False, 'oscillating_surge': True,'controls': True}
+    #{'point_absorber': True, 'oscillating_surge': False,'controls': False},
+    {'point_absorber': True, 'oscillating_surge': False,'controls': True},
+    #{'point_absorber': False, 'oscillating_surge': True,'controls': False},
+    {'point_absorber': False, 'oscillating_surge': True,'controls': True}
 ]
 
 # Map combinations to their corresponding file names
 # breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive
 file_names = {
-    #(True, False, False): 'PA_reg_uncont.csv',
-    (True, False, True): 'PA_reg_damp.csv',
-    #(False, True, False): 'OS_reg_uncont.csv',
-    (False, True, True): 'OS_reg_damp.csv'
+    #(True, False, False): 'PA_valid_uncont.csv',
+    (True, False, True): 'PA_SF_damp.csv',
+    #(False, True, False): 'OS_valid_uncont.csv',
+    (False, True, True): 'OS_SF_damp.csv'
 }
 
 # Loop through each combination

@@ -29,7 +29,7 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
         if KR[i] < 0:
             KR[i] = 0
         EB = (KT[i])**2 + (KR[i])**2
-        if EB > 1:
+        if KT[i] > 1:
             KT[i] = 1
             KR[i] = 0
 
