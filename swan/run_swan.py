@@ -4,23 +4,24 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
     xe = [xi + d for xi in x]
     # Define the commands
     commands = [
-        "PROJ 'southfork' 'A11'",
-        f"CGRID 0. 0. 0. {xgrid} {ygrid} {mxc} {myc} CIRCLE 100 0.05 0.25 40",
-        f"INPGRID BOTTOM 0. 0. 0. 10 10 {mxc} {myc}", 
-        "READINP BOTTOM -1. 'bathymetry.bot' 1 0 FREE",
-        "WIND 4.92 243",
-        "BOU SHAP JONSWAP 1.54 PEAK DSPR DEGREES",       #0.77
-        f"BOU SIDE N CONSTANT PAR {H} {T} 270 15",
-        f"BOU SIDE S CONSTANT PAR {H} {T} 270 15",
-        f"BOU SIDE W CONSTANT PAR {H} {T} 270 15",
-        f"BOU SIDE E CONSTANT PAR {H} {T} 270 15",
-        "DIFFRAC",
-        "FRICTION JON CONSTANT",
+        "PROJ 'southfork' 'A11'",                                                   # define project
+        # CIRCLE {mdc (meshes in theta)} {flow (lowest discrete frequency[Hz])} {fhigh (highest discrete frequency [Hz])} {msc (grid res in freq space, one less than # of freq)}
+        f"CGRID 0. 0. 0. {xgrid} {ygrid} {mxc} {myc} CIRCLE 200 0.06 0.2 20",      # initiate wave propagation grid
+        f"INPGRID BOTTOM 0. 0. 0. 10 10 {mxc} {myc}",                               # initiate bottom grid for bathymetry
+        "READINP BOTTOM -1. 'bathymetry.bot' 1 0 FREE",                             # define bathymetry (input file from location)
+        "WIND 4.92 243",                                                            # define wind input (wind on, wind speed, wind direction)
+        "BOU SHAP JONSWAP 1.54 PEAK DSPR DEGREES",                                  # define JONSWAP spectral shape (alternate value: 0.77)
+        f"BOU SIDE N CONSTANT PAR {H} {T} 270 15",                                  # boundary conditions northern boundary
+        f"BOU SIDE S CONSTANT PAR {H} {T} 270 15",                                 # boundary conditions southern boundary
+        f"BOU SIDE W CONSTANT PAR {H} {T} 270 15",                                 # boundary conditions western boundary
+        f"BOU SIDE E CONSTANT PAR {H} {T} 270 15",                                 # boundary conditions eastern boundary
+        "DIFFRAC",                                                                 # energy dissipation due to diffraction ON
+        "FRICTION JON CONSTANT",                                                   # energy dissipation due to bottom friction ON
         "PROP BSBT",
-        "GEN3 WESTH",
-        "WCAP",
-        "QUAD",
-        "OFF BREA"
+        "GEN3 WESTH",                                                               # run generation 3 wave model
+        "WCAP",                                                                    # whitecapping energy dissipation ON
+        "QUAD",                                                                    # quad wave interactions ON
+        "OFF BREA"                                                                  # breaking wave energy dissipation OFF
     ]
 
     # Add obstacle lines with varying KT and KR values
@@ -33,7 +34,6 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
             KT[i] = 1
             KR[i] = 0
 
-        # attenuator has more length than other devices
         y_start = y_end = [ya,ya,yb,yb,
                            ya,ya,yb,yb,
                            ya,ya,yb,yb,

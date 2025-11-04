@@ -31,8 +31,8 @@ import gen_data
 import run_swan
 
 def farfield(point_absorber,oscillating_surge,controls,H,T,xgrid,ygrid,csv_file):
-    mxc = int(xgrid/10)                                   # number of grid points in x (-1) (10 m res in x)
-    myc = int(ygrid/10)                                   # number of grid points in y (-1) (10 m res in y)
+    mxc = int(xgrid/20)                                   # number of grid points in x (-1) (10 m res in x)
+    myc = int(ygrid/20)                                   # number of grid points in y (-1) (10 m res in y)
 
     x1, x2, x3, x4 = 1490,1550,1460,1520
     #x = [x1,x2,x3,x4]
@@ -51,16 +51,16 @@ def farfield(point_absorber,oscillating_surge,controls,H,T,xgrid,ygrid,csv_file)
         # Read the CSV file into a DataFrame
         df = pd.read_csv(csv_file)
 
-        KT = [df.iloc[2, 1], df.iloc[2, 2], df.iloc[2, 3],df.iloc[2, 4],
-              df.iloc[2, 1], df.iloc[2, 2], df.iloc[2, 3],df.iloc[2, 4],
-              df.iloc[2, 1], df.iloc[2, 2], df.iloc[2, 3],df.iloc[2, 4],
-              df.iloc[2, 1], df.iloc[2, 2], df.iloc[2, 3],df.iloc[2, 4],
-              df.iloc[2, 1], df.iloc[2, 2], df.iloc[2, 3],df.iloc[2, 4]]
-        KR = [df.iloc[2, 5], df.iloc[2, 6], df.iloc[2, 7],df.iloc[2, 8],
-              df.iloc[2, 5], df.iloc[2, 6], df.iloc[2, 7],df.iloc[2, 8],
-              df.iloc[2, 5], df.iloc[2, 6], df.iloc[2, 7],df.iloc[2, 8],
-              df.iloc[2, 5], df.iloc[2, 6], df.iloc[2, 7],df.iloc[2, 8],
-              df.iloc[2, 5], df.iloc[2, 6], df.iloc[2, 7],df.iloc[2, 8]]
+        KT = [df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
+              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
+              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
+              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
+              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4]]
+        KR = [df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
+              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
+              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
+              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
+              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8]]
 
         # Print results
         print("KR:", KR)

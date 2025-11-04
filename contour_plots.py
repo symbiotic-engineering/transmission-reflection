@@ -4,8 +4,8 @@ import os
 import pandas as pd
 
 # Constants
-mxc = 300
-myc = 500
+mxc = 150   #300
+myc = 250   #500
 xgrid = 3000  # Total width in meters
 ygrid = 5000  # Total height in meters
 
@@ -21,7 +21,7 @@ data_folder = 'data/'
 file_paths = [
     #'blank.csv',
     #'OSr_1a.csv', 
-    'PA_1.csv'
+    'OS_SF.csv'
 ]
 
 # Generate x and y coordinates
@@ -51,17 +51,18 @@ for file_name in file_paths:
             ya,ya,yb,yb]
     
     # Plot contour and scatter
-    plt.contourf(x, y, data, levels=50, cmap='viridis')
-    plt.scatter(wecx, wecy, marker='o', color='red', s=3, linewidth=2)
+    pcm = plt.pcolormesh(x, y, data,vmin=1.95, vmax=2.25)#, levels=100, cmap='viridis')
+    pcm.set_edgecolor("face")
     cbar = plt.colorbar()                                                   # Create the colorbar
     cbar.set_label('Wave Height [m]', fontsize=16)                          # Set the label with the desired font size
     cbar.ax.tick_params(labelsize=14)                                       # Set the font size for the colorbar ticks
+    plt.scatter(wecx, wecy, marker='_', color='red', s=10, linewidth=2)
     plt.xlabel('x [m]', fontsize=20)
-    #plt.ylabel('y [m]', fontsize=20)
+    plt.ylabel('y [m]', fontsize=20)
     plt.xticks(fontsize=15)
-    #plt.yticks(fontsize=15)
+    plt.yticks(fontsize=15)
     ax = plt.gca()
-    ax.tick_params(left=False, bottom=True, labelleft=False, labelbottom=True)
+    #ax.tick_params(left=False, bottom=True, labelleft=False, labelbottom=True)
     #plt.text(1.025, 1.10, 'e', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
     
     # Save plot as PDF

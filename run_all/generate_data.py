@@ -1,11 +1,3 @@
-# Define the combinations and their corresponding file names
-# 1: body's coeffs found in isolation                           a: three-body reg
-# 2: body's coeffs found in reg array                           b: three-body stag
-# 3: body's coeffs found in stag array                          c: six-body reg
-#                                                               d: six-body stag
-
-# six, swan_stag, breakwtr, point_absorber, oscillating_surge, attenuator, farm, controls, staggered, reactive,
-
 import numpy as np
 import sys
 import os
@@ -23,7 +15,7 @@ file_map = {
     (True,False,True): ('PA_SF.csv', 'PA_SF_damp.csv'),
     #(True,False,True): ('PA_large.csv','PA_damp.csv')
     # oscillating surge
-    #(False, True, True): ('OS_large.csv', 'OS_damp.csv')
+    (False, True, True): ('OS_SF.csv', 'OS_SF_damp.csv')
     #(False, False, False, False, True, False, True, True, False, False): ('OS_2.csv', 'OS_uncont.csv')
 }
 

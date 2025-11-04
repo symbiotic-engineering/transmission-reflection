@@ -4,8 +4,8 @@ import os
 import pandas as pd
 
 # Constants
-mxc = 300
-myc = 500
+mxc = 150   #300
+myc = 250   #500
 xgrid = 3000  # Total width in meters
 ygrid = 5000  # Total height in meters
 
@@ -22,7 +22,7 @@ file_paths = [
     'blank.csv',
     #'OSr_1a.csv', 
     #'OSr_2a.csv',
-    'PA_1.csv'
+    'PA_SF.csv'
     #'PA_2.csv'
 ]
 
@@ -40,8 +40,8 @@ for fp in file_paths[1:]:  # Skip the 'blank.csv'
 results_list = []
 
 # Define the nautical miles of interest and corresponding indices
-nautical_miles = np.array([1421,1521,1621])   #0.25, 0.5, 1.0, 1.5, 2])
-nautical_miles_conversion = 1   #1852  # Conversion factor from meters to nautical miles
+nautical_miles = np.array([0.25, 0.5, 1.0, 1.5, 2])
+nautical_miles_conversion = 1852  # Conversion factor from meters to nautical miles
 
 # for plotting only
 # Define colorblind-friendly colors and linestyles
@@ -59,12 +59,11 @@ for i, file_path in enumerate(file_paths[1:]):  # Skip the 'blank.csv'
     x_range = np.linspace(0,xgrid,mxc)*mxc/xgrid
     nautical_string = ['2.0 nm','1.5 nm','1.0 nm','0.5 nm','0.25 nm']
 
-        #y_range = np.linspace(y_start * (ygrid / myc), 0, y_start + 1)
+    y_range = np.linspace(y_start * (ygrid / myc), 0, y_start + 1)
     plt.figure(figsize=(8,6))
     for j in range(np.size(nautical_miles)):
         y_dists_nautical = int(nautical_miles[j] * nautical_miles_conversion * myc/ygrid)
-        percent_diff = percent_differences[file_path][int(4272 * (mxc / xgrid)),y_dists_nautical]
-        print('wave height',percent_diff)
+        percent_diff = percent_differences[file_path][y_dists_nautical, int(x_range[0]):int(np.size(x_range))]
         #[y_dists_nautical, int(x_range[0]):int(np.size(x_range))]
         
         # Reverse the order for the plot
@@ -84,12 +83,12 @@ plt.xlabel('x [m]',fontsize=20)
 plt.legend(loc='upper right',fontsize=20)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
-plt.ylim([0,10])
+plt.ylim([0,3])
 ax = plt.gca()
 ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 #plt.text(1.025, 1.05, 'a', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
 plt.tight_layout()
-plt.savefig('PAtest.pdf')
+plt.savefig('PASFwvht.pdf')
 plt.show()
 
 #     # Extract percent difference at x_center from y_start to y = 0
