@@ -10,7 +10,7 @@ import csv
 import run_coeffs
 import os
 
-w = np.array([(2*np.pi)/11])  # wave frequency 0.7, 0.8, 0.9, 
+w = (2*np.pi)/np.array([5,7,9,11,13])  # wave frequency 0.7, 0.8, 0.9, 
 
 # Define the combinations of True and False for your parameters
 combinations = [
@@ -24,9 +24,9 @@ combinations = [
 # breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive
 file_names = {
     #(True, False, False): 'PA_valid_uncont.csv',
-    (True, False, True): 'PA_SF_damp.csv',
+    (True, False, True): 'PA_spectra_damp.csv',
     #(False, True, False): 'OS_valid_uncont.csv',
-    (False, True, True): 'OS_SF_damp.csv'
+    (False, True, True): 'OS_spectra_damp.csv'
 }
 
 # Loop through each combination

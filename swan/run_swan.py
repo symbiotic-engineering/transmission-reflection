@@ -10,7 +10,8 @@ def generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc):
         f"INPGRID BOTTOM 0. 0. 0. 10 10 {mxc} {myc}",                               # initiate bottom grid for bathymetry
         "READINP BOTTOM -1. 'bathymetry.bot' 1 0 FREE",                             # define bathymetry (input file from location)
         "WIND 4.92 243",                                                            # define wind input (wind on, wind speed, wind direction)
-        "BOU SHAP JONSWAP 1.54 PEAK DSPR DEGREES",                                  # define JONSWAP spectral shape (alternate value: 0.77)
+        #"BOU SHAP JONSWAP 1.54 PEAK DSPR DEGREES",                                  # define JONSWAP spectral shape (alternate value: 0.77)
+        "BOU SHAP PM PEAK DSPR DEGREES",                                            # define Pierson-Moskowitz spectrum for deep water waves
         f"BOU SIDE N CONSTANT PAR {H} {T} 270 15",                                  # boundary conditions northern boundary
         f"BOU SIDE S CONSTANT PAR {H} {T} 270 15",                                 # boundary conditions southern boundary
         f"BOU SIDE W CONSTANT PAR {H} {T} 270 15",                                 # boundary conditions western boundary

@@ -1,147 +1,97 @@
-# DISCLAIMER: this script needs a lot of work to be automated.
-# currently, it's purpose is to give Maha preliminary irregular
-# wave results to present at Georgia Tech
 import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import simps
+from scipy.integrate import cumulative_trapezoid
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 hydro_dir = os.path.join(parent_dir, 'hydro')
 sys.path.append(hydro_dir)
 import body
 import solve
-import jonswap
+import piersonmos
+import pandas as pd
+import csv
 
-breakwtr, point_absorber, oscillating_surge, attenuator = False, False, True, False
-farm, controls, staggered, reactive = False, True, False, True
-w = np.array([0.7,0.8,0.9,1.1,1.25,1.3]) # 0.7,0.8,0.9,1.0, behavior a little weird at high freq, removing for now
-omega = []
-freq = []
-H_ref = []
-H_inc_up = []
-H_trans = []
-H_inc_down = []
+w = np.array([0.48332195,0.57119866,0.6981317,0.8975979,1.25663706])  # wave frequencies corresponding to SouthFork spectrum
+def get_coefficients(csv_file):
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(csv_file)
+    exp_Kt = [[],[],[],[]]
+    exp_Kr = [[],[],[],[]]
+    KT = []
+    KR = []
+    S_KR = []
+    S_KT = []
 
-# copy and pasted from "run_coeffs.py" in order to save time by not computing the free
-# surface mesh. will be condensed in future iterations
-N = 3
-if farm == False:
-    index = 1
-else:
-    index = 3
-B = 0                                           # wave direction [rad]
-depth = 500                                     # keep deep water assumption for EB
-if staggered:
-    xtrans = np.array([50,50])                  # x translation of bodies if staggered farm
-    x_center = -25
-else:
-    xtrans = np.array([0,0])
-    x_center = 0
-ytrans = np.array([50,-50])                     # y translation of bodies if farm
-for w in w:
-    if w < 1.0:
-        res = 2.0
-    else:
-        res = 3.5
-    if breakwtr:
-        array, rel_dim, char_dim = body.breakwater(xtrans,ytrans,farm,x_center)
-        rad = False               # rad only false for breakwater case
-    else:
-        rad = True
-    if point_absorber:
-        array, rel_dim, char_dim, budal_limit = body.PA(xtrans,ytrans,farm,w,x_center)
-    if oscillating_surge:
-        array, rel_dim, char_dim, budal_limit = body.OSWEC(xtrans,ytrans,farm,w,x_center)
-    if attenuator:
-        array, rel_dim, char_dim, budal_limit = body.attenuator(xtrans,ytrans,farm,w,x_center)
-    diff_result,rad_result,RAO_vals,lam,CWR = solve.hydro(array,B,depth,w,char_dim,farm,controls,point_absorber,reactive)
-    total,incoming_fse,x1,x2,nx,y1,y2,ny = solve.elevation(res,lam,diff_result,rad_result,RAO_vals,farm,rad,controls,N,attenuator,rel_dim)
+    S_pm = piersonmos.get_spectra(w)
 
-    import warnings
-    warnings.filterwarnings("ignore", category=np.ComplexWarning)
-    
-    ##################################################################
-    # Extract relevant columns
-    mid_y = int(ny / 2)
-    mid_x = int(nx / 2)
-    convx = int(nx/(abs(x1)+x2))      # to convert meters to grid points
-    convy = int(ny/(abs(y1)+y2))
+    for j in range(4):
+        S_Kr = [[],[],[],[],[]]
+        S_Kt = [[],[],[],[],[]]
+        Kt = [[],[],[],[],[]]
+        Kr = [[],[],[],[],[]]
+        for i in range(5):
+            Kt[i] = float(df.iloc[4-i, j+1])
+            Kr[i] = float(df.iloc[4-i, j+5])
+            S_Kr[i] = S_pm[i] * Kr[i]**2
+            S_Kt[i] = S_pm[i] * Kt[i]**2
 
-    g = 9.81                # gravitational constant (m/s^2)
-    k = w**2/g              # wave number infinite depth (rad^2/m)
-    lam = int(2*np.pi/k)    # wavelength infinite depth (m)
+        # expected coefficients
+        exp_Kr[j] = sum(np.sqrt(2*cumulative_trapezoid(S_Kr, w))/2.19)
+        exp_Kt[j] = sum(np.sqrt(2*cumulative_trapezoid(S_Kt, w))/2.19)
 
-    zinc_up = incoming_fse[mid_y, (mid_x - int(rel_dim*convx) + int(x_center*convx)) - int(lam*convx):mid_x - int(rel_dim*convx) + int(x_center*convx)]      # incident wave height upstream
-    zinc_down = incoming_fse[mid_y, mid_x + int(rel_dim*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(x_center*convx)) + int(lam*convx)]    # incident wave height downstream
-    z_up = total[mid_y, (mid_x - int(rel_dim*convx) + int(x_center*convx)) - int(lam*convx):mid_x - int(rel_dim*convx) + int(x_center*convx)]                # total wave height upstream
-    z_down = total[mid_y, mid_x + int(rel_dim*convx) + int(x_center*convx):(mid_x + int(rel_dim*convx) + int(x_center*convx)) + int(lam*convx)]              # transmitted wave height
+        KT.append(Kt)
+        KR.append(Kr)
+        S_KR.append(S_Kr)
+        S_KT.append(S_Kt)
 
-    ''' this needs to somehow be a probability distribution function so i can get 
-    the probability of a sea state occurring. since the JONSWAP spectra has
-    units attached [m^2/Hz] idk how that works '''
+    print('expected Kr', exp_Kr)
+    print('expected Kt',exp_Kt)
 
-    # S_j = jonswap.get_spectra(w)
-    # S_H_ref = (z_up - zinc_up) * np.sqrt(S_j)
-    # S_H_up = (zinc_up) * np.sqrt(S_j)
-    # S_H_trans = (z_down) * np.sqrt(S_j)
-    # S_H_down = (zinc_down) * np.sqrt(S_j)
+    return exp_Kt, exp_Kr, KT, KR, S_KR, S_KT
 
-    avg_H_zup = np.array([np.mean(abs(z_up))]) # - S_H_up))])
-    avg_H_zincup = np.array([np.mean(abs(zinc_up))])
-    avg_H_zdown = np.array([np.mean(abs(z_down))])
-    avg_H_zincdown = np.array([np.mean(abs(zinc_down))])
-    print('avg ref',avg_H_zup)
-    print('avg inc up',avg_H_zincup)
-    print('avg trans',avg_H_zdown)
-    print('avg inc down',avg_H_zincdown)
-    
-    H_ref.append(avg_H_zup[0])
-    H_inc_up.append(avg_H_zincup[0])
-    H_trans.append(avg_H_zdown[0])
-    H_inc_down.append(avg_H_zincdown[0])
-    
-    f = w / (np.pi * 2)
-    omega.append(w)
-    freq.append(f)
+csv_file_name = 'PA_spectra_damp.csv'
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+hydro_data_dir = os.path.join(base_dir, 'hydro', 'data')
+csv_file = os.path.join(hydro_data_dir, csv_file_name)
 
-# expected wave heights
-exp_H_ref = np.sqrt(simps(H_ref, freq))
-exp_H_up = np.sqrt(simps(H_inc_up, freq))
-exp_H_trans = np.sqrt(simps(H_trans, freq))
-exp_H_down = np.sqrt(simps(H_inc_down, freq))
-print('expected H_ref', exp_H_ref)
-print('expected H_up',exp_H_up)
-print('expected H_trans',exp_H_trans)
-print('expected h_down',exp_H_down)
+data_folder = os.path.join(os.path.dirname(__file__), 'data')
+file_name = csv_file_name
+file_path = os.path.join(data_folder, file_name)
 
-# expected coefficients
-exp_kt = exp_H_trans/exp_H_down
-exp_kr = (exp_H_ref/exp_H_up) - 1
-print('expected transmission coefficient',exp_kt)
-print('expected reflection coefficient',exp_kr)
+exp_Kt, exp_Kr, KT, KR, S_KR, S_KT = get_coefficients(csv_file)
 
-# irregular coeffs (across the spectrum for plotting purposes)
-irr_kt = []
-irr_kr = []
-for i in range(np.size(H_trans)):
-    irr_KT = H_trans[i]/H_inc_down[i]
-    irr_KR = H_ref[i]/H_inc_up[i]
+wS = np.linspace(0.45,1.3,40)
+S_pm = piersonmos.get_spectra(wS)
 
-    irr_kt.append(irr_KT)
-    irr_kr.append(irr_KR)
 
 colors = ['#377eb8', '#4daf4a']
 
 plt.figure(figsize=(8, 6))
-plt.plot(omega, np.abs(H_ref/H_inc_up) - 1, label='$K_r$', color=colors[0], linewidth=2)
-plt.plot(omega, np.abs(H_trans/H_inc_down), label='$K_t$', color=colors[1], linewidth=2)
+plt.plot(w, S_KT[0], marker = 'p', label='$K_t$ WEC1', color=colors[0], linewidth=2)
+plt.plot(w, S_KR[0], marker = 'p', label='$K_r$ WEC2', color=colors[1], linewidth=2)
+plt.plot(w, S_KT[1], marker = 'o', label='WEC2', color=colors[0], linewidth=2)
+plt.plot(w, S_KR[1], marker = 'o', color=colors[1], linewidth=2)
+plt.plot(w, S_KT[2], marker = 's',label='WEC3', color=colors[0], linewidth=2)
+plt.plot(w, S_KR[2], marker = 's', color=colors[1], linewidth=2)
+plt.plot(w, S_KT[3], marker = '>', label='WEC4', color=colors[0], linewidth=2)
+plt.plot(w, S_KR[3], marker = '>', color=colors[1], linewidth=2)
+plt.plot(wS,S_pm,label='PM Spectrum',color='black',linewidth=2)
 plt.legend(fontsize=18)
-plt.xlabel('$\\omega$ [rad/s]', fontsize=20)
-plt.ylabel('Wave Height', fontsize=20)
+plt.xlabel('$\omega$ [rad/s]', fontsize=20)
+plt.ylabel('Spectrum [$m^2s/rad$]', fontsize=20)
 plt.xticks(fontsize=18)
 plt.yticks(fontsize=18)
 plt.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.savefig('irr_coeffs.pdf')
+
+# # Save the data to the corresponding .csv file
+# with open(file_path, mode='w', newline='') as file:
+#     writer = csv.writer(file)
+#     header = ['Omega'] + [f'Kt_{i+1}' for i in range(len(exp_Kt))] + [f'Kr_{i+1}' for i in range(len(exp_Kr))]
+#     writer.writerow(header)
+#     for i in range(5):
+#         row = [w[i]] + [exp_Kt[i][j] for j in range(len(exp_Kt))] + [exp_Kr[i][j] for j in range(len(exp_Kr))]
+#         writer.writerow(row)
