@@ -3,6 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import cumulative_trapezoid
+from scipy.integrate import simps
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 hydro_dir = os.path.join(parent_dir, 'hydro')
@@ -13,7 +14,7 @@ import piersonmos
 import pandas as pd
 import csv
 
-w = np.array([0.48332195,0.57119866,0.6981317,0.8975979,1.25663706])  # wave frequencies corresponding to SouthFork spectrum
+w = np.array([0.52359878,0.57119866,0.62831853,0.6981317,0.78539816,0.8975979,1.04719755,1.25663706])  # wave frequencies corresponding to SouthFork spectrum
 def get_coefficients(csv_file):
     # Read the CSV file into a DataFrame
     df = pd.read_csv(csv_file)
@@ -27,19 +28,19 @@ def get_coefficients(csv_file):
     S_pm = piersonmos.get_spectra(w)
 
     for j in range(4):
-        S_Kr = [[],[],[],[],[]]
-        S_Kt = [[],[],[],[],[]]
-        Kt = [[],[],[],[],[]]
-        Kr = [[],[],[],[],[]]
-        for i in range(5):
-            Kt[i] = float(df.iloc[4-i, j+1])
-            Kr[i] = float(df.iloc[4-i, j+5])
+        S_Kr = [[],[],[],[],[],[],[],[]]
+        S_Kt = [[],[],[],[],[],[],[],[]]
+        Kt = [[],[],[],[],[],[],[],[]]
+        Kr = [[],[],[],[],[],[],[],[]]
+        for i in range(8):
+            Kt[i] = float(df.iloc[7-i, j+1])
+            Kr[i] = float(df.iloc[7-i, j+5])
             S_Kr[i] = S_pm[i] * Kr[i]**2
             S_Kt[i] = S_pm[i] * Kt[i]**2
 
         # expected coefficients
-        exp_Kr[j] = sum(np.sqrt(2*cumulative_trapezoid(S_Kr, w))/2.19)
-        exp_Kt[j] = sum(np.sqrt(2*cumulative_trapezoid(S_Kt, w))/2.19)
+        exp_Kr[j] = sum(cumulative_trapezoid(S_Kr, w))
+        exp_Kt[j] = sum(cumulative_trapezoid(S_Kt, w))
 
         KT.append(Kt)
         KR.append(Kr)
@@ -87,11 +88,10 @@ plt.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.savefig('irr_coeffs.pdf')
 
-# # Save the data to the corresponding .csv file
-# with open(file_path, mode='w', newline='') as file:
-#     writer = csv.writer(file)
-#     header = ['Omega'] + [f'Kt_{i+1}' for i in range(len(exp_Kt))] + [f'Kr_{i+1}' for i in range(len(exp_Kr))]
-#     writer.writerow(header)
-#     for i in range(5):
-#         row = [w[i]] + [exp_Kt[i][j] for j in range(len(exp_Kt))] + [exp_Kr[i][j] for j in range(len(exp_Kr))]
-#         writer.writerow(row)
+# Save the data to the corresponding .csv file
+with open(file_path, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    header = ['Device Number'] + [f'Kt_{i+1}' for i in range(len(exp_Kt))] + [f'Kr_{i+1}' for i in range(len(exp_Kr))]
+    writer.writerow(header)
+    row = exp_Kt + exp_Kr
+    writer.writerow(row)

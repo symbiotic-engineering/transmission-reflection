@@ -25,7 +25,7 @@ def get_spectra(w):
     return S_pm
 
 # # Main script
-# w = np.linspace(0.45,1.3,40)#np.array([0.48332195,0.57119866,0.6981317,0.8975979,1.25663706])  # Frequencies in rad/s
+# w = np.linspace(0.2,1.5,60)#np.array([0.48332195,0.57119866,0.6981317,0.8975979,1.25663706])  # Frequencies in rad/s
 
 # # Adjust font sizes
 # plt.rcParams.update({
@@ -39,16 +39,20 @@ def get_spectra(w):
 
 # # Use a colorblind-friendly color palette
 # colors = ["#0072B2", "#D55E00", "#CC79A7", "#009E73"]  # Blue, Vermilion, Yellow, Green
+# #cud_colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7', '#000000','#F5C200']
 
 # plt.figure(figsize=(12, 8))
 # spectra = get_spectra(w)                                             # compute spectra
-# plt.plot(w, spectra, color=colors[0], linewidth=4)
+# plt.plot(w, spectra, label='Pierson-Moskowitz Spectrum',color=colors[1], linewidth=4)
+# print(max(spectra))
+# plt.plot(0.57119866,max(spectra),'*',color=colors[3],markersize=30,label='Peak Frequency')
 
 # # Plot settings
 # plt.xlabel('$\omega$ [rad/s]')
-# plt.ylabel('Spectral Density [$m^2/\omega$]')
+# plt.ylabel('Spectral Density [$\\frac{m^2-s}{rad}$]')
+# plt.legend()
 # plt.grid()
-# plt.savefig('pm_spectrum.pdf')
+# plt.savefig('pm_spectrum.pdf',bbox_inches='tight')
 
     ##### these parameters are for finding the JONSWAP spectrum. but we are in deep water, so we need
     ##### pierson-moskowitz spectrum instead

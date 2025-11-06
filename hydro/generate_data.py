@@ -2,7 +2,7 @@
 and save the .csv files in the "data" folder. This data can then 
 be easily used for post processing in the "post_pro" folder'''
 
-'''LAST UPDATE" OCT 16TH 2025'''
+'''LAST UPDATE" NOV 6TH 2025'''
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,7 +10,7 @@ import csv
 import run_coeffs
 import os
 
-w = (2*np.pi)/np.array([5,7,9,11,13])  # wave frequency 0.7, 0.8, 0.9, 
+w = (2*np.pi)/np.array([5,6,7,8,9,10,11,12])  # wave frequency 0.7, 0.8, 0.9, 
 
 # Define the combinations of True and False for your parameters
 combinations = [
