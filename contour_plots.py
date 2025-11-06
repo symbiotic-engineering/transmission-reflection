@@ -21,7 +21,7 @@ data_folder = 'data/'
 file_paths = [
     #'blank.csv',
     #'OSr_1a.csv', 
-    'OS_SF.csv'
+    'PA_SF.csv'
 ]
 
 # Generate x and y coordinates
@@ -56,7 +56,7 @@ for file_name in file_paths:
     cbar = plt.colorbar()                                                   # Create the colorbar
     cbar.set_label('Wave Height [m]', fontsize=16)                          # Set the label with the desired font size
     cbar.ax.tick_params(labelsize=14)                                       # Set the font size for the colorbar ticks
-    plt.scatter(wecx, wecy, marker='_', color='red', s=10, linewidth=2)
+    plt.scatter(wecx, wecy, marker='o', color='red', s=2, linewidth=2)
     plt.xlabel('x [m]', fontsize=20)
     plt.ylabel('y [m]', fontsize=20)
     plt.xticks(fontsize=15)

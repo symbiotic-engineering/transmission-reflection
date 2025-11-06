@@ -40,7 +40,7 @@ for fp in file_paths[1:]:  # Skip the 'blank.csv'
 results_list = []
 
 # Define the nautical miles of interest and corresponding indices
-nautical_miles = np.array([0.25, 0.5, 1.0, 1.5, 2])
+nautical_miles = np.array([0.5,1.0,2.0])
 nautical_miles_conversion = 1852  # Conversion factor from meters to nautical miles
 
 # for plotting only
@@ -83,7 +83,7 @@ plt.xlabel('x [m]',fontsize=20)
 plt.legend(loc='upper right',fontsize=20)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
-plt.ylim([0,3])
+#plt.ylim([0,3])
 ax = plt.gca()
 ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 #plt.text(1.025, 1.05, 'a', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')

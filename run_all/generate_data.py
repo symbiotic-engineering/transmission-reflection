@@ -12,10 +12,10 @@ import big_run
 # Define the combinations and their corresponding file names
 file_map = {
     # point absorber
-    (True,False,True): ('PA_SF.csv', 'PA_SF_damp.csv'),
+    (True,False,True): ('PA_SF.csv', 'PA_spectra_damp.csv'),
     #(True,False,True): ('PA_large.csv','PA_damp.csv')
     # oscillating surge
-    (False, True, True): ('OS_SF.csv', 'OS_SF_damp.csv')
+    (False, True, True): ('OS_SF.csv', 'OS_spectra_damp.csv')
     #(False, False, False, False, True, False, True, True, False, False): ('OS_2.csv', 'OS_uncont.csv')
 }
 
@@ -39,7 +39,7 @@ for key, (output_filename, csv_file_name) in file_map.items():
     output_filepath = os.path.join(data_dir, output_filename)
 
     # Construct the path to the CSV file being read (in hydro/data/)
-    hydro_data_dir = os.path.join(base_dir, 'hydro', 'data')
+    hydro_data_dir = os.path.join(base_dir, 'irregular', 'data')
     csv_file = os.path.join(hydro_data_dir, csv_file_name)
 
     sfgrid_dat = big_run.farfield(point_absorber, oscillating_surge,controls,H, T, xgrid, ygrid, csv_file)

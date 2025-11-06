@@ -51,16 +51,16 @@ def farfield(point_absorber,oscillating_surge,controls,H,T,xgrid,ygrid,csv_file)
         # Read the CSV file into a DataFrame
         df = pd.read_csv(csv_file)
 
-        KT = [df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
-              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
-              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
-              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4],
-              df.iloc[0, 1], df.iloc[0, 2], df.iloc[0, 3],df.iloc[0, 4]]
-        KR = [df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
-              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
-              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
-              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8],
-              df.iloc[0, 5], df.iloc[0, 6], df.iloc[0, 7],df.iloc[0, 8]]
+        KT = [df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3]]
+        KR = [df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7]]
 
         # Print results
         print("KR:", KR)
