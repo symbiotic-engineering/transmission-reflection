@@ -21,7 +21,7 @@ data_folder = 'data/'
 file_paths = [
     #'blank.csv',
     #'OSr_1a.csv', 
-    'PA_SF.csv'
+    'OS_SF.csv'
 ]
 
 # Generate x and y coordinates
@@ -33,6 +33,11 @@ for file_name in file_paths:
     # Load data
     file_path = os.path.join(data_folder, file_name)
     data = load_and_reshape(file_path)
+
+    blank_filepath = os.path.join(data_folder, 'blank.csv')
+    blank = load_and_reshape(blank_filepath)
+
+    data = data/blank
 
     x1, x2, x3, x4 = 1490,1550,1460,1520
     x_pos = [x1,x2,x3,x4,
@@ -51,12 +56,12 @@ for file_name in file_paths:
             ya,ya,yb,yb]
     
     # Plot contour and scatter
-    pcm = plt.pcolormesh(x, y, data,vmin=1.95, vmax=2.25)#, levels=100, cmap='viridis')
+    pcm = plt.pcolormesh(x, y, data)    #,vmin=1.95, vmax=2.25)#, levels=100, cmap='viridis')
     pcm.set_edgecolor("face")
     cbar = plt.colorbar()                                                   # Create the colorbar
-    cbar.set_label('Wave Height [m]', fontsize=16)                          # Set the label with the desired font size
+    cbar.set_label('Disturbance [m/m]', fontsize=16)                          # Set the label with the desired font size
     cbar.ax.tick_params(labelsize=14)                                       # Set the font size for the colorbar ticks
-    plt.scatter(wecx, wecy, marker='o', color='red', s=2, linewidth=2)
+    plt.scatter(wecx, wecy, marker='_', color='red', s=10, linewidth=2)
     plt.xlabel('x [m]', fontsize=20)
     plt.ylabel('y [m]', fontsize=20)
     plt.xticks(fontsize=15)

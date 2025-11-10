@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import cumulative_trapezoid
 from scipy.integrate import simps
+from scipy.integrate import quad
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 hydro_dir = os.path.join(parent_dir, 'hydro')
@@ -25,7 +26,7 @@ def get_coefficients(csv_file):
     S_KR = []
     S_KT = []
 
-    S_pm = piersonmos.get_spectra(w)
+    S_pm, PDF = piersonmos.get_spectra(w)
 
     for j in range(4):
         S_Kr = [[],[],[],[],[],[],[],[]]
@@ -38,21 +39,25 @@ def get_coefficients(csv_file):
             S_Kr[i] = S_pm[i] * Kr[i]**2
             S_Kt[i] = S_pm[i] * Kt[i]**2
 
-        # expected coefficients
-        exp_Kr[j] = sum(cumulative_trapezoid(S_Kr, w))
-        exp_Kt[j] = sum(cumulative_trapezoid(S_Kt, w))
+        Hs = 2.19
+        m0kt = simps(S_Kt, w)
+        m0kr = simps(S_Kr, w)
+        Hskt = 4*np.sqrt(m0kt)
+        Hskr = 4*np.sqrt(m0kr)
+        exp_Kt[j] = Hskt/Hs
+        exp_Kr[j] = Hskr/Hs
 
         KT.append(Kt)
         KR.append(Kr)
         S_KR.append(S_Kr)
         S_KT.append(S_Kt)
 
-    print('expected Kr', exp_Kr)
     print('expected Kt',exp_Kt)
+    print('expected Kr', exp_Kr)
 
     return exp_Kt, exp_Kr, KT, KR, S_KR, S_KT
 
-csv_file_name = 'PA_spectra_damp.csv'
+csv_file_name = 'OS_spectra_damp.csv'
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 hydro_data_dir = os.path.join(base_dir, 'hydro', 'data')
 csv_file = os.path.join(hydro_data_dir, csv_file_name)
@@ -64,7 +69,7 @@ file_path = os.path.join(data_folder, file_name)
 exp_Kt, exp_Kr, KT, KR, S_KR, S_KT = get_coefficients(csv_file)
 
 wS = np.linspace(0.45,1.3,40)
-S_pm = piersonmos.get_spectra(wS)
+S_pm, PDF = piersonmos.get_spectra(wS)
 
 
 colors = ['#377eb8', '#4daf4a']
