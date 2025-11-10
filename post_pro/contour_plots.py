@@ -4,8 +4,8 @@ import os
 import pandas as pd
 
 # Constants
-mxc = 150   #300
-myc = 250   #500
+mxc = 300
+myc = 500
 xgrid = 3000  # Total width in meters
 ygrid = 5000  # Total height in meters
 
@@ -15,13 +15,13 @@ def load_and_reshape(file_path):
     return data.reshape(myc + 1, mxc + 1)
 
 # Set the correct data folder path
-data_folder = 'data/'
+data_folder = '../data/'
 
 # Define file paths
 file_paths = [
     #'blank.csv',
     #'OSr_1a.csv', 
-    'OS_SF.csv'
+    'PA_SF.csv'
 ]
 
 # Generate x and y coordinates
@@ -48,7 +48,7 @@ for file_name in file_paths:
     ya, yb = 4500, 4460
 
     # Calculate wecx and wecy for the scatter plot
-    wecx = [i + 10 for i in x_pos]
+    wecx = [i + 0 for i in x_pos]
     wecy = [ya,ya,yb,yb,
             ya,ya,yb,yb,
             ya,ya,yb,yb,
@@ -56,18 +56,18 @@ for file_name in file_paths:
             ya,ya,yb,yb]
     
     # Plot contour and scatter
-    pcm = plt.pcolormesh(x, y, data)    #,vmin=1.95, vmax=2.25)#, levels=100, cmap='viridis')
+    pcm = plt.pcolormesh(x, y, data,vmin=0.80,vmax=1.00)    #,vmin=1.95, vmax=2.25)#, levels=100, cmap='viridis')
     pcm.set_edgecolor("face")
     cbar = plt.colorbar()                                                   # Create the colorbar
-    cbar.set_label('Disturbance [m/m]', fontsize=16)                          # Set the label with the desired font size
+    cbar.set_label('Disturbance [m/m]', fontsize=16,rotation=270,labelpad=20)                          # Set the label with the desired font size
     cbar.ax.tick_params(labelsize=14)                                       # Set the font size for the colorbar ticks
-    plt.scatter(wecx, wecy, marker='_', color='red', s=10, linewidth=2)
+    plt.scatter(wecx, wecy, marker='o', color='red', s=2, linewidth=2)
     plt.xlabel('x [m]', fontsize=20)
-    plt.ylabel('y [m]', fontsize=20)
+    #plt.ylabel('y [m]', fontsize=20)
     plt.xticks(fontsize=15)
     plt.yticks(fontsize=15)
     ax = plt.gca()
-    #ax.tick_params(left=False, bottom=True, labelleft=False, labelbottom=True)
+    ax.tick_params(left=False, bottom=True, labelleft=False, labelbottom=True)
     #plt.text(1.025, 1.10, 'e', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
     
     # Save plot as PDF

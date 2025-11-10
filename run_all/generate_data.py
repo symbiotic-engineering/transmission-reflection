@@ -12,11 +12,10 @@ import big_run
 # Define the combinations and their corresponding file names
 file_map = {
     # point absorber
+    #(True,False,True): ('blank.csv','PA_spectra_damp.csv')
     (True,False,True): ('PA_SF.csv', 'PA_spectra_damp.csv'),
-    #(True,False,True): ('PA_large.csv','PA_damp.csv')
     # oscillating surge
     (False, True, True): ('OS_SF.csv', 'OS_spectra_damp.csv')
-    #(False, False, False, False, True, False, True, True, False, False): ('OS_2.csv', 'OS_uncont.csv')
 }
 
 # input parameters from SouthFork Wind location                           

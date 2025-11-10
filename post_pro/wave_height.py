@@ -4,8 +4,8 @@ import os
 import pandas as pd
 
 # Constants
-mxc = 150   #300
-myc = 250   #500
+mxc = 300
+myc = 500
 xgrid = 3000  # Total width in meters
 ygrid = 5000  # Total height in meters
 
@@ -15,7 +15,7 @@ def load_and_reshape(file_path):
     return data.reshape(myc + 1, mxc + 1)
 
 # Set the correct data folder path
-data_folder = '../../data/'
+data_folder = '../data/'
 
 # Define file paths
 file_paths = [
@@ -40,7 +40,7 @@ for fp in file_paths[1:]:  # Skip the 'blank.csv'
 results_list = []
 
 # Define the nautical miles of interest and corresponding indices
-nautical_miles = np.array([0.5,1.0,2.0])
+nautical_miles = np.array([2.0,1.5,1.0,0.5,0.25])
 nautical_miles_conversion = 1852  # Conversion factor from meters to nautical miles
 
 # for plotting only
@@ -57,7 +57,7 @@ for i, file_path in enumerate(file_paths[1:]):  # Skip the 'blank.csv'
     
     # Extract percent difference at x_center from y_start to y = 0
     x_range = np.linspace(0,xgrid,mxc)*mxc/xgrid
-    nautical_string = ['2.0 nm','1.5 nm','1.0 nm','0.5 nm','0.25 nm']
+    nautical_string = ['0.25 nm','0.5 nm','1.0 nm','1.5 nm','2.0 nm']
 
     y_range = np.linspace(y_start * (ygrid / myc), 0, y_start + 1)
     plt.figure(figsize=(8,6))
@@ -83,7 +83,7 @@ plt.xlabel('x [m]',fontsize=20)
 plt.legend(loc='upper right',fontsize=20)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
-#plt.ylim([0,3])
+plt.ylim([0,7])
 ax = plt.gca()
 ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 #plt.text(1.025, 1.05, 'a', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')

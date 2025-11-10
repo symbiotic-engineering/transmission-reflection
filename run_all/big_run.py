@@ -31,8 +31,8 @@ import gen_data
 import run_swan
 
 def farfield(point_absorber,oscillating_surge,controls,H,T,xgrid,ygrid,csv_file):
-    mxc = int(xgrid/20)                                   # number of grid points in x (-1) (10 m res in x)
-    myc = int(ygrid/20)                                   # number of grid points in y (-1) (10 m res in y)
+    mxc = int(xgrid/10)                                   # number of grid points in x (-1) (10 m res in x)
+    myc = int(ygrid/10)                                   # number of grid points in y (-1) (10 m res in y)
 
     x1, x2, x3, x4 = 1490,1550,1460,1520
     #x = [x1,x2,x3,x4]
