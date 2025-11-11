@@ -22,7 +22,7 @@ file_paths = [
     'blank.csv',
     #'OSr_1a.csv', 
     #'OSr_2a.csv',
-    'PA_SF.csv'
+    'OS_SF.csv'
     #'PA_2.csv'
 ]
 
@@ -40,7 +40,7 @@ for fp in file_paths[1:]:  # Skip the 'blank.csv'
 results_list = []
 
 # Define the nautical miles of interest and corresponding indices
-nautical_miles = np.array([2.0,1.5,1.0,0.5,0.25])
+nautical_miles = np.array([0.25,0.50,1.0,1.5,2.0])
 nautical_miles_conversion = 1852  # Conversion factor from meters to nautical miles
 
 # for plotting only
@@ -62,8 +62,9 @@ for i, file_path in enumerate(file_paths[1:]):  # Skip the 'blank.csv'
     y_range = np.linspace(y_start * (ygrid / myc), 0, y_start + 1)
     plt.figure(figsize=(8,6))
     for j in range(np.size(nautical_miles)):
-        y_dists_nautical = int(nautical_miles[j] * nautical_miles_conversion * myc/ygrid)
+        y_dists_nautical = y_start - int(nautical_miles[j] * nautical_miles_conversion * myc/ygrid)
         percent_diff = percent_differences[file_path][y_dists_nautical, int(x_range[0]):int(np.size(x_range))]
+        print('percentdiff',max(percent_diff))
         #[y_dists_nautical, int(x_range[0]):int(np.size(x_range))]
         
         # Reverse the order for the plot
@@ -79,8 +80,8 @@ for i, file_path in enumerate(file_paths[1:]):  # Skip the 'blank.csv'
 
 # Customize the plot
 plt.xlabel('x [m]',fontsize=20)
-#plt.ylabel('Wave Height Reduction [%]',fontsize=20)
-plt.legend(loc='upper right',fontsize=20)
+plt.ylabel('Wave Height Reduction [%]',fontsize=20)
+#plt.legend(loc='upper right',fontsize=20)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
 plt.ylim([0,7])
@@ -88,7 +89,7 @@ ax = plt.gca()
 ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 #plt.text(1.025, 1.05, 'a', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
 plt.tight_layout()
-plt.savefig('PASFwvht.pdf')
+plt.savefig('OSSFwvht.pdf')
 plt.show()
 
 #     # Extract percent difference at x_center from y_start to y = 0

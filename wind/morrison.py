@@ -6,7 +6,7 @@ z = 0               # evaluating at z=0 [m]
 d = 10.97           # diameter of turbine
 x = -d / 2          # edge of turbine setting x=0 to turbine center [m]
 w = 1.25            # dominant frequency [rad/s]
-H_base = 0.8        # baseline wave height [m]
+H_base = 2.19        # baseline wave height [m]
 rho = 1025          # density of seawater [kg/m^3]
 g = 9.81            # gravitational constant [m/s^2]
 k = w**2 / g        # wave number
@@ -26,7 +26,7 @@ I = ((mass * (R**2 + r**2)) / 4) + ((mass * L**2) / 12)  # moment of inertia abo
 y = R                                                    # distance to centroidal axis
 
 T = 2 * np.pi / w                                        # wave period [s]
-H_values = np.linspace(0.92, 0.98, 30) * H_base
+H_values = np.linspace(0.9358, 0.99, 30) * H_base
 percent_reduction_H = (1 - H_values / H_base) * 100      # percent reduction in H
 
 def calculate_damage(H):
@@ -62,6 +62,7 @@ D_base = calculate_damage(H_base)
 
 # Calculate percent difference of D for each H
 percent_diff_D = [(calculate_damage(H) - D_base) / D_base * 100 for H in H_values]
+print('percent dif',percent_diff_D)
 
 # Plotting
 plt.figure(figsize=(8, 6))
