@@ -13,7 +13,7 @@ g = 9.81
 k = w**2/g
 reactive = False                         # whether controls are engaged
 het = False                              # decide if analyzing hetero or homogeneous array
-PA = True                                # IF doing homogeneous array, this determines which architecture
+PA = False                                # IF doing homogeneous array, this determines which architecture
 res = 40                                 # grid resolution multiplier
 
 array = bodies.initialize(het,PA)             # create meshed array
@@ -283,16 +283,16 @@ for i in range(np.size(w)):
     ax.spines['right'].set_visible(False)
     #colorbar.set_label(r"Total Wave Elevation, $\eta$")
     plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 45,edgecolors='white')
-    plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c',edgecolors='white')
-    plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c',edgecolors='white')
-    #wecx = [[0.025,0.025],[0.025+Dx, 0.025+Dx]]
-    #plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
-    #plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
-    #wecx = [[-0.025,-0.025],[-0.025+Dx, -0.025+Dx]]
-    #plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
-    #plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
+    plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'c',edgecolors='white')
+    plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'c',edgecolors='white')
+    wecx = [[0.025,0.025],[0.025+Dx, 0.025+Dx]]
+    plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
+    plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
+    wecx = [[-0.025,-0.025],[-0.025+Dx, -0.025+Dx]]
+    plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
+    plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
     colorbar.set_label('Wave Amplitude [m]',rotation=270,fontsize=20,labelpad=28)
-    pcm.set_clim([0, 0.08])
+    pcm.set_clim([0.01, 0.06])
     plt.text(-2.5, -0.55,'Wave Direction',color='white',fontsize=16,fontweight='bold')
     plt.arrow(-2.5,-0.65,1.75,0,facecolor='white',width=0.035)
     plt.tight_layout()

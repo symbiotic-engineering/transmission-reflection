@@ -4,8 +4,6 @@ This code finds the transmission (Kt) and reflection coefficients (Kr) for diffe
 
 1. Heaving Point Absorber Wave Energy Converter
 2. Oscillating Surge Wave Energy Converter
-3. Attenuator Wave Energy Converter
-4. Floating Breakwater
 
 The transmission and reflection coefficients are calculated in the "hydro" folder using the "run_coeffs.py" script. More details are found in the folder README.md file. The SWAN command file is generated in the "swan" folder. To alter the input commands, see the SWAN documentation (linked above) for details on their functions. The using the "big_run.py" script in the "run_all" folder will do all of the following:
 
