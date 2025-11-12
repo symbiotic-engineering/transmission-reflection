@@ -39,9 +39,9 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
     
     # Define simple optimal PTO damping and stiffness for reactive control:
     if reactive:
-        #B_pto = B
+        B_pto = B
         #K_pto = w**2*(M+A)-K  
-        B_pto = 0
+        #B_pto = 0
         K_pto = 0
     else:
         B_pto = 0
@@ -55,8 +55,6 @@ def RAO(diff_prob,diff_result,dataset,body,w,reactive,b,PA,B_difference):
 
     RAO_controlled = ex_force/H
     k = w**2/9.81
-    print('H',H)
-    print('BPTO',B_pto)
     power = (0.5*abs(B_pto)*abs((w*H*0.03)**2))
     print('power',np.abs(power))
     

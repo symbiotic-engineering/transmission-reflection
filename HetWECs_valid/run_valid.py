@@ -142,7 +142,8 @@ ylocs = np.array([-0.866,-0.047,0.738,-0.011,-0.801,0.006,0.778]) - (-0.1410 - 0
 #                 [0.0317046622601134,0.0319120348567075,0.0316107026751978,0.0318513821422231,0.0306529411814004,0.0309335255946475,0.0289485796752484]]
 
 
-for i in range(np.size(w)):    
+for i in range(np.size(w)): 
+    i=4   
     print('running wave period: ',T[i])                                   
     RAO, diff_result, rad_result, ex_force, added_mass, damping, B_PTOemp, mech_power, dissipative_power = solve.hydro(array,B,depth,w[i],reactive,
                                                                             B_diffPA[i],B_diffOS[i],pos3RAOexp[i],
@@ -291,7 +292,7 @@ for i in range(np.size(w)):
     #plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
     #plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
     colorbar.set_label('Wave Amplitude [m]',rotation=270,fontsize=20,labelpad=28)
-    #pcm.set_clim([0, 2])
+    pcm.set_clim([0, 0.08])
     plt.text(-2.5, -0.55,'Wave Direction',color='white',fontsize=16,fontweight='bold')
     plt.arrow(-2.5,-0.65,1.75,0,facecolor='white',width=0.035)
     plt.tight_layout()
