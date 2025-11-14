@@ -80,6 +80,7 @@ def initialize(point_abs):
         body = OS    
     print(body)
     body.show_matplotlib()
+    plt.tight_layout()
     plt.savefig('body.pdf')
     #plt.clf
 
