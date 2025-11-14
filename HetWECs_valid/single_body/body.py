@@ -81,6 +81,6 @@ def initialize(point_abs):
     print(body)
     body.show_matplotlib()
     plt.savefig('body.pdf')
-    plt.clf()
+    #plt.clf
 
     return body
