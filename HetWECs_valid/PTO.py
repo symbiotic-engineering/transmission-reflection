@@ -64,6 +64,8 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
     H = -(w**2)*inertia - 1j*w*resistance + reactance 
 
     RAO_controlled = np.abs(np.linalg.solve(H,ex_force).ravel())
+    print('model RAO',RAO_controlled)
+    print('exp RAO',RAO)
     print('rao error',(RAO_controlled - RAO)/RAO)
 
     if PA:
@@ -78,9 +80,10 @@ def RAO(diff_prob,diff_result,dataset,array,w,reactive,b,B_diffPA,B_diffOS,
         k = w**2/g
         dissipative_power = 0.5*np.abs(np.diag(B))*(abs(wg_amp_exp*RAO*w*1j))**2
         mech_power = 0.5*np.abs(B_PTOemp)*(abs(wg_amp_exp*RAO_controlled*w*1j))**2
-        for i in range(2):
+        for i in range(2): # to account for k in the OSWEC calc
             dissipative_power[i] = 0.5*np.abs(np.diag(B)[i])*(abs(k*wg_amp_exp*RAO[i]*w*1j))**2
             mech_power[i] = 0.5*np.abs(B_PTOemp[i])*(abs(k*wg_amp_exp*RAO_controlled[i]*w*1j))**2
+    
     # print('dissipative_power',dissipative_power)
     # print('mech power',mech_power)
 

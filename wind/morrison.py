@@ -26,7 +26,7 @@ I = ((mass * (R**2 + r**2)) / 4) + ((mass * L**2) / 12)  # moment of inertia abo
 y = R                                                    # distance to centroidal axis
 
 T = 2 * np.pi / w                                        # wave period [s]
-H_values = np.linspace(0.9358, 0.99, 30) * H_base
+H_values = np.linspace(0.98, 0.99, 30) * H_base       #0.9358
 percent_reduction_H = (1 - H_values / H_base) * 100      # percent reduction in H
 
 def calculate_damage(H):

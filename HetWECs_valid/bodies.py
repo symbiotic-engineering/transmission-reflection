@@ -75,7 +75,7 @@ def initialize(het,PA):
         ]
 
         OS_bodies = [
-            create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': pos}, OS_com, 'Surge', name)
+            create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': pos}, OS_com, 'Pitch', name)
             for pos, name in zip(OS_positions, OS_names)
         ]
 
@@ -102,7 +102,7 @@ def initialize(het,PA):
             OS_positions = [(x_start, y_start, z_flap), (x_start, y_start + Dy, z_flap), (x_start + Dx, y_start + (1/2)*Dy, z_flap), (x_start + Dx, y_start + (3/2)*Dy, z_flap)]
             OS_names = ['rect', 'rect2','rect3','rect4']
             OS_bodies = [
-                create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': pos}, OS_com, 'Surge', name)
+                create_floating_body(cpt.meshes.predefined.rectangles.mesh_parallelepiped, {**oswec_mesh_args, 'center': pos}, OS_com, 'Pitch', name)
                 for pos, name in zip(OS_positions, OS_names)
             ]
             OS, OS2, OS3, OS4 = OS_bodies

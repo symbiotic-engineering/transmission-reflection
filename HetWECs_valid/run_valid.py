@@ -7,12 +7,12 @@ import solve
 
 B = 0                                    # wave heading [rad]
 depth = 1.37                                            # water depth at basin [m]
-T = np.array([1.00,1.20,1.25,1.33,1.39])        # wave period from exp [s] (only 1.003,1.254,1.3 for PTO engaged tests. 1.0,1.2,1.25,1.33,1.39 for PTO disengaged)
+T = np.array([1.0,1.2,1.25,1.33,1.39])        # wave period from exp [s] (only 1.003,1.254,1.3 for PTO engaged tests. 1.0,1.2,1.25,1.33,1.39 for PTO disengaged)
 w = (2*np.pi)/T                                         # wave frequency [rad/s]
 g = 9.81
 k = w**2/g
 reactive = False                         # whether controls are engaged
-het = False                              # decide if analyzing hetero or homogeneous array
+het = True                              # decide if analyzing hetero or homogeneous array
 PA = False                                # IF doing homogeneous array, this determines which architecture
 res = 40                                 # grid resolution multiplier
 
@@ -38,16 +38,17 @@ B_diffPA = (BdPA_num/BdPA_den) * np.exp(1j*(-0.0176*w**2 + 0.1140*w + 1.3173))
 
 if het:
     # wave heading = 0deg
-    # pos1RAOexp = virRAOexp = np.array([323.381890238651,361.268452383110,346.366992147017,322.459657109623,385.006028894270])*(np.pi/180)/k
-    # pos2RAOexp = franRAOexp = np.array([393.634896229757,384.644580468920,338.447782918374,316.329978665478,396.131175641520])*(np.pi/180)/k
-    # pos3RAOexp = megRAOexp = np.array([0.819664657814324,0.916166493356739,0.887306516520389,0.863314218351526,0.992867758219807])
-    # pos4RAOexp = joRAOexp = np.array([0.477702270828799,0.848824917334879,0.680824985210178,0.713990464053677,0.958269910240572])
+    pos1RAOexp = virRAOexp = np.array([323.381890238651,361.268452383110,346.366992147017,322.459657109623,385.006028894270])*(np.pi/180)/k
+    pos2RAOexp = franRAOexp = np.array([393.634896229757,384.644580468920,338.447782918374,316.329978665478,396.131175641520])*(np.pi/180)/k
+    pos3RAOexp = megRAOexp = np.array([0.819664657814324,0.916166493356739,0.887306516520389,0.863314218351526,0.992867758219807])
+    pos4RAOexp = joRAOexp = np.array([0.477702270828799,0.848824917334879,0.680824985210178,0.713990464053677,0.958269910240572])
 
-    # ## RAOS for PTO engaged, het 4b, wave heading = 0 deg
-    pos1RAOexp = virRAOexp = np.array([184.572145311627,195.391623861709,165.997190210489])*(np.pi/180)/k
-    pos2RAOexp = franRAOexp = np.array([131.852630012738,153.262515441623,241.872472048376])*(np.pi/180)/k
-    pos3RAOexp = megRAOexp = np.array([0.773495530727839,0.770132236212850,0.700512165810569])
-    pos4RAOexp = joRAOexp = np.array([0.258407324729989,0.106376997648463,0.0307451184177340])
+    # # ## RAOS for PTO engaged, het 4b, wave heading = 0 deg
+    # pos1RAOexp = virRAOexp = np.array([184.572145311627,195.391623861709,165.997190210489])*(np.pi/180)/k
+    # pos2RAOexp = franRAOexp = np.array([131.852630012738,153.262515441623,241.872472048376])*(np.pi/180)/k
+    # pos3RAOexp = megRAOexp = np.array([0.773495530727839,0.770132236212850,0.700512165810569])
+    # pos4RAOexp = joRAOexp = np.array([0.258407324729989,0.106376997648463,0.0307451184177340])
+
     wg_amp_exp = [[0.0271001377023135,0.0271518594998106,0.0317101227436801,0.0305814292411126,0.0285243477321362,0.0309702026438246,0.0303419596990442,0.0283591018763499,0.0300412907912616,0.0281435905492679,0.0270730402739711,0.0338183752615616,0.0270370300381844,0.0295137086925206,0.0260453422202349,0.0287964013019899,0.0269037505545165,0.0282456811345229,0.0256869653285800,0.0293282597624868],
             [0.0289196478386149,0.0290085888801193,0.0293016927808884,0.0299330095377794,0.0274580384032014,0.0278862247252256,0.0293024788782696,0.0270892123511109,0.0296450247666850,0.0295105643398724,0.0294597712438405,0.0310798522784300,0.0375278068845319,0.0276542396724496,0.0274464094500479,0.0283311423453712,0.0280064439458710,0.0284816247895534,0.0268020520909686,0.0302121735079706],
             [0.0306355607721488,0.0308304127839021,0.0312193377291284,0.0309686925048478,0.0289144022925502,0.0314680987755509,0.0302383574314168,0.0304800508457759,0.0297975084239392,0.0289272418887703,0.0305087880032774,0.0325590913622133,0.0509598103045238,0.0287611322035312,0.0286706775629731,0.0285012221709443,0.0293273659641103,0.0311600192537584,0.0261310776528251,0.0314647557952294],
@@ -55,6 +56,8 @@ if het:
             [0.0299824467694356,0.0291153474476038,0.0297649730916295,0.0299288818116417,0.0300092916563760,0.0292879918684345,0.0293409328624384,0.0292989008413496,0.0286564104308741,0.0295620342035786,0.0299344126409254,0.0300159487209440,0.0285954627394524,0.0292123356680107,0.0301413802041583,0.0294534346444515,0.0265737363036346,0.0292520810644848,0.0257969010416849,0.0280258919140992]
 
     ]
+
+    wg_amp1 = [0.0271001377023135,0.0289196478386149,0.0306355607721488,0.0329472596447291,0.0299824467694356]
 
     # empirically derived damping coeff fits from array tests, PTO disengaged
     Bd1 = Bd_vir = (-1.5976e+04 + (28.3258 + 1.5976e+04)*np.exp(-np.exp(-5.2380 * (w - 3.1268)))) + 1j * (4.4473*w**2 -14.0340*w + 39.6260)
@@ -142,8 +145,7 @@ ylocs = np.array([-0.866,-0.047,0.738,-0.011,-0.801,0.006,0.778]) - (-0.1410 - 0
 #                 [0.0317046622601134,0.0319120348567075,0.0316107026751978,0.0318513821422231,0.0306529411814004,0.0309335255946475,0.0289485796752484]]
 
 
-for i in range(np.size(w)): 
-    i=4   
+for i in range(np.size(w)):    
     print('running wave period: ',T[i])                                   
     RAO, diff_result, rad_result, ex_force, added_mass, damping, B_PTOemp, mech_power, dissipative_power = solve.hydro(array,B,depth,w[i],reactive,
                                                                             B_diffPA[i],B_diffOS[i],pos3RAOexp[i],
@@ -151,7 +153,7 @@ for i in range(np.size(w)):
                                                                             Bd1[i],Bd2[i],Bd3[i],Bd4[i],PA,wg_amp1[i],het)   # compute RAOs, excitation force wg_amp_exp[i][0]
     #print('wg_amp',wg_amp_exp[i][0])
     ## time to compute the wave elevationnnnnnnnnn
-    total, incoming_fse, grid, radiation, diffraction, elevation_at_gauges = solve.elevation(res,diff_result,rad_result,RAO,xlocs,ylocs,wg_amp1[i])
+    # total, incoming_fse, grid, radiation, diffraction, elevation_at_gauges = solve.elevation(res,diff_result,rad_result,RAO,xlocs,ylocs,wg_amp1[i])
     
     RAO_OS1.append(np.abs(RAO[0])*k[i]*180/np.pi/1000)
     RAO_OS2.append(np.abs(RAO[1])*k[i]*180/np.pi/1000)
@@ -193,49 +195,49 @@ for i in range(np.size(w)):
 # print('barr3',BPTO_PA3)
 # print('barr4',BPTO_PA4)
 
-    #emp_rad = wg_amp_exp[i] - (np.abs((elevation_at_gauges)))# + (emp_diffraction[i] / wg_diff_exp[i][0])*wg_amp_exp[i][0])
-    #emp_correction = (np.abs((elevation_at_gauges)) + emp_rad) #+ (emp_diffraction[i] / wg_diff_exp[i][0])*wg_amp_exp[i][0])
-    wave_amplitude[i].append(np.abs(elevation_at_gauges))
-    #emp_radiation[i].append(emp_rad)
+    # #emp_rad = wg_amp_exp[i] - (np.abs((elevation_at_gauges)))# + (emp_diffraction[i] / wg_diff_exp[i][0])*wg_amp_exp[i][0])
+    # #emp_correction = (np.abs((elevation_at_gauges)) + emp_rad) #+ (emp_diffraction[i] / wg_diff_exp[i][0])*wg_amp_exp[i][0])
+    # wave_amplitude[i].append(np.abs(elevation_at_gauges))
+    # #emp_radiation[i].append(emp_rad)
 
-    percent_error = -1*((wg_amp_exp[i] - np.abs(elevation_at_gauges))/wg_amp_exp[i])*100
-    error[i].append(percent_error)
-    #print('error',percent_error)
+    # percent_error = -1*((wg_amp_exp[i] - np.abs(elevation_at_gauges))/wg_amp_exp[i])*100
+    # error[i].append(percent_error)
+    # #print('error',percent_error)
 
-    plt.figure(figsize=(9, 6))
-    cm = plt.colormaps.get_cmap('seismic')
-    from matplotlib import colors
-    #plt.grid()
-    sc = plt.scatter(xlocs, ylocs, c=percent_error,s=400, cmap=cm, 
-                norm=colors.TwoSlopeNorm(vcenter=0.),label='Error [%]')
+    # plt.figure(figsize=(9, 6))
+    # cm = plt.colormaps.get_cmap('seismic')
+    # from matplotlib import colors
+    # #plt.grid()
+    # sc = plt.scatter(xlocs, ylocs, c=percent_error,s=400, cmap=cm, 
+    #             norm=colors.TwoSlopeNorm(vcenter=0.),label='Error [%]')
 
-    x_start = 13.086 + 1.55
-    y_start = -0.1410 - 0.50
-    Dx=Dy=40/50
-    wecx = [[0,0],[0+Dx, 0+Dx]] #[x_start, x_start],[x_start+Dx, x_start+Dx]]
-    wecy = [[0,0+Dy],[0 + (1/2)*Dy,0 + (3/2)*Dy]] #[y_start, y_start + Dy], [y_start + (1/2)*Dy,y_start + (3/2)*Dy]]
-    plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c')
-    plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c')
+    # x_start = 13.086 + 1.55
+    # y_start = -0.1410 - 0.50
+    # Dx=Dy=40/50
+    # wecx = [[0,0],[0+Dx, 0+Dx]] #[x_start, x_start],[x_start+Dx, x_start+Dx]]
+    # wecy = [[0,0+Dy],[0 + (1/2)*Dy,0 + (3/2)*Dy]] #[y_start, y_start + Dy], [y_start + (1/2)*Dy,y_start + (3/2)*Dy]]
+    # plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c')
+    # plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c')
 
-    for n, txt in enumerate(percent_error):
-        plt.annotate('{0:.2f}'.format(txt), (xlocs[n], ylocs[n]),xytext=(-12, 12),textcoords='offset points',weight="bold",fontsize=14)
+    # for n, txt in enumerate(percent_error):
+    #     plt.annotate('{0:.2f}'.format(txt), (xlocs[n], ylocs[n]),xytext=(-12, 12),textcoords='offset points',weight="bold",fontsize=14)
     
-    cbar = plt.colorbar(sc)
-    cbar.set_label('Error [%]',fontsize=20,rotation=270,labelpad=10)
-    plt.xticks(fontsize=16)
-    plt.yticks(fontsize=16)
-    plt.xlabel('x [m]',fontsize=20)
-    plt.ylabel('y [m]',fontsize=20)
-    ax = plt.gca()
-    cbar.ax.tick_params(labelsize=18) 
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    periodnames = ['1.0 s','1.20 s','1.25 s','1.33 s','1.39 s']
-    #plt.title('Model Error for ' + periodnames[i],fontsize=20)
-    plt.tight_layout()
-    names = ['1.0map','1.20map','1.25map','1.33map','1.39map']
-    plt.savefig(names[i] + '.pdf')
-    plt.clf()
+    # cbar = plt.colorbar(sc)
+    # cbar.set_label('Error [%]',fontsize=20,rotation=270,labelpad=10)
+    # plt.xticks(fontsize=16)
+    # plt.yticks(fontsize=16)
+    # plt.xlabel('x [m]',fontsize=20)
+    # plt.ylabel('y [m]',fontsize=20)
+    # ax = plt.gca()
+    # cbar.ax.tick_params(labelsize=18) 
+    # ax.spines['top'].set_visible(False)
+    # ax.spines['right'].set_visible(False)
+    # periodnames = ['1.0 s','1.20 s','1.25 s','1.33 s','1.39 s']
+    # #plt.title('Model Error for ' + periodnames[i],fontsize=20)
+    # plt.tight_layout()
+    # names = ['1.0map','1.20map','1.25map','1.33map','1.39map']
+    # plt.savefig(names[i] + '.pdf')
+    # plt.clf()
 
 #     # sc = plt.scatter(xlocs, ylocs, c=wg_amp_exp[i], vmin=0.020,vmax=0.050,s=300, cmap=cm)
 #     # plt.colorbar(sc)
@@ -266,42 +268,103 @@ for i in range(np.size(w)):
 #     # plt.savefig(names[i] + '.pdf')
 #     # plt.clf()
 
-    # plot wave elevation
-    Z = np.abs(np.abs((total)))
-    X = grid[0]
-    Y = grid[1]
-    pcm = plt.pcolormesh(X, Y, Z)
-    pcm.set_edgecolor('face')
-    colorbar = plt.colorbar()
-    plt.xticks(fontsize=16)
-    plt.yticks(fontsize=16)
-    plt.xlabel('x [m]',fontsize=20)
-    plt.ylabel('y [m]',fontsize=20)
-    ax = plt.gca()
-    colorbar.ax.tick_params(labelsize=18) 
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    #colorbar.set_label(r"Total Wave Elevation, $\eta$")
-    plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 45,edgecolors='white')
-    plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'c',edgecolors='white')
-    plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'c',edgecolors='white')
-    wecx = [[0.025,0.025],[0.025+Dx, 0.025+Dx]]
-    plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
-    plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
-    wecx = [[-0.025,-0.025],[-0.025+Dx, -0.025+Dx]]
-    plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
-    plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
-    colorbar.set_label('Wave Amplitude [m]',rotation=270,fontsize=20,labelpad=28)
-    pcm.set_clim([0.01, 0.06])
-    plt.text(-2.5, -0.55,'Wave Direction',color='white',fontsize=16,fontweight='bold')
-    plt.arrow(-2.5,-0.65,1.75,0,facecolor='white',width=0.035)
-    plt.tight_layout()
-    print('tip')
-    names = ['1.0amp','1.20amp','1.25amp','1.33amp','1.39amp']
-    plt.savefig(names[i] + '.pdf')
-    print('top')
-    plt.clf()
+    # # plot wave elevation
+    # Z = np.abs(np.abs((total)))
+    # X = grid[0]
+    # Y = grid[1]
+    # pcm = plt.pcolormesh(X, Y, Z)
+    # pcm.set_edgecolor('face')
+    # colorbar = plt.colorbar()
+    # plt.xticks(fontsize=16)
+    # plt.yticks(fontsize=16)
+    # plt.xlabel('x [m]',fontsize=20)
+    # plt.ylabel('y [m]',fontsize=20)
+    # ax = plt.gca()
+    # colorbar.ax.tick_params(labelsize=18) 
+    # ax.spines['top'].set_visible(False)
+    # ax.spines['right'].set_visible(False)
+    # #colorbar.set_label(r"Total Wave Elevation, $\eta$")
+    # plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 45,edgecolors='white')
+    # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'c',edgecolors='white')
+    # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'c',edgecolors='white')
+    # wecx = [[0.025,0.025],[0.025+Dx, 0.025+Dx]]
+    # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
+    # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
+    # wecx = [[-0.025,-0.025],[-0.025+Dx, -0.025+Dx]]
+    # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
+    # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
+    # colorbar.set_label('Wave Amplitude [m]',rotation=270,fontsize=20,labelpad=28)
+    # pcm.set_clim([0.01, 0.06])
+    # plt.text(-2.5, -0.55,'Wave Direction',color='white',fontsize=16,fontweight='bold')
+    # plt.arrow(-2.5,-0.65,1.75,0,facecolor='white',width=0.035)
+    # plt.tight_layout()
+    # print('tip')
+    # names = ['1.0amp','1.20amp','1.25amp','1.33amp','1.39amp']
+    # plt.savefig(names[i] + '.pdf')
+    # print('top')
+    # plt.clf()
 
+# # plot mechanical power wrt wave frequency
+# plt.plot(T,power_OS1,label='Virginia',color='#CC79A7',marker='*',markersize=14,linewidth=3)
+# plt.plot(T,power_OS2,label='Frances',color='#009E73',marker='s',markersize=8,linewidth=2,linestyle=(0, (3, 1, 1, 1, 1, 1)))
+# plt.plot(T,power_PA3,label='Meg',color='#F0E442',marker='>',markersize=12,linewidth=2)
+# plt.plot(T,power_PA4,label='Jo',color='#56B4E9',marker='o',markersize=12,linewidth=2)
+
+# plt.xticks(ticks=T,fontsize=15)
+# plt.xticks(fontsize=15)
+# plt.yticks(fontsize=15)
+# plt.xlabel('Period [s]',fontsize=20)
+# plt.ylabel('Mechanical Power [W]',fontsize=18)
+# plt.grid()
+# plt.legend(fontsize=15, markerscale=1)
+# plt.tight_layout()
+# plt.savefig('mechpower.pdf')
+# plt.clf()
+
+# plot wave excitation force wrt wave frequency
+# experimental excitation force values for wave amplitude=0.03m
+meg_expForce = [7.61910953496448,12.8949768028423,10.9507527158557,8.28503527198362,8.12149971889821]
+jo_expForce = [3.92700232542561,11.4007200108703,10.6365894244117,3.47332378344201,3.46865518284154]
+
+megforce_diff = ((np.abs(ex_PA3)*0.03 - meg_expForce)/meg_expForce)*100
+joforce_diff = ((np.abs(ex_PA4)*0.03 - jo_expForce)/jo_expForce)*100
+
+plt.plot(T,megforce_diff,label='Meg',color='#F0E442',linewidth=2,marker='>',markersize=4)
+plt.plot(T,joforce_diff,label='Jo',color='#56B4E9',linewidth=2,marker='o',markersize=4)
+#plt.scatter(T,meg_expForce,color='#F0E442',marker='>',s=100)
+#plt.scatter(T,jo_expForce,color='#56B4E9',marker='o',s=100)
+plt.xticks(ticks=T,fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.xlabel('Period [s]',fontsize=20)
+plt.ylabel('Excitation Force Error [%]',fontsize=18)
+plt.grid()
+plt.legend(fontsize=15, markerscale=1)
+plt.tight_layout()
+plt.savefig('PAexerror.pdf')
+plt.clf()
+
+os_draft = 0.06675
+fran_expForce = np.array([3.34009800020342,2.92606897575920,3.19918501934958,4.74002056039565,5.62917243202883])*os_draft
+vir_expForce = np.array([2.95452990658378,3.08803369877205,3.58421575315559,3.96515711714421,3.98887678219309])*os_draft
+
+franforce_diff = ((np.abs(ex_OS2)*0.03 - fran_expForce)/fran_expForce)*100
+virforce_diff = ((np.abs(ex_OS1)*0.03 - vir_expForce)/vir_expForce)*100
+
+plt.plot(T,virforce_diff,label='Virginia',color='#CC79A7',linewidth=2,marker='*',markersize=4)
+plt.plot(T,franforce_diff,label='Frances',color='#009E73',linewidth=2,marker='s',markersize=4)
+#plt.scatter(T,vir_expForce,color='#CC79A7',marker='*',s=100)
+#plt.scatter(T,fran_expForce,color='#009E73',marker='s',s=100)
+plt.xticks(ticks=T,fontsize=15)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.xlabel('Period [s]',fontsize=20)
+plt.ylabel('Excitation Torque Error [%]',fontsize=18)
+plt.grid()
+plt.legend(fontsize=15, markerscale=1)
+plt.tight_layout()
+plt.savefig('OSexerror.pdf')
+plt.clf()
 # # plot all experimental results to find trend
 # #print('empirical diffraction correction: ',emp_diffraction)
 
@@ -320,26 +383,9 @@ for i in range(np.size(w)):
 # plt.savefig('percent_error.pdf')
 # # plt.clf()
 
-# plot RAO wrt wave frequency
-plt.plot(T,power_OS1,label='Virginia',color='#CC79A7',marker='*',markersize=14,linewidth=3)
-plt.plot(T,power_OS2,label='Frances',color='#009E73',marker='s',markersize=8,linewidth=2,linestyle=(0, (3, 1, 1, 1, 1, 1)))
-plt.plot(T,power_PA3,label='Meg',color='#F0E442',marker='>',markersize=12,linewidth=2)
-plt.plot(T,power_PA4,label='Jo',color='#56B4E9',marker='o',markersize=12,linewidth=2)
-
-plt.xticks(ticks=T,fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel('Period [s]',fontsize=20)
-plt.ylabel('Mechanical Power [W]',fontsize=18)
-plt.grid()
-plt.legend(fontsize=15, markerscale=1)
-plt.tight_layout()
-plt.savefig('test.pdf')
-plt.clf()
-
 # # plot the PAs
-# plt.plot(T,RAO_PA3,label='Meg: Model',color='#F0E442',marker='>',markersize=12,linewidth=2)
-# plt.plot(T,RAO_PA4,label='Jo: Model',color='#56B4E9',marker='o',markersize=12,linewidth=2)
+# plt.plot(T,RAO_PA3,label='Meg',color='#F0E442',marker='>',markersize=12,linewidth=2)
+# plt.plot(T,RAO_PA4,label='Jo',color='#56B4E9',marker='o',markersize=12,linewidth=2)
 
 # plt.xticks(ticks=T,fontsize=15)
 # plt.xticks(fontsize=15)
@@ -350,6 +396,21 @@ plt.clf()
 # plt.legend(fontsize=15, markerscale=1)  #,loc='lower left')
 # plt.tight_layout()
 # plt.savefig('PA_RAOs.pdf')
+# plt.clf()
+
+# # plot the OSWECs
+# plt.plot(T,RAO_OS1,label='Virginia',color='#F0E442',marker='>',markersize=12,linewidth=2)
+# plt.plot(T,RAO_OS2,label='Frances',color='#56B4E9',marker='o',markersize=12,linewidth=2)
+
+# plt.xticks(ticks=T,fontsize=15)
+# plt.xticks(fontsize=15)
+# plt.yticks(fontsize=15)
+# plt.xlabel('Period [s]',fontsize=20)
+# plt.ylabel('RAO [deg/mm]',fontsize=18)
+# plt.grid()
+# plt.legend(fontsize=15, markerscale=1)  #,loc='lower left')
+# plt.tight_layout()
+# plt.savefig('OS_RAOs.pdf')
 # plt.clf()
 
 # note TO OLIVIA: (np.abs(total)/np.abs(incoming_fse)) - np.abs(total/incoming_fse) = numerically zero
