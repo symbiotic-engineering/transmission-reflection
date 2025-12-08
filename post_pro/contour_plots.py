@@ -1,7 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import sys
 import pandas as pd
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+wind_dir = os.path.join(parent_dir, 'wind')
+sys.path.append(wind_dir)
+import morrison
 
 # Constants
 mxc = 300
@@ -21,12 +27,12 @@ data_folder = '../data/'
 file_paths = [
     #'blank.csv',
     #'OSr_1a.csv', 
-    'PA_SF.csv'
+    'OS_SF.csv'
 ]
 
 # Generate x and y coordinates
-x = np.linspace(0, xgrid, mxc + 1)
-y = np.linspace(0, ygrid, myc + 1)
+x = np.linspace(0, xgrid/1852, mxc + 1)
+y = np.linspace(0, ygrid/1852, myc + 1)
 
 # Create contour plots
 for file_name in file_paths:
@@ -37,47 +43,52 @@ for file_name in file_paths:
     blank_filepath = os.path.join(data_folder, 'blank.csv')
     blank = load_and_reshape(blank_filepath)
 
-    data = data/blank
+    percent_data = (data/blank)
+    percent_diff_D = morrison.fatigue_damage(percent_data)
+    print('size of pdiff',np.size(percent_diff_D[0]))
+    percent_diff_D.shape  = (myc + 1, mxc + 1)
+    print('size of pdiff',np.size(percent_diff_D[0,:]))
+    print('size of pdiff',np.size(percent_diff_D[0,:]))
 
-    x1, x2, x3, x4 = 1490,1550,1460,1520
+    x1, x2, x3, x4 = 1490/1852,1550/1852,1460/1852,1520/1852
     x_pos = [x1,x2,x3,x4,
-         x1 + 200, x2 + 200, x3 + 200, x4 + 200,
-         x1 - 200, x2 - 200, x3 - 200, x4 - 200,
-         x1 + 400, x2 + 400, x3 + 400, x4 + 400,
-         x1 - 400, x2 - 400, x3 - 400, x4 - 400]
-    ya, yb = 4500, 4460
+         x1 + 200/1852, x2 + 200/1852, x3 + 200/1852, x4 + 200/1852,
+         x1 - 200/1852, x2 - 200/1852, x3 - 200/1852, x4 - 200/1852,
+         x1 + 400/1852, x2 + 400/1852, x3 + 400/1852, x4 + 400/1852,
+         x1 - 400/1852, x2 - 400/1852, x3 - 400/1852, x4 - 400/1852]
+    ya, yb = 4500/1852, 4460/1852
 
     # Calculate wecx and wecy for the scatter plot
-    wecx = [i + 2 for i in x_pos]
+    wecx = [i + 2/1852 for i in x_pos]
     wecy = [ya,ya,yb,yb,
             ya,ya,yb,yb,
             ya,ya,yb,yb,
             ya,ya,yb,yb,
             ya,ya,yb,yb]
-    
+
     # Plot contour and scatter
-    plt.figure(figsize=(9,6))
-    pcm = plt.pcolormesh(x, y, data,vmin=0.80,vmax=1.00)    #,vmin=1.95, vmax=2.25)#, levels=100, cmap='viridis')
+    plt.figure(figsize=(9.0,12))
+    pcm = plt.pcolormesh(x, y, np.abs(percent_diff_D),vmin=0.00,vmax=70.00,cmap = 'viridis_r')    #,vmin=1.95, vmax=2.25)#, levels=100, cmap='viridis')
     pcm.set_edgecolor("face")
-    cbar = plt.colorbar()                                                   # Create the colorbar
-    cbar.set_label('Disturbance [m/m]', fontsize=20,rotation=270,labelpad=40)                          # Set the label with the desired font size
-    cbar.ax.tick_params(labelsize=18)                                       # Set the font size for the colorbar ticks
+    #cbar = plt.colorbar()                                                   # Create the colorbar
+    #cbar.set_label('Fatigue Damage Reduction [%]', fontsize=20,rotation=270,labelpad=40)                          # Set the label with the desired font size
+    #cbar.ax.tick_params(labelsize=18)                                       # Set the font size for the colorbar ticks
     ax = plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_visible(False)
-    plt.scatter(wecx, wecy, marker='o', color='red', s=2, linewidth=2)
-    plt.xlabel('x [m]', fontsize=20)
-    #plt.ylabel('y [m]', fontsize=20)
+    plt.scatter(wecx, wecy, marker='_', color='red', s=10, linewidth=2)
+    plt.xlabel('x [nm]', fontsize=20)
+    plt.ylabel('y [nm]', fontsize=20)
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     ax = plt.gca()
-    ax.tick_params(left=False, bottom=True, labelleft=False, labelbottom=True)
+    #ax.tick_params(left=False, bottom=True, labelleft=False, labelbottom=True)
     #plt.text(1.025, 1.10, 'e', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
     
     # Save plot as PDF
     plt.tight_layout()
-    plt.savefig(f'{file_name[:-4]}_contour.pdf', format='pdf')
+    plt.savefig(f'{file_name[:-4]}_testcontour.pdf', format='pdf')
     plt.close()
 
 print("Contour plots created and saved as PDF files.")

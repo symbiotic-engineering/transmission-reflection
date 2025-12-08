@@ -12,8 +12,8 @@ w = (2*np.pi)/T                                         # wave frequency [rad/s]
 g = 9.81
 k = w**2/g
 reactive = False                         # whether controls are engaged
-het = True                              # decide if analyzing hetero or homogeneous array
-PA = False                                # IF doing homogeneous array, this determines which architecture
+het = False                              # decide if analyzing hetero or homogeneous array
+PA = True                                # IF doing homogeneous array, this determines which architecture
 res = 40                                 # grid resolution multiplier
 
 array = bodies.initialize(het,PA)             # create meshed array
@@ -152,8 +152,8 @@ for i in range(np.size(w)):
                                                                             pos4RAOexp[i],pos1RAOexp[i],pos2RAOexp[i], 
                                                                             Bd1[i],Bd2[i],Bd3[i],Bd4[i],PA,wg_amp1[i],het)   # compute RAOs, excitation force wg_amp_exp[i][0]
     #print('wg_amp',wg_amp_exp[i][0])
-    ## time to compute the wave elevationnnnnnnnnn
-    # total, incoming_fse, grid, radiation, diffraction, elevation_at_gauges = solve.elevation(res,diff_result,rad_result,RAO,xlocs,ylocs,wg_amp1[i])
+    # time to compute the wave elevationnnnnnnnnn
+    total, incoming_fse, grid, radiation, diffraction, elevation_at_gauges = solve.elevation(res,diff_result,rad_result,RAO,xlocs,ylocs,wg_amp1[i])
     
     RAO_OS1.append(np.abs(RAO[0])*k[i]*180/np.pi/1000)
     RAO_OS2.append(np.abs(RAO[1])*k[i]*180/np.pi/1000)
@@ -200,44 +200,44 @@ for i in range(np.size(w)):
     # wave_amplitude[i].append(np.abs(elevation_at_gauges))
     # #emp_radiation[i].append(emp_rad)
 
-    # percent_error = -1*((wg_amp_exp[i] - np.abs(elevation_at_gauges))/wg_amp_exp[i])*100
-    # error[i].append(percent_error)
-    # #print('error',percent_error)
+    percent_error = -1*((wg_amp_exp[i] - np.abs(elevation_at_gauges))/wg_amp_exp[i])*100
+    error[i].append(percent_error)
+    #print('error',percent_error)
 
-    # plt.figure(figsize=(9, 6))
-    # cm = plt.colormaps.get_cmap('seismic')
-    # from matplotlib import colors
-    # #plt.grid()
-    # sc = plt.scatter(xlocs, ylocs, c=percent_error,s=400, cmap=cm, 
-    #             norm=colors.TwoSlopeNorm(vcenter=0.),label='Error [%]')
+    plt.figure(figsize=(9, 6))
+    cm = plt.colormaps.get_cmap('seismic')
+    from matplotlib import colors
+    #plt.grid()
+    sc = plt.scatter(xlocs, ylocs, c=percent_error,s=400, cmap=cm, 
+                norm=colors.TwoSlopeNorm(vcenter=0.),label='Error [%]')
 
-    # x_start = 13.086 + 1.55
-    # y_start = -0.1410 - 0.50
-    # Dx=Dy=40/50
-    # wecx = [[0,0],[0+Dx, 0+Dx]] #[x_start, x_start],[x_start+Dx, x_start+Dx]]
-    # wecy = [[0,0+Dy],[0 + (1/2)*Dy,0 + (3/2)*Dy]] #[y_start, y_start + Dy], [y_start + (1/2)*Dy,y_start + (3/2)*Dy]]
-    # plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c')
-    # plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c')
+    x_start = 13.086 + 1.55
+    y_start = -0.1410 - 0.50
+    Dx=Dy=40/50
+    wecx = [[0,0],[0+Dx, 0+Dx]] #[x_start, x_start],[x_start+Dx, x_start+Dx]]
+    wecy = [[0,0+Dy],[0 + (1/2)*Dy,0 + (3/2)*Dy]] #[y_start, y_start + Dy], [y_start + (1/2)*Dy,y_start + (3/2)*Dy]]
+    plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c')
+    plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c')
 
-    # for n, txt in enumerate(percent_error):
-    #     plt.annotate('{0:.2f}'.format(txt), (xlocs[n], ylocs[n]),xytext=(-12, 12),textcoords='offset points',weight="bold",fontsize=14)
+    for n, txt in enumerate(percent_error):
+        plt.annotate('{0:.2f}'.format(txt), (xlocs[n], ylocs[n]),xytext=(-12, 12),textcoords='offset points',weight="bold",fontsize=14)
     
-    # cbar = plt.colorbar(sc)
-    # cbar.set_label('Error [%]',fontsize=20,rotation=270,labelpad=10)
-    # plt.xticks(fontsize=16)
-    # plt.yticks(fontsize=16)
-    # plt.xlabel('x [m]',fontsize=20)
-    # plt.ylabel('y [m]',fontsize=20)
-    # ax = plt.gca()
-    # cbar.ax.tick_params(labelsize=18) 
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    # periodnames = ['1.0 s','1.20 s','1.25 s','1.33 s','1.39 s']
-    # #plt.title('Model Error for ' + periodnames[i],fontsize=20)
-    # plt.tight_layout()
-    # names = ['1.0map','1.20map','1.25map','1.33map','1.39map']
-    # plt.savefig(names[i] + '.pdf')
-    # plt.clf()
+    cbar = plt.colorbar(sc)
+    cbar.set_label('Error [%]',fontsize=20,rotation=270,labelpad=10)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.xlabel('x [m]',fontsize=20)
+    plt.ylabel('y [m]',fontsize=20)
+    ax = plt.gca()
+    cbar.ax.tick_params(labelsize=18) 
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    periodnames = ['1.0 s','1.20 s','1.25 s','1.33 s','1.39 s']
+    #plt.title('Model Error for ' + periodnames[i],fontsize=20)
+    plt.tight_layout()
+    names = ['1.0map','1.20map','1.25map','1.33map','1.39map']
+    plt.savefig(names[i] + '.pdf')
+    plt.clf()
 
 #     # sc = plt.scatter(xlocs, ylocs, c=wg_amp_exp[i], vmin=0.020,vmax=0.050,s=300, cmap=cm)
 #     # plt.colorbar(sc)
@@ -268,41 +268,41 @@ for i in range(np.size(w)):
 #     # plt.savefig(names[i] + '.pdf')
 #     # plt.clf()
 
-    # # plot wave elevation
-    # Z = np.abs(np.abs((total)))
-    # X = grid[0]
-    # Y = grid[1]
-    # pcm = plt.pcolormesh(X, Y, Z)
-    # pcm.set_edgecolor('face')
-    # colorbar = plt.colorbar()
-    # plt.xticks(fontsize=16)
-    # plt.yticks(fontsize=16)
-    # plt.xlabel('x [m]',fontsize=20)
-    # plt.ylabel('y [m]',fontsize=20)
-    # ax = plt.gca()
-    # colorbar.ax.tick_params(labelsize=18) 
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    # #colorbar.set_label(r"Total Wave Elevation, $\eta$")
-    # plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 45,edgecolors='white')
-    # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'c',edgecolors='white')
-    # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'c',edgecolors='white')
+    # plot wave elevation
+    Z = np.abs(np.abs((total)))
+    X = grid[0]
+    Y = grid[1]
+    pcm = plt.pcolormesh(X, Y, Z)
+    pcm.set_edgecolor('face')
+    colorbar = plt.colorbar()
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.xlabel('x [m]',fontsize=20)
+    plt.ylabel('y [m]',fontsize=20)
+    ax = plt.gca()
+    colorbar.ax.tick_params(labelsize=18) 
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    #colorbar.set_label(r"Total Wave Elevation, $\eta$")
+    plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 45,edgecolors='white')
+    plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c',edgecolors='white')
+    plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c',edgecolors='white')
     # wecx = [[0.025,0.025],[0.025+Dx, 0.025+Dx]]
     # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
     # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
     # wecx = [[-0.025,-0.025],[-0.025+Dx, -0.025+Dx]]
     # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
     # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
-    # colorbar.set_label('Wave Amplitude [m]',rotation=270,fontsize=20,labelpad=28)
-    # pcm.set_clim([0.01, 0.06])
-    # plt.text(-2.5, -0.55,'Wave Direction',color='white',fontsize=16,fontweight='bold')
-    # plt.arrow(-2.5,-0.65,1.75,0,facecolor='white',width=0.035)
-    # plt.tight_layout()
-    # print('tip')
-    # names = ['1.0amp','1.20amp','1.25amp','1.33amp','1.39amp']
-    # plt.savefig(names[i] + '.pdf')
-    # print('top')
-    # plt.clf()
+    colorbar.set_label('Wave Amplitude [m]',rotation=270,fontsize=20,labelpad=28)
+    pcm.set_clim([0.01, 0.06])
+    plt.text(-2.5, -0.55,'Wave Direction',color='white',fontsize=16,fontweight='bold')
+    plt.arrow(-2.5,-0.65,1.75,0,facecolor='white',width=0.035)
+    plt.tight_layout()
+    print('tip')
+    names = ['1.0amp','1.20amp','1.25amp','1.33amp','1.39amp']
+    plt.savefig(names[i] + '.pdf')
+    print('top')
+    plt.clf()
 
 # # plot mechanical power wrt wave frequency
 # plt.plot(T,power_OS1,label='Virginia',color='#CC79A7',marker='*',markersize=14,linewidth=3)
@@ -321,50 +321,6 @@ for i in range(np.size(w)):
 # plt.savefig('mechpower.pdf')
 # plt.clf()
 
-# plot wave excitation force wrt wave frequency
-# experimental excitation force values for wave amplitude=0.03m
-meg_expForce = [7.61910953496448,12.8949768028423,10.9507527158557,8.28503527198362,8.12149971889821]
-jo_expForce = [3.92700232542561,11.4007200108703,10.6365894244117,3.47332378344201,3.46865518284154]
-
-megforce_diff = ((np.abs(ex_PA3)*0.03 - meg_expForce)/meg_expForce)*100
-joforce_diff = ((np.abs(ex_PA4)*0.03 - jo_expForce)/jo_expForce)*100
-
-plt.plot(T,megforce_diff,label='Meg',color='#F0E442',linewidth=2,marker='>',markersize=4)
-plt.plot(T,joforce_diff,label='Jo',color='#56B4E9',linewidth=2,marker='o',markersize=4)
-#plt.scatter(T,meg_expForce,color='#F0E442',marker='>',s=100)
-#plt.scatter(T,jo_expForce,color='#56B4E9',marker='o',s=100)
-plt.xticks(ticks=T,fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel('Period [s]',fontsize=20)
-plt.ylabel('Excitation Force Error [%]',fontsize=18)
-plt.grid()
-plt.legend(fontsize=15, markerscale=1)
-plt.tight_layout()
-plt.savefig('PAexerror.pdf')
-plt.clf()
-
-os_draft = 0.06675
-fran_expForce = np.array([3.34009800020342,2.92606897575920,3.19918501934958,4.74002056039565,5.62917243202883])*os_draft
-vir_expForce = np.array([2.95452990658378,3.08803369877205,3.58421575315559,3.96515711714421,3.98887678219309])*os_draft
-
-franforce_diff = ((np.abs(ex_OS2)*0.03 - fran_expForce)/fran_expForce)*100
-virforce_diff = ((np.abs(ex_OS1)*0.03 - vir_expForce)/vir_expForce)*100
-
-plt.plot(T,virforce_diff,label='Virginia',color='#CC79A7',linewidth=2,marker='*',markersize=4)
-plt.plot(T,franforce_diff,label='Frances',color='#009E73',linewidth=2,marker='s',markersize=4)
-#plt.scatter(T,vir_expForce,color='#CC79A7',marker='*',s=100)
-#plt.scatter(T,fran_expForce,color='#009E73',marker='s',s=100)
-plt.xticks(ticks=T,fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel('Period [s]',fontsize=20)
-plt.ylabel('Excitation Torque Error [%]',fontsize=18)
-plt.grid()
-plt.legend(fontsize=15, markerscale=1)
-plt.tight_layout()
-plt.savefig('OSexerror.pdf')
-plt.clf()
 # # plot all experimental results to find trend
 # #print('empirical diffraction correction: ',emp_diffraction)
 
