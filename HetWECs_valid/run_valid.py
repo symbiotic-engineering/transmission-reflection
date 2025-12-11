@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import pyplot, transforms
 import bodies
 import solve
 
@@ -13,7 +14,7 @@ g = 9.81
 k = w**2/g
 reactive = False                         # whether controls are engaged
 het = False                              # decide if analyzing hetero or homogeneous array
-PA = True                                # IF doing homogeneous array, this determines which architecture
+PA = False                                # IF doing homogeneous array, this determines which architecture
 res = 40                                 # grid resolution multiplier
 
 array = bodies.initialize(het,PA)             # create meshed array
@@ -208,7 +209,10 @@ for i in range(np.size(w)):
     cm = plt.colormaps.get_cmap('seismic')
     from matplotlib import colors
     #plt.grid()
-    sc = plt.scatter(xlocs, ylocs, c=percent_error,s=400, cmap=cm, 
+    base = pyplot.gca().transData
+    rot = transforms.Affine2D().rotate_deg(-90)
+
+    sc = plt.scatter(xlocs, ylocs, c=percent_error,s=400, transform= rot + base,cmap=cm, 
                 norm=colors.TwoSlopeNorm(vcenter=0.),label='Error [%]')
 
     x_start = 13.086 + 1.55
@@ -216,11 +220,12 @@ for i in range(np.size(w)):
     Dx=Dy=40/50
     wecx = [[0,0],[0+Dx, 0+Dx]] #[x_start, x_start],[x_start+Dx, x_start+Dx]]
     wecy = [[0,0+Dy],[0 + (1/2)*Dy,0 + (3/2)*Dy]] #[y_start, y_start + Dy], [y_start + (1/2)*Dy,y_start + (3/2)*Dy]]
-    plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c')
-    plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c')
+    plt.scatter(wecx[0],wecy[0],marker="_",s = 1400, c = 'c',transform= rot + base)
+    plt.scatter(wecx[1],wecy[1],marker="_",s = 1400, c = 'c',transform= rot + base)
 
     for n, txt in enumerate(percent_error):
-        plt.annotate('{0:.2f}'.format(txt), (xlocs[n], ylocs[n]),xytext=(-12, 12),textcoords='offset points',weight="bold",fontsize=14)
+        plt.annotate('{0:.2f}'.format(txt), (ylocs[n],-xlocs[n]),xytext=(-12, 12),textcoords='offset points',
+                        weight="bold",fontsize=14)
     
     cbar = plt.colorbar(sc)
     cbar.set_label('Error [%]',fontsize=20,rotation=270,labelpad=10)
@@ -272,7 +277,9 @@ for i in range(np.size(w)):
     Z = np.abs(np.abs((total)))
     X = grid[0]
     Y = grid[1]
-    pcm = plt.pcolormesh(X, Y, Z)
+    base = pyplot.gca().transData
+    rot = transforms.Affine2D().rotate_deg(270)
+    pcm = plt.pcolormesh(X, Y, Z,transform= rot + base)
     pcm.set_edgecolor('face')
     colorbar = plt.colorbar()
     plt.xticks(fontsize=16)
@@ -284,19 +291,22 @@ for i in range(np.size(w)):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     #colorbar.set_label(r"Total Wave Elevation, $\eta$")
-    plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 45,edgecolors='white')
-    plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c',edgecolors='white')
-    plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c',edgecolors='white')
-    # wecx = [[0.025,0.025],[0.025+Dx, 0.025+Dx]]
-    # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
-    # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
-    # wecx = [[-0.025,-0.025],[-0.025+Dx, -0.025+Dx]]
-    # plt.scatter(wecx[0],wecy[0],marker="|",s = 1400, c = 'white')
-    # plt.scatter(wecx[1],wecy[1],marker="|",s = 1400, c = 'white')
+    plt.scatter(xlocs,ylocs,marker = 'o', color = 'red', s = 45,edgecolors='white',transform= rot + base)
+    # plt.scatter(wecx[0],wecy[0],marker="o",s = 200, c = 'c',edgecolors='white',transform= rot + base)
+    # plt.scatter(wecx[1],wecy[1],marker="o",s = 200, c = 'c',edgecolors='white',transform= rot + base)
+
+    wecx = [[0.025,0.025],[0.025+Dx, 0.025+Dx]]
+    plt.scatter(wecx[0],wecy[0],marker="_",s = 1400, c = 'white',transform= rot + base)
+    plt.scatter(wecx[1],wecy[1],marker="_",s = 1400, c = 'white',transform= rot + base)
+    wecx = [[-0.025,-0.025],[-0.025+Dx, -0.025+Dx]]
+    plt.scatter(wecx[0],wecy[0],marker="_",s = 1400, c = 'white',transform= rot + base)
+    plt.scatter(wecx[1],wecy[1],marker="_",s = 1400, c = 'white',transform= rot + base)
+
     colorbar.set_label('Wave Amplitude [m]',rotation=270,fontsize=20,labelpad=28)
     pcm.set_clim([0.01, 0.06])
-    plt.text(-2.5, -0.55,'Wave Direction',color='white',fontsize=16,fontweight='bold')
-    plt.arrow(-2.5,-0.65,1.75,0,facecolor='white',width=0.035)
+    plt.text(-0.55,2.25,'Wave Direction',color='white',fontsize=16,fontweight='bold')
+    plt.arrow(-0.65,2.25,0,-1.75,facecolor='white',width=0.035)
+
     plt.tight_layout()
     print('tip')
     names = ['1.0amp','1.20amp','1.25amp','1.33amp','1.39amp']
