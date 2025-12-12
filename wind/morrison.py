@@ -27,7 +27,7 @@ def fatigue_damage(data):
     y = R                                                    # distance to centroidal axis
 
     T = 2 * np.pi / w                                        # wave period [s]
-    H_values = np.array(data).reshape(150801,1) * H_base       #0.9358 np.linspace(0.991, 0.99, 30)
+    H_values = np.array(data).reshape(211001,1) * H_base       #0.9358 np.linspace(0.991, 0.99, 30)
     print('hval size',np.size(H_values))
     percent_reduction_H = (1 - H_values / H_base) * 100      # percent reduction in H
 
