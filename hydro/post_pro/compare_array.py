@@ -58,13 +58,13 @@ def process_files(file_names):
     return Kt_H_values, Kr_H_values
 
 # File names
-oswec_array = ['OS_stag_uncont.csv']
-pa_array = ['PA_stag_uncont.csv']
-atten_array = ['atten_stag_uncont.csv']
+oswec_array = ['OS_stag_damp.csv']
+pa_array = ['PA_stag_damp.csv']
+atten_array = ['atten_stag_damp.csv']
 break_array = ['break_stag.csv']
-oswec_iso = 'OS_uncont.csv'
-pa_iso = 'PA_uncont.csv'
-atten_iso = 'atten_uncont.csv'
+oswec_iso = 'OS_damp.csv'
+pa_iso = 'PA_damp.csv'
+atten_iso = 'atten_damp.csv'
 break_iso = 'break.csv'
 
 # Process files
@@ -127,7 +127,7 @@ for i in range(3):  # Loop over the three bodies
 
 # Customize the plot
 #plt.xticks([1, 2, 3], bodies, fontsize=20)
-plt.yticks(fontsize=20)
+#plt.yticks(fontsize=20)
 #plt.ylabel('$K_t$ Change [%]',fontsize=20)
 plt.ylim([0,80])
 ax = plt.gca()
@@ -139,9 +139,9 @@ ax = plt.gca()
 ax.xaxis.set_major_locator(plt.MultipleLocator(0.25))
 
 ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
-#plt.legend(loc='center',fontsize=20)
+plt.legend(loc='center',fontsize=20)
 plt.grid(True)
-plt.text(1.025, 1.05, 'b', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
+plt.text(1.025, 1.05, 'd', transform=ax.transAxes, fontsize=24, fontweight='bold', va='top', ha='left')
 
 # Show and save the plot
 plt.savefig('percent_difference_plot.pdf')

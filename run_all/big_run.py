@@ -30,51 +30,37 @@ import run_coeffs
 import gen_data
 import run_swan
 
-def farfield(six,swan_stag,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive,H,T,xgrid,ygrid,csv_file):
+def farfield(point_absorber,oscillating_surge,controls,H,T,xgrid,ygrid,csv_file):
     mxc = int(xgrid/10)                                   # number of grid points in x (-1) (10 m res in x)
     myc = int(ygrid/10)                                   # number of grid points in y (-1) (10 m res in y)
 
-    if six:
-        if swan_stag:
-            # six body stag: (d)
-            x = [1490,1550,1610, 1440, 1500, 1560]
-            ya, yb = 4500, 4450
-        else:
-            # six-body reg: (c)
-            x = [1290,1350,1410,1470,1530,1590]    # x-position of bodies
-            ya, yb = 4500,4500                     # y-position of rows 1 and 2
-    else:
-        if swan_stag:
-            # three-body stag: (b)
-            x = [1490,1550,1610] 
-            ya, yb = 4500, 4450         # change i==1 in run_swan
-        else:
-            # three-body reg: (a)
-            x = [1490,1550,1610] 
-            ya, yb = 4500, 4500
+    x1, x2, x3, x4 = 1490,1550,1460,1520
+    #x = [x1,x2,x3,x4]
+    x = [x1,x2,x3,x4,
+         x1 + 200, x2 + 200, x3 + 200, x4 + 200,
+         x1 - 200, x2 - 200, x3 - 200, x4 - 200,
+         x1 + 400, x2 + 400, x3 + 400, x4 + 400,
+         x1 - 400, x2 - 400, x3 - 400, x4 - 400]
+    ya, yb = 4500, 4460
 
     ## to obtain Kt and Kr coefficients for your body and case
     ## note: won't run on my personal laptop, but SWAN won't run on lab computer
     # Kt_H, Kr_H, w_vals, power = run_coeffs.wec_run(w,breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive)
 
-    def configure_coefficients(csv_file, farm):
+    def configure_coefficients(csv_file):
         # Read the CSV file into a DataFrame
         df = pd.read_csv(csv_file)
-        if farm:
-            i = 1
-        else:
-            i = 0
 
-        if farm:
-            Kt_H = [df.iloc[5, 1], df.iloc[5, 2], df.iloc[5, 3]]
-            Kr_H = [df.iloc[5, 4], df.iloc[5, 5], df.iloc[5, 6]]
-        else:
-            Kt_H = [df.iloc[5, 1]]
-            Kr_H = [df.iloc[5, 2]]
-
-        # Configure the KR and KT arrays
-        KR = [Kr_H[0], Kr_H[i], Kr_H[2*i], Kr_H[0], Kr_H[i], Kr_H[2*i]]
-        KT = [Kt_H[0], Kt_H[i], Kt_H[2*i], Kt_H[0], Kt_H[i], Kt_H[2*i]]
+        KT = [df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3],
+              df.iloc[0, 0], df.iloc[0, 1], df.iloc[0, 2],df.iloc[0, 3]]
+        KR = [df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7],
+              df.iloc[0, 4], df.iloc[0, 5], df.iloc[0, 6],df.iloc[0, 7]]
 
         # Print results
         print("KR:", KR)
@@ -83,19 +69,15 @@ def farfield(six,swan_stag,breakwtr,point_absorber,oscillating_surge,attenuator,
         # Return the KR and KT arrays
         return KR, KT
 
-    KR, KT = configure_coefficients(csv_file, farm)
+    KR, KT = configure_coefficients(csv_file)
 
     # diameter of the bodies
     if point_absorber:
-        d = 21
+        d = 14.6
     if oscillating_surge:
         d = 18
-    if breakwtr:
-        d = 20
-    if attenuator:
-        d = 4
 
     # run SWAN and generate wave height data
-    sfgrid_dat, sfgrid_tbl = run_swan.generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc,attenuator,six,swan_stag)
+    sfgrid_dat, sfgrid_tbl = run_swan.generate_swan_input(KR, KT, d, x, ya, yb, H, T, xgrid, ygrid, mxc, myc)
 
     return sfgrid_dat

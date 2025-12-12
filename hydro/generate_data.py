@@ -2,39 +2,38 @@
 and save the .csv files in the "data" folder. This data can then 
 be easily used for post processing in the "post_pro" folder'''
 
+'''LAST UPDATE" NOV 6TH 2025'''
+
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import run_coeffs
 import os
 
-w = np.array([0.7, 0.8, 0.9, 1.0, 1.1, 1.25, 1.3])  # wave frequency
+w = (2*np.pi)/np.array([5,6,7,8,9,10,11,12])  # wave frequency 0.7, 0.8, 0.9, 
 
 # Define the combinations of True and False for your parameters
 combinations = [
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': False, 'staggered': False, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': False, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': False, 'reactive': True},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': False, 'staggered': True, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': True, 'reactive': False},
-    {'breakwtr': False, 'point_absorber': True, 'oscillating_surge': False, 'attenuator': False, 'farm': True, 'controls': True, 'staggered': True, 'reactive': True}
+    #{'point_absorber': True, 'oscillating_surge': False,'controls': False},
+    {'point_absorber': True, 'oscillating_surge': False,'controls': True},
+    #{'point_absorber': False, 'oscillating_surge': True,'controls': False},
+    {'point_absorber': False, 'oscillating_surge': True,'controls': True}
 ]
 
 # Map combinations to their corresponding file names
 # breakwtr,point_absorber,oscillating_surge,attenuator,farm,controls,staggered,reactive
 file_names = {
-    (False, True, False, False, True, False, False, False): 'PA_reg_uncont.csv',
-    (False, True, False, False, True, True, False, False): 'PA_reg_damp.csv',
-    (False, True, False, False, True, True, False, True): 'PA_reg_react.csv',
-    (False, True, False, False, True, False, True, False): 'PA_stag_uncont.csv',
-    (False, True, False, False, True, True, True, False): 'PA_stag_damp.csv',
-    (False, True, False, False, True, True, True, True): 'PA_stag_react.csv'
+    #(True, False, False): 'PA_valid_uncont.csv',
+    (True, False, True): 'PA_spectra_damp.csv',
+    #(False, True, False): 'OS_valid_uncont.csv',
+    (False, True, True): 'OS_spectra_damp.csv'
 }
 
 # Loop through each combination
 for combination in combinations:
     # Unpack the dictionary to pass the parameters to your function
-    Kt_H, Kr_H, w_vals, power = run_coeffs.wec_run(w, **combination)
+    Kt_H, Kr_H, w_vals, power, RAO_vals = run_coeffs.wec_run(w, **combination)
+    print('kth',Kt_H)
 
     # Create a tuple of the current combination to use as a key for the file name
     combination_key = tuple(combination.values())
