@@ -29,7 +29,7 @@ def initialize(xtrans,ytrans,w,x_center,point_absorber):
     z = 0.5 * l - Pdraft                                # body center position           
     PA_cog = (3.23469) - Pdraft                         # center of gravity (from top of rack)
     PA_com = np.array([0,0,PA_cog])                     # center of mass           
-    nr, ntheta, nz = 16, 24, 12                         # panels in each direction 
+    nr, ntheta, nz = 16, 32, 12                         # panels in each direction 
 
     rel_dim = r                           # dimension relevant for computing Kt and Kr while avoiding body location (orthogonal to wave)
     A_W = np.pi*(r**2)                    # maximum horizontal cross-sectional area of device [m^2]

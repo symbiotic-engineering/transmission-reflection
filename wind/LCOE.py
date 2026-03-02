@@ -19,7 +19,8 @@ maintenance
 '''
 import numpy as np
 import matplotlib.pyplot as plt
-
+### percent reduction in monopile diameter
+reduction = 1               #- 0.0909
 #### NREL EXAMPLE FARM CONTAINS 50, 12MW TURBINES. WE NORMALIZE BY THIS AND
 # THEN CAN COMPUTE FOR THE SOUTHFORK CASE #####
 nlr_numturbines = 50
@@ -29,19 +30,19 @@ nlr_rating = 12*1000                        # [kW]
 ##### all parameters given in 2023 USD/kWh ######
 ###### turbine costs (for total farm) ######
 rotor_nacelle = 1487
-tower = 283
+tower = 283 * reduction
 turbine_cost = (rotor_nacelle + tower)
 
 ##### balance of system (BOS) costs (per kWh!)#####
 development = 121
 project_management = 2
-substructure = 232                          # this is the monopile
+substructure = 232 * reduction                          # this is the monopile
 foundation = 556
 array_cable_sys = 477
 export_cable_sys = 532
 grid_connection = 258
-turbine_installation = 112
-substruct_found_install = 172
+turbine_installation = 112 * reduction
+substruct_found_install = 172 * reduction
 
 BOS = development + project_management + substructure + foundation + array_cable_sys + export_cable_sys + grid_connection + turbine_installation + substruct_found_install
 

@@ -32,7 +32,7 @@ I = ((mass * (R**2 + r**2)) / 4) + ((mass * L**2) / 12)  # moment of inertia abo
 y = R                                                    # distance to centroidal axis
 
 T = 2 * np.pi / w                                        # wave period [s]
-H_values = np.linspace(0.700,0.999,30) * H_base           # reduced wave heights, percentages chosen as examples 
+H_values = np.linspace(0.900,0.999,30) * H_base           # reduced wave heights, percentages chosen as examples 
 percent_reduction_H = (1 - H_values / H_base) * 100      # percent reduction in H
 
 def calculate_damage(H,I,y,d):
@@ -53,16 +53,15 @@ def calculate_damage(H,I,y,d):
     sigma_max = np.max(sigma_values)                    # this value is the amplitude of the sinusoidal stress curve
     sigma_min = np.min(sigma_values)                    # this is also the amplitude, but the negative value
     sigma_range = sigma_max - sigma_min                 # when you take this difference, you are effectively doubling the amplitude to get the sine wave height
-    print('sigma rnge',sigma_range)
     # a_bar value taken from experiments
     # for N > 10^6, m = 5
     m = 5
     a_bar = np.exp(13.617) 
     N_f = a_bar * (sigma_range**(-m))
-    print('nf',N_f)
 
     n_cycle = (25 * 8760 * 60 * 60) / T     # number of cycles in turbine lifetime (25 yrs)
     D = n_cycle / N_f
+    print('D',D)
     return D, N_f
 
 # Calculate baseline damage at H_base
@@ -72,12 +71,10 @@ for i in range(np.size(R)):
     percent_diffinter = []
     for H in H_values:
         D_newloop, N_floop = calculate_damage(H,I[i],y[i],d[i])
-        percent_diffloop = N_floop#100 * ((D_newloop - D_baseloop)/ D_baseloop)
+        percent_diffloop = D_newloop*25 #100 * ((D_newloop - D_baseloop)/ D_baseloop)
 
         percent_diffinter.append(percent_diffloop)
     percent_diff[i] = percent_diffinter
-
-print('percent diff',percent_diff)
 
 # Plotting
 plt.figure(figsize=(10, 8))
@@ -87,11 +84,11 @@ plt.plot(percent_reduction_H, percent_diff[2], marker='+',color='#56B4E9',marker
 plt.plot(percent_reduction_H, percent_diff[1], marker='x',color='#009E73',markersize=12)
 plt.plot(percent_reduction_H, percent_diff[0], marker='*',color='#0072B2',markersize=12)
 plt.legend(['d = 7m','d = 8m','d = 9m','d = 10m','d = 11m'],fontsize=20)
-plt.yscale('log')
+#plt.yscale('log')
 plt.xlabel('Reduction of Wave Height [%]',fontsize=24)
-plt.ylabel('Cycles to Failure [-]',fontsize=24)
+plt.ylabel('Used Lifetime due to Wave Damage [yrs]',fontsize=24)
 plt.xticks(fontsize=22)
 plt.yticks(fontsize=22)
 plt.grid(True)
 plt.tight_layout()
-plt.savefig('cycles_to_fail.pdf')
+plt.savefig('lifetime_damage.pdf')
